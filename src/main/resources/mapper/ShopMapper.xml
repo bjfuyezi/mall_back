@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.ShopMapper">
+    <select id="selectAll" resultType="com.example.demo.pojo.Shop">
+        select * from shops;
+    </select>
+    <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.Shop">
+        select * from shops where shop_id = #{id};
+    </select>
+    <update id="updateStatus">
+        update shops set status = #{status} where shop_id = #{id};
+    </update>
+</mapper>
