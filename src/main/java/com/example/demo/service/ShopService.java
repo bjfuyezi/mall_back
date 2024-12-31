@@ -37,4 +37,27 @@ public class ShopService {
         shopMapper.updateStatus(id, status);
         return true;
     }
+
+    public boolean updateShop(Shop shop){
+        Shop test = shopMapper.selectById(shop.getShop_id());
+        if(test == null){
+            return false;
+        }
+        shopMapper.updateShop(shop);
+        return true;
+    }
+
+    // @Todo 需要先检查有没有未完成的订单 需要订单的查询方法
+    public boolean deleteShop(int id){
+        /*
+        List<Order> orders = orderMapper.getOrdersByShop(id);
+        for (Order order : orders) {
+            if (order.getStatus() != OrderStatus.completed || order.getStatus() != OrderStatus.canceled) {
+                return false;
+            }
+        }
+        */
+        shopMapper.deleteById(id);
+        return true;
+    }
 }

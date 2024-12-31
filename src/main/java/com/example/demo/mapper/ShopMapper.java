@@ -16,4 +16,6 @@ public interface ShopMapper {
     List<Shop> selectAll();
     Shop selectById(@Param("id") int id);
     void updateStatus(@Param("id") int id, @Param("status") ShopStatus status);
+    void deleteById(@Param("id") int id);
+    void updateShop(@Param("shop") Shop shop);
 }
