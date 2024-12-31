@@ -12,6 +12,8 @@ import java.util.List;
 @Mapper
 public interface AdvertiseMapper {
     List<Advertise> selectAll();
+    List<Advertise> selectBanners();
     Advertise selectById(@Param("id") int id);
     void updateStatus(@Param("id") int id, @Param("status") AdvertisementStatus status);
+    void addAdvertise(Advertise advertise);
 }

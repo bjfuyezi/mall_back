@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.PictureMapper">
+    <!-- 插入图片记录 -->
+    <insert id="insert" parameterType="com.example.demo.pojo.Picture" useGeneratedKeys="true" keyProperty="picture_id">
+        INSERT INTO picture (name, url)
+        VALUES (#{name}, #{url})
+    </insert>
+
+    <!-- 根据id查询图片记录 -->
+    <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.Picture">
+        SELECT * FROM picture WHERE picture_id = #{id}
+    </select>
+</mapper>

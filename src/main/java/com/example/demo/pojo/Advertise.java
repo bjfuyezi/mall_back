@@ -14,9 +14,9 @@ datetime 时间统一使用Date
  */
 @Data
 public class Advertise {
-    private int advertisement_id;
-    private int shop_id;
-    private int product_id;
+    private Integer advertisement_id;
+    private Integer shop_id;
+    private Integer product_id;
     private AdvertisementType advertisement_type;
     private Date start_time;
     private Date end_time;
@@ -25,4 +25,9 @@ public class Advertise {
     private Date updated_time;
     private String reason;
     private double price;
+    private Integer picture_id;
+    private boolean banner;
+    //以下为表里没有的内容
+    private String shop_name;
+    private String product_name;
 }

@@ -1,6 +1,7 @@
 package com.example.demo.router;
 
 import com.example.demo.enums.AdvertisementStatus;
+import com.example.demo.enums.AdvertisementType;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.service.AdvertiseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 /*
@@ -27,11 +29,46 @@ public class AdvertiseRouter {
     @Autowired
     private AdvertiseService advertiseService;
 
+    /**
+     * 显示所有广告，包括已失效
+     * @return 所有广告
+     */
     @GetMapping("/")
     public ResponseEntity<List<Advertise>> getAllAdvertise() {
         return new ResponseEntity<>(advertiseService.getAllAdvertise(), HttpStatus.OK);
     }
+    /**
+     * 显示在banner页的广告，要求广告状态为running
+     * 若有到时间的approved则更新为running
+     * @return banner的广告
+     */
+    @GetMapping("/banner")
+    public ResponseEntity<List<Advertise>> getBannner() {
+        List<Advertise> data = advertiseService.getBanners();
+        if(data == null){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }else return new ResponseEntity<>(data, HttpStatus.OK);
+    }
 
+    /**
+     * 申请新的广告
+     */
+    @PostMapping("/create")
+    public ResponseEntity<Void> createAdvertise(
+            @RequestParam("ps_id") int ps_id,
+            @RequestParam("type") AdvertisementType type,
+            @RequestParam("start_time") String start_time,
+            @RequestParam("end_time") String end_time,
+            @RequestParam("price") double price,
+            @RequestParam("pictrue") int pic_id,
+            @RequestParam("banner") boolean banner){
+        try {
+            advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     /**
      * 更新指定 ID 的广告状态。
      *
@@ -53,8 +90,21 @@ public class AdvertiseRouter {
             }
         } catch (Exception e) {
             // 记录异常信息到日志
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
         }
+    }
+
+    /**
+     *
+     * @return 广告的细节，给管理员看
+     */
+    @GetMapping("/detail")
+    public ResponseEntity<Advertise> getAdvertiseDetail(@RequestParam("id") int id) {
+        Advertise advertise = advertiseService.getAdvertiseDetail(id);
+        if(advertise == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertise, HttpStatus.OK);
     }
 }
