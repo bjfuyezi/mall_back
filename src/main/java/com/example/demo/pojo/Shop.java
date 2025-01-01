@@ -15,8 +15,8 @@ datetime 时间统一使用Date
  */
 @Data
 public class Shop {
-    private int shop_id;
-    private int user_id;
+    private Integer shop_id;
+    private Integer user_id;
     private String shop_name;
     private String shop_description;
     private ShopStatus status;
