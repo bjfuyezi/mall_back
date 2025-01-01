@@ -30,8 +30,12 @@ public class AdvertiseService {
     @Autowired
     private ShopMapper shopMapper;
 
-    public List<Advertise> getAllAdvertise() {
-        return advertiseMapper.selectAll();
+    public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
+        System.out.println("111111");
+        if(status == null) return advertiseMapper.selectAll();
+        else{
+           return advertiseMapper.selectByStatus(status);
+        }
     }
 
     public List<Advertise> getBanners() {
@@ -103,6 +107,15 @@ public class AdvertiseService {
             return false;
         }
         advertiseMapper.updateStatus(id,status);
+        return true;
+    }
+
+    public boolean rejectAdvertise(int id, String reason){
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if(advertisement == null){
+            return false;
+        }
+        advertiseMapper.updateReason(id,AdvertisementStatus.rejected,reason);
         return true;
     }
 }
