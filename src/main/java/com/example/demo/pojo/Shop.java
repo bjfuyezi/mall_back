@@ -15,14 +15,15 @@ datetime 时间统一使用Date
  */
 @Data
 public class Shop {
-    private int shop_id;
-    private int user_id;
+    private Integer shop_id;
+    private Integer user_id;
     private String shop_name;
     private String shop_description;
     private ShopStatus status;
     private Date created_time;
     private Date updated_time;
-    private double level;
+    private Double level;
     private String location;
-    private double salary;
+    private Double salary;
+    private Integer picture_id;
 }
