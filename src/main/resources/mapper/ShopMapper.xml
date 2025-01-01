@@ -9,6 +9,9 @@
     <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.Shop">
         select * from shops where shop_id = #{id};
     </select>
+    <select id="selectByUserId" parameterType="Integer" resultType="com.example.demo.pojo.Shop">
+        select * from shops where user_id = #{id};
+    </select>
     <update id="updateStatus" parameterType="com.example.demo.enums.ShopStatus">
         update shops set status = #{status} where shop_id = #{id};
     </update>
@@ -20,4 +23,10 @@
     <delete id="deleteById" parameterType="Integer">
         delete from shops where shop_id = #{id};
     </delete>
+    <insert id="createShop" parameterType="com.example.demo.pojo.Shop" useGeneratedKeys="true" keyProperty="shop_id">
+        insert into shops(user_id, shop_name, shop_description, status, created_time,updated_time, level,
+                          location, salary, picture_id)
+        values (#{user_id}, #{shop_name}, #{shop_description}, #{status}, #{created_time},#{updated_time}, #{level},
+                #{location}, #{salary}, #{picture_id})
+    </insert>
 </mapper>

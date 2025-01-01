@@ -30,8 +30,12 @@ public class AdvertiseService {
     @Autowired
     private ShopMapper shopMapper;
 
-    public List<Advertise> getAllAdvertise() {
-        return advertiseMapper.selectAll();
+    public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
+        System.out.println("111111");
+        if(status == null) return advertiseMapper.selectAll();
+        else{
+           return advertiseMapper.selectByStatus(status);
+        }
     }
 
     public List<Advertise> getBanners() {
@@ -57,13 +61,14 @@ public class AdvertiseService {
     }
 
     public void createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
-                                int pic_id,boolean banner) throws ParseException {
+                                int pic_id,boolean banner,String name) throws ParseException {
         Advertise advertise = new Advertise();
         if(type == AdvertisementType.product){
             advertise.setProduct_id(ps_id);
             advertise.setShop_id(null);
         }else {
-            advertise.setShop_id(ps_id);
+            //TO do :这里需要session获取商铺的id
+            advertise.setShop_id(1);
             advertise.setPicture_id(null);
         }
         advertise.setAdvertisement_type(type);
@@ -77,6 +82,7 @@ public class AdvertiseService {
         advertise.setPicture_id(pic_id);
         advertise.setBanner(banner);
         advertise.setStatus(AdvertisementStatus.pending);
+        advertise.setName(name);
         Date d = new Date();
         advertise.setCreated_time(d);
         advertise.setUpdated_time(d);
@@ -103,6 +109,15 @@ public class AdvertiseService {
             return false;
         }
         advertiseMapper.updateStatus(id,status);
+        return true;
+    }
+
+    public boolean rejectAdvertise(int id, String reason){
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if(advertisement == null){
+            return false;
+        }
+        advertiseMapper.updateReason(id,AdvertisementStatus.rejected,reason);
         return true;
     }
 }

@@ -21,7 +21,7 @@ public class PictureService {
     private PictureMapper pictureMapper;
     private static final String UPLOAD_DIR = "src/main/resources/static/img/";
 
-    public void save_picture(MultipartFile file) throws IOException, NameException {
+    public Integer save_picture(MultipartFile file) throws IOException, NameException {
         String originalFilename = file.getOriginalFilename();//获取原始文件名称
         if(originalFilename == null) {
             throw new NameException();
@@ -38,6 +38,7 @@ public class PictureService {
         picture.setUrl("/img/" + fileName); // 相对路径
 
         pictureMapper.insert(picture);
+        return picture.getPicture_id();
     }
 
     public byte[] getImage(int id) throws IOException {

@@ -7,5 +7,5 @@ import org.apache.ibatis.annotations.Param;
 public interface PictureMapper {
     void insert(Picture picture);
     Picture selectById(@Param("id") int id);
-
+    Picture selectByName(@Param("name") String name);
 }

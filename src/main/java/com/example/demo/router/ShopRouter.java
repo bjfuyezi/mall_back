@@ -1,16 +1,20 @@
 package com.example.demo.router;
 
+import com.example.demo.Exception.NameException;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.ShopStatus;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Shop;
 import com.example.demo.service.AdvertiseService;
+import com.example.demo.service.PictureService;
 import com.example.demo.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +34,8 @@ public class ShopRouter {
 
     @Autowired
     private ShopService shopService;
+    @Autowired
+    private PictureService pictureService;
 
     @GetMapping("/")
     public ResponseEntity<List<Shop>> getAllShop() {
@@ -83,5 +89,65 @@ public class ShopRouter {
             System.out.println(e);
             return null;
         }
+    }
+
+    /**
+     * 查找指定User_id的店铺状态。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/checkStatus")
+    public String checkStatus(@RequestBody Map<String, Object> request) {
+        System.out.println("Check");
+        Integer id = (Integer) request.get("id");
+        try {
+            Shop t = shopService.getShopByUserId(id);
+            if (t != null) {
+                if ( t.getStatus() != ShopStatus.waiting )
+                    return "almost shop";
+                return "waiting";
+            } else {
+                return "no shop";
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    // 处理店铺申请的 POST 请求
+    @PostMapping("/apply")
+    public ResponseEntity<String> apply(
+            @RequestParam("shop_name") String shopName,
+            @RequestParam("shop_description") String shopDescription,
+            @RequestParam("province") String province,
+            @RequestParam("pictures") MultipartFile pictures,
+            @RequestParam("user_id") String user_id) {
+
+        // 打印接收到的参数（用于调试）
+//        System.out.println("店铺名称: " + shopName);
+//        System.out.println("店铺描述: " + shopDescription);
+//        System.out.println("特产地: " + province);
+//        System.out.println(Integer.valueOf(user_id));
+
+        Integer picture_id = null;
+        // 处理文件上传
+        try {
+            if (!pictures.isEmpty()) {
+                picture_id = pictureService.save_picture(pictures);
+                System.out.println(picture_id);
+                shopService.createShop(shopName, shopDescription, province, picture_id, Integer.valueOf(user_id));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("文件上传失败");
+        } catch (NameException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 返回成功响应
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
