@@ -31,4 +31,5 @@ public class Advertise {
     //以下为表里没有的内容
     private String shop_name;
     private String product_name;
+    private String url;
 }
