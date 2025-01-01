@@ -6,6 +6,9 @@
     <select id="selectAll" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements;
     </select>
+    <select id="selectByStatus" resultType="com.example.demo.pojo.Advertise">
+        select * from advertisements where status = #{status};
+    </select>
     <select id="selectBanners" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements where banner == 'banner' and (status == 'approved' or status == 'expired');
     </select>
@@ -21,4 +24,7 @@
                      #{created_time},#{updated_time},#{reason, jdbcType=VARCHAR},#{price},
                      #{picture_id},#{banner}  )
     </insert>
+    <update id="updateReason">
+        update advertisements set status=#{status},reason=#{reason} where advertisement_id = #{id};
+    </update>
 </mapper>

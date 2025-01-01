@@ -4,6 +4,7 @@ import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.service.AdvertiseService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class AdvertiseRouter {
      * @return 所有广告
      */
     @GetMapping("/")
-    public ResponseEntity<List<Advertise>> getAllAdvertise() {
-        return new ResponseEntity<>(advertiseService.getAllAdvertise(), HttpStatus.OK);
+    public ResponseEntity<List<Advertise>> getAdvertiseByStatus(@Param("status") AdvertisementStatus status) {
+        return new ResponseEntity<>(advertiseService.getAdvertiseByStatus(status), HttpStatus.OK);
     }
     /**
      * 显示在banner页的广告，要求广告状态为running
@@ -106,5 +107,28 @@ public class AdvertiseRouter {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(advertise, HttpStatus.OK);
+    }
+
+    /**
+     * 打回广告申请
+     * @param reason
+     * @return
+     */
+    @PutMapping("/reason")//http://localhost:8081/advertise/status?id=1&status=running
+    public ResponseEntity<Void> RejectAdvertise(
+            @RequestParam("id") int id,
+            @RequestParam("reason") String reason) {
+        try {
+            boolean updated = advertiseService.rejectAdvertise(id, reason);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
     }
 }
