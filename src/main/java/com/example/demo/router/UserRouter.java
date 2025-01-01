@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 用户相关的路由（Controller），处理用户登录和用户信息的请求
  */
@@ -25,19 +28,24 @@ public class UserRouter {
      * @return 登录结果，成功返回 200 OK，失败返回 401 Unauthorized
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam("username") String username,
-                                        @RequestParam("password") String password) {
+    public ResponseEntity<Map<String, Object>> login(@RequestParam("username") String username,
+                                                     @RequestParam("password") String password) {
+        Map<String, Object> response = new HashMap<>();
         try {
             boolean loginSuccess = userService.validateUser(username, password);
             if (loginSuccess) {
-                return new ResponseEntity<>("登录成功", HttpStatus.OK); // 200 OK
+                response.put("status", "success");
+                response.put("message", "登录成功");
+                return new ResponseEntity<>(response, HttpStatus.OK); // 200 OK
             } else {
-                return new ResponseEntity<>("用户名或密码错误", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+                response.put("status", "error");
+                response.put("message", "用户名或密码错误");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 Unauthorized
             }
         } catch (Exception e) {
-            // 记录异常信息到日志
-            System.out.println(e);
-            return new ResponseEntity<>("服务器错误", HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+            response.put("status", "error");
+            response.put("message", "服务器错误");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
 
@@ -83,8 +91,9 @@ public class UserRouter {
      * @return 发送结果，成功返回 200 OK，失败返回 400 Bad Request
      */
     @PostMapping("/sendCode")
-    public ResponseEntity<String> sendVerificationCode(@RequestParam("email") String email) {
+    public ResponseEntity<String> sendVerificationCode(@RequestBody Map<String, String> payload) {
         try {
+            String email = payload.get("email");
             boolean sent = userService.sendVerificationCode(email);
             if (sent) {
                 return new ResponseEntity<>("验证码发送成功", HttpStatus.OK); // 200 OK
@@ -92,11 +101,11 @@ public class UserRouter {
                 return new ResponseEntity<>("验证码发送失败", HttpStatus.BAD_REQUEST); // 400 Bad Request
             }
         } catch (Exception e) {
-            // 记录异常信息到日志
             System.out.println(e);
             return new ResponseEntity<>("服务器错误", HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
+
 
     /**
      * 获取指定用户ID的用户信息

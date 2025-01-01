@@ -3,13 +3,32 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.UserMapper">
-    <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.User">
-        select * from users
-        where id=#{user_id};
+    <!-- 根据ID获取用户 -->
+    <select id="selectById" parameterType="int" resultType="com.example.demo.pojo.User">
+        SELECT * FROM users WHERE id = #{id}
     </select>
 
-    <select id="selectByName" parameterType="String" resultType="com.example.demo.pojo.User">
-        select * from users
-        where username=#{username};
+    <!-- 根据用户名获取用户 -->
+    <select id="selectByUsername" parameterType="String" resultType="com.example.demo.pojo.User">
+        SELECT * FROM users WHERE username = #{username}
     </select>
+
+    <!-- 获取所有用户 -->
+    <select id="selectAll" resultType="com.example.demo.pojo.User">
+        SELECT * FROM users
+    </select>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUser" parameterType="com.example.demo.pojo.User">
+        UPDATE users
+        SET username = #{user.username}, password = #{user.password}, email = #{user.email}
+        WHERE id = #{user.id}
+    </update>
+
+    <!-- 插入新用户 -->
+    <insert id="insertUser" parameterType="com.example.demo.pojo.User">
+        INSERT INTO users (username, password, email)
+        VALUES (#{user.username}, #{user.password}, #{user.email})
+    </insert>
+
 </mapper>
