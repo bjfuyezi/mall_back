@@ -97,5 +97,15 @@ public class UserService {
         int rowsAffected = userMapper.insertUser(user);
         return rowsAffected > 0;
     }
+    /**
+     * 检查邮箱是否已经存在
+     *
+     * @param email 用户邮箱
+     * @return 如果邮箱已存在返回 true，否则返回 false
+     */
+    public boolean isEmailTaken(String email) {
+        User existingUser = userMapper.selectByEmail(email);
+        return existingUser != null;
+    }
 
 }

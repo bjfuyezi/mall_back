@@ -48,5 +48,11 @@ public interface UserMapper {
      * @return 受影响的行数
      */
     int insertUser(@Param("user") User user);
-
+    /**
+     * 根据邮箱获取用户
+     *
+     * @param email 用户邮箱
+     * @return 用户对象
+     */
+    User selectByEmail(@Param("email") String email);
 }

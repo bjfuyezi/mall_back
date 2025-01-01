@@ -30,5 +30,8 @@
         INSERT INTO users (username, password, email)
         VALUES (#{user.username}, #{user.password}, #{user.email})
     </insert>
-
+    <!-- 根据邮箱获取用户 -->
+    <select id="selectByEmail" parameterType="String" resultType="com.example.demo.pojo.User">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
 </mapper>

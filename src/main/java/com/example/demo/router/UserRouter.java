@@ -65,6 +65,11 @@ public class UserRouter {
                 return new ResponseEntity<>("验证码错误", HttpStatus.BAD_REQUEST); // 400 Bad Request
             }
 
+            // 检查邮箱是否已经存在
+            if (userService.isEmailTaken(user.getEmail())) {
+                return new ResponseEntity<>("邮箱已存在", HttpStatus.BAD_REQUEST); // 400 Bad Request
+            }
+
             // 检查用户名是否已经存在
             if (userService.isUsernameTaken(user.getUsername())) {
                 return new ResponseEntity<>("用户名已存在", HttpStatus.BAD_REQUEST); // 400 Bad Request
