@@ -6,10 +6,19 @@
     <select id="selectAll" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements;
     </select>
+    <select id="selectBanners" resultType="com.example.demo.pojo.Advertise">
+        select * from advertisements where banner == 'banner' and (status == 'approved' or status == 'expired');
+    </select>
     <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements where advertisement_id = #{id};
     </select>
     <update id="updateStatus">
         update advertisements set status = #{status} where advertisement_id = #{id};
     </update>
+    <insert id="addAdvertise" parameterType="com.example.demo.pojo.Advertise" useGeneratedKeys="true" keyProperty="advertisement_id">
+        INSERT INTO advertisements (shop_id,product_id,advertisement_type, start_time,end_time,status,created_time,updated_time,reason,price,picture_id,banner
+        ) VALUES (#{shop_id},#{product_id},#{advertisement_type},#{start_time, jdbcType=DATE},#{end_time, jdbcType=DATE},#{status},
+                     #{created_time},#{updated_time},#{reason, jdbcType=VARCHAR},#{price},
+                     #{picture_id},#{banner}  )
+    </insert>
 </mapper>

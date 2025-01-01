@@ -1,11 +1,18 @@
 package com.example.demo.service;
 
+import com.example.demo.config.Utils;
 import com.example.demo.enums.AdvertisementStatus;
+import com.example.demo.enums.AdvertisementType;
 import com.example.demo.mapper.AdvertiseMapper;
+import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.Advertise;
+import com.example.demo.pojo.Shop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /*
 服务（Service）实现业务逻辑。
@@ -20,14 +27,78 @@ public class AdvertiseService {
      */
     @Autowired
     private AdvertiseMapper advertiseMapper;
+    @Autowired
+    private ShopMapper shopMapper;
+
     public List<Advertise> getAllAdvertise() {
         return advertiseMapper.selectAll();
     }
-    public Advertise getAdvertiseById(int id) {
-        return advertiseMapper.selectById(id);
+
+    public List<Advertise> getBanners() {
+        List<Advertise> advertises = advertiseMapper.selectBanners();
+        List<Advertise> result = new ArrayList<>();
+        for (Advertise ad : advertises) {
+            if (ad.getStatus() == AdvertisementStatus.running) {
+                if (ad.getEnd_time().before(new Date())) {
+                    result.add(ad);
+                } else {
+                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.expired);
+                }
+            } else if (ad.getStatus() == AdvertisementStatus.approved) {
+                if (ad.getStart_time().before(new Date())) {
+                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.running);
+                    result.add(ad);
+                }
+            }
+        }
+        if (result.size()>5) {
+            return null;
+        }else return result;
     }
+
+    public void createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
+                                int pic_id,boolean banner) throws ParseException {
+        Advertise advertise = new Advertise();
+        if(type == AdvertisementType.product){
+            advertise.setProduct_id(ps_id);
+            advertise.setShop_id(null);
+        }else {
+            advertise.setShop_id(ps_id);
+            advertise.setPicture_id(null);
+        }
+        advertise.setAdvertisement_type(type);
+
+        Date stime =Utils.TimetoDate(start_time);
+        Date etime =Utils.TimetoDate(end_time);
+        advertise.setStart_time(stime);
+        advertise.setEnd_time(etime);
+
+        advertise.setPrice(price);
+        advertise.setPicture_id(pic_id);
+        advertise.setBanner(banner);
+        advertise.setStatus(AdvertisementStatus.pending);
+        Date d = new Date();
+        advertise.setCreated_time(d);
+        advertise.setUpdated_time(d);
+
+        advertiseMapper.addAdvertise(advertise);
+    }
+
+    public Advertise getAdvertiseDetail(int id) {
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if (advertisement != null){
+            Shop shop = shopMapper.selectById(advertisement.getShop_id());
+            advertisement.setShop_name(shop.getShop_name());
+            if(advertisement.getAdvertisement_type() == AdvertisementType.product){
+                advertisement.setProduct_name("123");//这里需要一个根据商品id查询商品名称
+            }
+            return advertisement;
+        }
+        return null;
+    }
+
     public boolean setAdvertiseStatus(int id, AdvertisementStatus status){
-        Advertise advertisement = getAdvertiseById(id);
+        Advertise advertisement = advertiseMapper.selectById(id);
         if(advertisement == null){
             return false;
         }

@@ -25,4 +25,9 @@ public class Advertise {
     private Date updated_time;
     private String reason;
     private double price;
+    private Integer picture_id;
+    private boolean banner;
+    //以下为表里没有的内容
+    private String shop_name;
+    private String product_name;
 }
