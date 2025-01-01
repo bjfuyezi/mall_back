@@ -4,6 +4,7 @@ import com.example.demo.config.Utils;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
 import com.example.demo.mapper.AdvertiseMapper;
+import com.example.demo.mapper.PictureMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Shop;
@@ -29,6 +30,8 @@ public class AdvertiseService {
     private AdvertiseMapper advertiseMapper;
     @Autowired
     private ShopMapper shopMapper;
+    @Autowired
+    private PictureMapper pictureMapper;
 
     public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
         System.out.println("111111");
@@ -41,9 +44,11 @@ public class AdvertiseService {
     public List<Advertise> getBanners() {
         List<Advertise> advertises = advertiseMapper.selectBanners();
         List<Advertise> result = new ArrayList<>();
+        System.out.println(advertises.size());
         for (Advertise ad : advertises) {
+            System.out.println(ad.getEnd_time().after(new Date()));
             if (ad.getStatus() == AdvertisementStatus.running) {
-                if (ad.getEnd_time().before(new Date())) {
+                if (ad.getEnd_time().after(new Date())) {
                     result.add(ad);
                 } else {
                     advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.expired);
@@ -57,7 +62,12 @@ public class AdvertiseService {
         }
         if (result.size()>5) {
             return null;
-        }else return result;
+        }else {
+            for(Advertise r:result){
+                r.setUrl(pictureMapper.selectById(r.getPicture_id()).getUrl());
+            }
+            return result;
+        }
     }
 
     public void createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,

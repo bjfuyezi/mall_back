@@ -10,7 +10,10 @@
         select * from advertisements where status = #{status};
     </select>
     <select id="selectBanners" resultType="com.example.demo.pojo.Advertise">
-        select * from advertisements where banner == 'banner' and (status == 'approved' or status == 'expired');
+        SELECT *
+        FROM advertisements
+        WHERE banner = true
+          AND (status = 'approved' OR status = 'running');
     </select>
     <select id="selectById" parameterType="Integer" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements where advertisement_id = #{id};
