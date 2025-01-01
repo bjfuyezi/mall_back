@@ -5,7 +5,10 @@ import com.example.demo.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * 用户相关的业务逻辑处理类
@@ -15,7 +18,21 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    private final Map<String, String> emailVerificationCodes = new HashMap<>();
+    // 生成并发送验证码
+    public boolean sendVerificationCode(String email) {
+        String code = String.valueOf(new Random().nextInt(899999) + 100000); // 生成6位随机验证码
+        emailVerificationCodes.put(email, code);
 
+        // 模拟发送邮件（实际使用时需接入第三方邮件服务）
+        System.out.println("验证码发送到邮箱：" + email + "，验证码：" + code);
+        return true;
+    }
+
+    // 验证验证码
+    public boolean verifyCode(String email, String code) {
+        return code.equals(emailVerificationCodes.get(email));
+    }
     /**
      * 获取所有用户信息
      *
@@ -76,6 +93,7 @@ public class UserService {
      */
     public boolean addUser(User user) {
         // 这里可以对密码进行加密，例如使用 BCrypt 或 MD5
+        user.setRole("buyer"); // 默认角色为 buyer
         int rowsAffected = userMapper.insertUser(user);
         return rowsAffected > 0;
     }
