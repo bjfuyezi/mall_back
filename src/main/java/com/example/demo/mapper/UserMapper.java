@@ -41,4 +41,12 @@ public interface UserMapper {
      * @return 受影响的行数
      */
     int updateUser(@Param("user") User user);
+    /**
+     * 插入新用户
+     *
+     * @param user 用户对象
+     * @return 受影响的行数
+     */
+    int insertUser(@Param("user") User user);
+
 }

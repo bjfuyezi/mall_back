@@ -40,6 +40,34 @@ public class UserRouter {
             return new ResponseEntity<>("服务器错误", HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
+    /**
+     * 用户注册接口
+     *
+     * @param user 注册的用户信息
+     * @return 注册结果，成功返回 201 Created，失败返回 400 Bad Request
+     */
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody User user) {
+        try {
+            // 检查用户名是否已经存在
+            if (userService.isUsernameTaken(user.getUsername())) {
+                return new ResponseEntity<>("用户名已存在", HttpStatus.BAD_REQUEST); // 400 Bad Request
+            }
+
+            // 添加用户到数据库
+            boolean success = userService.addUser(user);
+            if (success) {
+                return new ResponseEntity<>("注册成功", HttpStatus.CREATED); // 201 Created
+            } else {
+                return new ResponseEntity<>("注册失败，请稍后重试", HttpStatus.BAD_REQUEST); // 400 Bad Request
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>("服务器错误", HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+        }
+    }
+
 
     /**
      * 获取指定用户ID的用户信息

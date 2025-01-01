@@ -57,4 +57,27 @@ public class UserService {
         int rowsAffected = userMapper.updateUser(user);
         return rowsAffected > 0;
     }
+    /**
+     * 检查用户名是否已经存在
+     *
+     * @param username 用户名
+     * @return 如果用户名已存在返回 true，否则返回 false
+     */
+    public boolean isUsernameTaken(String username) {
+        User existingUser = userMapper.selectByUsername(username);
+        return existingUser != null;
+    }
+
+    /**
+     * 添加新用户
+     *
+     * @param user 用户信息
+     * @return 如果添加成功返回 true，否则返回 false
+     */
+    public boolean addUser(User user) {
+        // 这里可以对密码进行加密，例如使用 BCrypt 或 MD5
+        int rowsAffected = userMapper.insertUser(user);
+        return rowsAffected > 0;
+    }
+
 }
