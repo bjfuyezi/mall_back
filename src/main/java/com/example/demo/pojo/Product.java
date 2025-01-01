@@ -24,4 +24,5 @@ public class Product {
     private String notice;
     private double discount;
     private String unit;
+    private String flavor;
 }

@@ -22,7 +22,8 @@ public class Shop {
     private ShopStatus status;
     private Date created_time;
     private Date updated_time;
-    private double level;
+    private Double level;
     private String location;
-    private double salary;
+    private Double salary;
+    private Integer picture_id;
 }

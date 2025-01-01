@@ -15,7 +15,9 @@ import java.util.List;
 public interface ShopMapper {
     List<Shop> selectAll();
     Shop selectById(@Param("id") int id);
+    Shop selectByUserId(@Param("id") int id);
     void updateStatus(@Param("id") int id, @Param("status") ShopStatus status);
     void deleteById(@Param("id") int id);
-    void updateShop(@Param("shop") Shop shop);
+    void updateShop(Shop shop);
+    void createShop(Shop shop);
 }

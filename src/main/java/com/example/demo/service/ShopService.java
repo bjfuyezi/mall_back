@@ -1,14 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.ShopStatus;
-import com.example.demo.mapper.AdvertiseMapper;
 import com.example.demo.mapper.ShopMapper;
-import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Shop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 /*
 服务（Service）实现业务逻辑。
@@ -28,6 +26,9 @@ public class ShopService {
     }
     public Shop getShopById(int id) {
         return shopMapper.selectById(id);
+    }
+    public Shop getShopByUserId(int id) {
+        return shopMapper.selectByUserId(id);
     }
     public boolean setShopStatus(int id, ShopStatus status){
         Shop shop = getShopById(id);
@@ -58,6 +59,23 @@ public class ShopService {
         }
         */
         shopMapper.deleteById(id);
+        return true;
+    }
+
+    public boolean createShop(String name, String description, String location, Integer picture_id, Integer user_id) {
+        Shop shop = new Shop();
+        shop.setShop_description(description);
+        shop.setShop_name(name);
+        shop.setLevel(Double.valueOf(0));
+        shop.setSalary(Double.valueOf(0));
+        shop.setLocation(location);
+        shop.setStatus(ShopStatus.waiting);
+        shop.setUser_id(user_id);
+        shop.setPicture_id(picture_id);
+        shop.setCreated_time(new Date());
+        shop.setUpdated_time(new Date());
+
+        shopMapper.createShop(shop);
         return true;
     }
 }
