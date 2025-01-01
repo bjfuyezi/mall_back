@@ -61,13 +61,14 @@ public class AdvertiseService {
     }
 
     public void createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
-                                int pic_id,boolean banner) throws ParseException {
+                                int pic_id,boolean banner,String name) throws ParseException {
         Advertise advertise = new Advertise();
         if(type == AdvertisementType.product){
             advertise.setProduct_id(ps_id);
             advertise.setShop_id(null);
         }else {
-            advertise.setShop_id(ps_id);
+            //TO do :这里需要session获取商铺的id
+            advertise.setShop_id(1);
             advertise.setPicture_id(null);
         }
         advertise.setAdvertisement_type(type);
@@ -81,6 +82,7 @@ public class AdvertiseService {
         advertise.setPicture_id(pic_id);
         advertise.setBanner(banner);
         advertise.setStatus(AdvertisementStatus.pending);
+        advertise.setName(name);
         Date d = new Date();
         advertise.setCreated_time(d);
         advertise.setUpdated_time(d);

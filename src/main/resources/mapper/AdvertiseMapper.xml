@@ -19,10 +19,10 @@
         update advertisements set status = #{status} where advertisement_id = #{id};
     </update>
     <insert id="addAdvertise" parameterType="com.example.demo.pojo.Advertise" useGeneratedKeys="true" keyProperty="advertisement_id">
-        INSERT INTO advertisements (shop_id,product_id,advertisement_type, start_time,end_time,status,created_time,updated_time,reason,price,picture_id,banner
+        INSERT INTO advertisements (shop_id,product_id,advertisement_type, start_time,end_time,status,created_time,updated_time,reason,price,picture_id,banner,name
         ) VALUES (#{shop_id},#{product_id},#{advertisement_type},#{start_time, jdbcType=DATE},#{end_time, jdbcType=DATE},#{status},
                      #{created_time},#{updated_time},#{reason, jdbcType=VARCHAR},#{price},
-                     #{picture_id},#{banner}  )
+                     #{picture_id},#{banner},#{name}  )
     </insert>
     <update id="updateReason">
         update advertisements set status=#{status},reason=#{reason} where advertisement_id = #{id};

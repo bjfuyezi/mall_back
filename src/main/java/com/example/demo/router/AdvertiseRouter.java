@@ -1,15 +1,19 @@
 package com.example.demo.router;
 
+import com.example.demo.Exception.NameException;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.service.AdvertiseService;
+import com.example.demo.service.PictureService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -29,7 +33,8 @@ public class AdvertiseRouter {
 
     @Autowired
     private AdvertiseService advertiseService;
-
+    @Autowired
+    private PictureService pictureService;
     /**
      * 显示所有广告，包括已失效
      * @return 所有广告
@@ -61,11 +66,14 @@ public class AdvertiseRouter {
             @RequestParam("start_time") String start_time,
             @RequestParam("end_time") String end_time,
             @RequestParam("price") double price,
-            @RequestParam("pictrue") int pic_id,
-            @RequestParam("banner") boolean banner){
+            @RequestParam("picture") MultipartFile picture,
+            @RequestParam("banner") boolean banner,
+            @RequestParam("name") String name){
         try {
-            advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner);
-        } catch (ParseException e) {
+            int pic_id = pictureService.save_picture(picture);
+            advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,name);
+        } catch (ParseException | NameException | IOException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.OK);
