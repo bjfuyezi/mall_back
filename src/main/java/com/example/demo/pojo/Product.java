@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class Product {
@@ -15,7 +16,7 @@ public class Product {
     private ProductType category;
     private double price;
     private String description;
-    private double quantity;
+    private Map<String, Double> quantity;
     private List<Integer> picture_id;
     private ProductStatus status;
     private Date created_time;
@@ -24,5 +25,4 @@ public class Product {
     private String notice;
     private double discount;
     private String unit;
-    private String flavor;
 }

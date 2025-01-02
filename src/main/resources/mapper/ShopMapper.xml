@@ -12,6 +12,10 @@
     <select id="selectByUserId" parameterType="Integer" resultType="com.example.demo.pojo.Shop">
         select * from shops where user_id = #{id};
     </select>
+    <select id="selectAllWaitingShop" resultType="com.example.demo.pojo.Shop">
+        select * from shops where status = 'waiting';
+    </select>
+
     <update id="updateStatus" parameterType="com.example.demo.enums.ShopStatus">
         update shops set status = #{status} where shop_id = #{id};
     </update>
