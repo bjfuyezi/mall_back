@@ -11,10 +11,10 @@ import com.example.demo.pojo.Shop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 /*
 服务（Service）实现业务逻辑。
 @Service 标记的类通常包含复杂的业务规则、事务管理以及对多个 DAO 的协调调用。
@@ -33,6 +33,9 @@ public class AdvertiseService {
     @Autowired
     private PictureMapper pictureMapper;
 
+    public AdvertiseService(){
+
+    }
     public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
         System.out.println("111111");
         if(status == null) return advertiseMapper.selectAll();
@@ -119,6 +122,68 @@ public class AdvertiseService {
             return false;
         }
         advertiseMapper.updateStatus(id,status);
+        return true;
+    }
+    // 将TreeMap<Calendar, Integer>转换为TreeMap<Long, Integer>
+    private static TreeMap<Long, Integer> convertToLongMap(TreeMap<Calendar, Integer> dailyChanges) {
+        TreeMap<Long, Integer> longMap = new TreeMap<>();
+        for (Map.Entry<Calendar, Integer> entry : dailyChanges.entrySet()) {
+            longMap.put(entry.getKey().getTimeInMillis(), entry.getValue());
+        }
+        return longMap;
+    }
+
+    public static void writeToFile(String filePath, TreeMap<Calendar, Integer> dailyChanges) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(convertToLongMap(dailyChanges));
+        }
+    }
+    // 将TreeMap<Long, Integer>转换回TreeMap<Calendar, Integer>
+    private static TreeMap<Calendar, Integer> convertToCalendarMap(TreeMap<Long, Integer> longMap) {
+        TreeMap<Calendar, Integer> calendarMap = new TreeMap<>((c1, c2) -> Long.compare(c1.getTimeInMillis(), c2.getTimeInMillis()));
+        for (Map.Entry<Long, Integer> entry : longMap.entrySet()) {
+            Calendar cal = GregorianCalendar.getInstance();
+            cal.setTimeInMillis(entry.getKey());
+            calendarMap.put(cal, entry.getValue());
+        }
+        return calendarMap;
+    }
+
+    public static TreeMap<Calendar, Integer> readFromFile(String filePath) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            @SuppressWarnings("unchecked")
+            TreeMap<Long, Integer> longMap = (TreeMap<Long, Integer>) ois.readObject();
+            return convertToCalendarMap(longMap);
+        }
+    }
+    // 检查是否可以在advertiseList中添加新的Advertise对象
+    public boolean CheckBanner(Date starttime, Date endtime) throws IOException, ClassNotFoundException {
+        TreeMap<Calendar, Integer> dailyChanges = readFromFile("/calender.txt");
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(starttime);
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(endtime);
+        // 更新dailyChanges以包括新广告的影响
+        dailyChanges.put(calendar1, dailyChanges.getOrDefault(calendar1, 0) + 1);
+        calendar2.add(Calendar.DAY_OF_MONTH, 1);//天数+1包含最后一天
+        dailyChanges.put(calendar2, dailyChanges.getOrDefault(calendar2, 0) - 1);
+
+        int currentCount = 0;
+        // 只需要检查从新广告开始到结束的日期范围内每一天的广告数
+        for (Calendar c = calendar1; !c.after(calendar2); c.add(Calendar.DAY_OF_MONTH, 1)) {
+            if (dailyChanges.containsKey(c)) {
+                currentCount += dailyChanges.get(c);
+            }
+            // 如果某天的广告数量达到或超过5，则不能添加新广告
+            if (currentCount >= 5) {
+                // 回滚更改
+                dailyChanges.put(calendar1, dailyChanges.getOrDefault(calendar1, 0) - 1);
+                dailyChanges.put(calendar2, dailyChanges.getOrDefault(calendar2, 0) + 1);
+                return false;
+            }
+        }
+        writeToFile("/calender.txt",dailyChanges);
+        // 如果所有日期都满足条件，则可以添加新广告
         return true;
     }
 
