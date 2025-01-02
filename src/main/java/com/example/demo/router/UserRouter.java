@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 public class UserRouter {
 
     @Autowired
@@ -28,24 +29,28 @@ public class UserRouter {
      * @return 登录结果，成功返回 200 OK，失败返回 401 Unauthorized
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestParam("username") String username,
-                                                     @RequestParam("password") String password) {
+    public ResponseEntity<Map<String, Object>> login(
+        @RequestParam("username") String username,
+        @RequestParam("password") String password) {
+        
         Map<String, Object> response = new HashMap<>();
         try {
-            boolean loginSuccess = userService.validateUser(username, password);
-            if (loginSuccess) {
+            User user = userService.validateUserAndGetId(username, password);
+            if (user != null) {
                 response.put("status", "success");
-                response.put("message", "登录成功");
-                return new ResponseEntity<>(response, HttpStatus.OK); // 200 OK
+                response.put("userId", user.getUser_id());
+                System.out.println(user);
+                System.out.println(user.getUser_id());
+                return ResponseEntity.ok(response);
             } else {
                 response.put("status", "error");
                 response.put("message", "用户名或密码错误");
-                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "服务器错误");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -115,22 +120,33 @@ public class UserRouter {
     /**
      * 获取指定用户ID的用户信息
      *
-     * @param id 用户的唯一标识符
+     * @param userId 用户的唯一标识符
      * @return 如果成功找到用户返回 200 OK，否则返回 404 Not Found
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Integer userId) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            User user = userService.getUserById(id);
+            if (userId == null) {
+                response.put("status", "error");
+                response.put("message", "用户ID不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            User user = userService.getUserById(userId);
             if (user != null) {
-                return new ResponseEntity<>(user, HttpStatus.OK); // 200 OK
+                response.put("status", "success");
+                response.put("data", user);
+                return ResponseEntity.ok(response);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+                response.put("status", "error");
+                response.put("message", "用户不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
         } catch (Exception e) {
-            // 记录异常信息到日志
-            System.out.println(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -153,6 +169,30 @@ public class UserRouter {
             // 记录异常信息到日志
             System.out.println(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+        }
+    }
+
+    @PutMapping("/profile/update")
+    public ResponseEntity<Map<String, Object>> updateUserProfile(@RequestBody User user) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 确保用户ID存在
+            if (user.getUser_id() == null) {
+                response.put("status", "error");
+                response.put("message", "用户ID不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            boolean success = userService.updateUserProfile(user);
+            response.put("status", success ? "success" : "error");
+            if (!success) {
+                response.put("message", "更新失败");
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

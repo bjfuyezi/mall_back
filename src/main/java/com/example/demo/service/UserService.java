@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.pojo.User;
+import com.example.demo.pojo.Addresses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,8 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private AddressesService addressesService;
     private final Map<String, String> emailVerificationCodes = new HashMap<>();
     // 生成并发送验证码
     public boolean sendVerificationCode(String email) {
@@ -48,8 +51,11 @@ public class UserService {
      * @param id 用户ID
      * @return 用户信息
      */
-    public User getUserById(int id) {
-        return userMapper.selectById(id);
+    public User getUserById(Integer userId) {
+        if (userId == null) {
+            return null;
+        }
+        return userMapper.selectById(userId);
     }
 
     /**
@@ -71,8 +77,7 @@ public class UserService {
      * @return 更新成功返回true，失败返回false
      */
     public boolean updateUser(User user) {
-        int rowsAffected = userMapper.updateUser(user);
-        return rowsAffected > 0;
+        return userMapper.updateUser(user) > 0;
     }
     /**
      * 检查用户名是否已经存在
@@ -106,6 +111,58 @@ public class UserService {
     public boolean isEmailTaken(String email) {
         User existingUser = userMapper.selectByEmail(email);
         return existingUser != null;
+    }
+
+//    /**
+//     * 获取用户详细信息
+//     */
+//    public User getUserDetail(String username) {
+//        return userMapper.getUserDetail(username);
+//    }
+
+    /**
+     * 更新用户个人资料
+     */
+    public boolean updateUserProfile(User user) {
+        try {
+            // 验证用户是否存在
+            User existingUser = userMapper.selectById(user.getUser_id());
+            if (existingUser == null) {
+                return false;
+            }
+
+            // 如果密码为空，不更新密码
+            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+                user.setPassword(existingUser.getPassword());
+            }
+
+            return userMapper.updateUserProfile(user) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 获取用户的默认地址
+     */
+//    public Addresses getDefaultAddress(String username) {
+//        User user = getUserDetail(username);
+//        if (user == null) {
+//            return null;
+//        }
+//        return addressesService.getDefaultAddress(user.getUser_id());
+//    }
+
+    /**
+     * 验证用户并返回用户信息
+     */
+    public User validateUserAndGetId(String username, String password) {
+        User user = userMapper.selectByUsername(username);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
     }
 
 }

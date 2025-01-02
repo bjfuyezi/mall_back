@@ -1,26 +1,36 @@
 package com.example.demo.mapper;
 
-import com.example.demo.pojo.Address;
+import com.example.demo.pojo.Addresses;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 @Mapper
 public interface AddressesMapper {
-    @Select("SELECT * FROM addresses")
-    List<Address> selectAll();
+    // 获取所有地址
+    List<Addresses> selectAll();
 
-    @Select("SELECT * FROM addresses WHERE address_id = #{id}")
-    Address selectById(@Param("id") int id);
+    // 根据ID获取地址
+    Addresses selectById(@Param("id") int id);
 
-    @Insert("INSERT INTO addresses (user_id, address_content, created_time, province, is_default, phone) " +
-            "VALUES (#{user_id}, #{address_content}, #{created_time}, #{province}, #{is_default}, #{phone})")
-    void insert(Address address);
+    // 根据用户ID获取地址列表
+    List<Addresses> selectByUserId(@Param("userId") int userId);
 
-    @Update("UPDATE addresses SET user_id = #{user_id}, address_content = #{address_content}, " +
-            "province = #{province}, is_default = #{is_default}, phone = #{phone} WHERE address_id = #{address_id}")
-    void update(Address address);
+    // 插入新地址
+    void insert(Addresses address);
 
-    @Delete("DELETE FROM addresses WHERE address_id = #{id}")
+    // 更新地址信息
+    void update(Addresses address);
+
+    // 删除地址
     void deleteById(@Param("id") int id);
+
+    // 重置用户的所有地址为非默认
+    void resetDefaultAddress(@Param("userId") int userId);
+
+    // 设置地址为默认地址
+    void setDefaultAddress(@Param("addressId") int addressId);
+
+    // 获取用户的默认地址
+    Addresses getDefaultAddress(@Param("userId") int userId);
 }

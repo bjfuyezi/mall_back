@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.AddressesMapper">
+    <!-- 获取所有地址 -->
+    <select id="selectAll" resultType="com.example.demo.pojo.Addresses">
+        SELECT * FROM addresses
+    </select>
+
+    <!-- 根据ID获取地址 -->
+    <select id="selectById" parameterType="int" resultType="com.example.demo.pojo.Addresses">
+        SELECT * FROM addresses WHERE address_id = #{id}
+    </select>
+
+    <!-- 根据用户ID获取地址列表 -->
+    <select id="selectByUserId" parameterType="int" resultType="com.example.demo.pojo.Addresses">
+        SELECT * FROM addresses WHERE user_id = #{userId}
+    </select>
+
+    <!-- 获取用户的默认地址 -->
+    <select id="getDefaultAddress" parameterType="int" resultType="com.example.demo.pojo.Addresses">
+        SELECT * FROM addresses WHERE user_id = #{userId} AND is_default = 1 LIMIT 1
+    </select>
+
+    <!-- 插入新地址 -->
+    <insert id="insert" parameterType="com.example.demo.pojo.Addresses" useGeneratedKeys="true" keyProperty="addressId">
+        INSERT INTO addresses (user_id, address_content, created_time, province, is_default, phone)
+        VALUES (#{userId}, #{addressContent}, #{createdTime}, #{province}, #{isDefault}, #{phone})
+    </insert>
+
+    <!-- 更新地址信息 -->
+    <update id="update" parameterType="com.example.demo.pojo.Addresses">
+        UPDATE addresses 
+        SET address_content = #{addressContent},
+            province = #{province},
+            is_default = #{isDefault},
+            phone = #{phone}
+        WHERE address_id = #{addressId}
+    </update>
+
+    <!-- 删除地址 -->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM addresses WHERE address_id = #{id}
+    </delete>
+
+    <!-- 重置用户的所有地址为非默认 -->
+    <update id="resetDefaultAddress" parameterType="int">
+        UPDATE addresses SET is_default = 0 WHERE user_id = #{userId}
+    </update>
+
+    <!-- 设置地址为默认地址 -->
+    <update id="setDefaultAddress" parameterType="int">
+        UPDATE addresses SET is_default = 1 WHERE address_id = #{addressId}
+    </update>
+</mapper> 
