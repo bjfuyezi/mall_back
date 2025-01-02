@@ -81,16 +81,16 @@ public class AdvertiseRouter {
     /**
      * 更新指定 ID 的广告状态。
      *
-     * @param id     广告的唯一标识符 (作为查询参数)
      * @param status 新的状态值 (作为查询参数)
      * @return 如果成功更新，则返回 200 OK；如果未找到对应的广告，则返回 404 Not Found；
      *         如果更新失败，则返回 500 Internal Server Error。
      */
     @PutMapping("/status")//http://localhost:8081/advertise/status?id=1&status=running
     public ResponseEntity<Void> setAdvertiseStatus(
-            @RequestParam("id") int id,
             @RequestParam("status") AdvertisementStatus status) {
         try {
+            //To do: 获取当前用户的商铺id
+            int id = 1;
             boolean updated = advertiseService.setAdvertiseStatus(id, status);
             if (updated) {
                 return new ResponseEntity<>(HttpStatus.OK); //200ok
@@ -104,6 +104,14 @@ public class AdvertiseRouter {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Advertise>> getAdvertiseDetail(@RequestParam("key") String key) {
+        List<Advertise> advertise = advertiseService.searchByKey(key);
+        if(advertise == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertise, HttpStatus.OK);
+    }
     /**
      *
      * @return 广告的细节，给管理员看

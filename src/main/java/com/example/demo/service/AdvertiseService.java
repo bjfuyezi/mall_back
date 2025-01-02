@@ -33,14 +33,19 @@ public class AdvertiseService {
     @Autowired
     private PictureMapper pictureMapper;
 
-    public AdvertiseService(){
-
-    }
     public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
         System.out.println("111111");
         if(status == null) return advertiseMapper.selectAll();
         else{
            return advertiseMapper.selectByStatus(status);
+        }
+    }
+
+    public List<Advertise> searchByKey(String s) {
+        System.out.println("search");
+        if(s == null) return advertiseMapper.selectAll();
+        else{
+            return advertiseMapper.selectByKey(s);
         }
     }
 
