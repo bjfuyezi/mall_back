@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.CommentMapper">
     <insert id="addComment" parameterType="com.example.demo.pojo.Comment" useGeneratedKeys="true" keyProperty="comment_id">
-        INSERT INTO comment (comment_id, user_id, order_id, content, level, product_id, status, created_time)
-        VALUES (#{comment_id}, #{user_id}, #{order_id}, #{content}, #{level}, #{product_id}, #{status}, #{created_time})
+        INSERT INTO comment (user_id, order_id, content, level, product_id, status, created_time,picture_id)
+        VALUES (#{user_id}, #{order_id}, #{content}, #{level}, #{product_id}, #{status}, #{created_time},#{picture_id})
     </insert>
 </mapper>
