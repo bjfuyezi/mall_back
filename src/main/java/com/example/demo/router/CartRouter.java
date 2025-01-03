@@ -104,4 +104,12 @@ public class CartRouter {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("删除商品失败");
         }
     }
+
+    /*TODO:购物车和结算流程
+    - 用户选择商品并勾选使用的优惠券
+        - 根据商品所属商铺，选择适用的店铺券或平台券
+        - 计算满减金额并减去优惠
+        - 判断每种券的适用条件（是否满足满减规则、未超过限制）
+    - 优惠计算后生成最终总价*/
+
 }
