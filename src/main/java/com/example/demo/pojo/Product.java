@@ -2,9 +2,6 @@ package com.example.demo.pojo;
 
 import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
-import com.example.demo.utils.JsonPicIdConverter;
-import com.example.demo.utils.JsonQuantityConverter;
-import jakarta.persistence.Convert;
 import lombok.Data;
 
 import java.util.Date;
@@ -20,10 +17,8 @@ public class Product {
     private double price;
     private String description;
 
-    @Convert(converter = JsonQuantityConverter.class)
     private Map<String, Integer> quantity;
 
-    @Convert(converter = JsonPicIdConverter.class)
     private List<Integer> picture_id;
 
     private ProductStatus status;
