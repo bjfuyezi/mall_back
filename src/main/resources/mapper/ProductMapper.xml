@@ -3,5 +3,42 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.ProductMapper">
-    <!-- 这里添加你的产品相关的SQL映射 -->
+    <select id="selectByName" parameterType="String" resultType="com.example.demo.pojo.Product">
+        select * from product where name = #{name};
+    </select>
+    <select id="selectAllProductByShopId" parameterType="Integer" resultType="com.example.demo.pojo.Product">
+        select * from product where shop_id = #{shop_id};
+    </select>
+    <select id="selectAllEmptyProduct" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'empty';
+    </select>
+    <select id="selectAllSaleProduct" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'sale';
+    </select>
+    <select id="selectAllWaitingProduct" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'waiting';
+    </select>
+    <select id="selectAllProductBySaleLocation" parameterType="String" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'sale' and location = #{location};
+    </select>
+    <select id="selectAllProductBySaleCategory" parameterType="String" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'sale' and category = #{category};
+    </select>
+
+    <update id="updateStatus" parameterType="com.example.demo.enums.ProductStatus">
+        update product set status = #{status} where product_id = #{id};
+    </update>
+    <update id="updateProduct" parameterType="com.example.demo.pojo.Product">
+        update product set name = #{name}, description = #{description}, location = #{location}, updated_time = #{updated_time}, notice = #{notice},
+                           discount = #{discount}, unit = #{unit}, quantity = #{quantity, typeHandler=com.example.demo.utils.JsonQuantityConverter}, picture_id = #{picture_id, typeHandler=com.example.demo.utils.JsonPicIdConverter}, category = #{category}, price = #{price}, salenum = #{salenum}
+        where product_id = #{product_id};
+    </update>
+
+    <delete id="deleteById" parameterType="Integer">
+        delete from product where product_id = #{id};
+    </delete>
+    <insert id="insert" parameterType="com.example.demo.pojo.Product" useGeneratedKeys="true" keyProperty="product_id">
+        insert into product(shop_id, name, category, price, description, quantity, picture_id, status, created_time,updated_time, location, notice, discount, unit, salenum)
+        values (#{shop_id}, #{name}, #{category}, #{price}, #{description}, #{quantity, typeHandler=com.example.demo.utils.JsonQuantityConverter}, #{picture_id, typeHandler=com.example.demo.utils.JsonPicIdConverter}, #{status}, #{created_time},#{updated_time}, #{location}, #{notice}, #{discount}, #{unit}, #{salenum})
+    </insert>
 </mapper>
