@@ -4,7 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.OrderMapper">
     <insert id="addOrder" parameterType="com.example.demo.pojo.Orders" useGeneratedKeys="true" keyProperty="order_id">
-        INSERT INTO orders (order_id, user_id, created_time, status, price, payment_method, address_id, pay_time, completed_time, shop_id, product_id, quantity)
-        VALUES (#{order_id}, #{user_id}, #{created_time}, #{status}, #{price}, #{payment_method}, #{address_id}, #{pay_time}, #{completed_time}, #{shop_id}, #{product_id}, #{quantity})
+        INSERT INTO orders (user_id, created_time, status, price, payment_method, address_id, pay_time, completed_time, shop_id, product_id, quantity,discount)
+        VALUES (#{user_id}, #{created_time}, #{status}, #{price}, #{payment_method}, #{address_id}, #{pay_time}, #{completed_time}, #{shop_id}, #{product_id}, #{quantity},#{discount})
     </insert>
+    <update id="updateStatusAndPaymentMethod" parameterType="com.example.demo.pojo.Orders">
+        UPDATE orders
+        SET status = #{status},
+            payment_method = #{payment_method},
+            pay_time = #{pay_time}
+        WHERE order_id = #{order_id}
+    </update>
 </mapper>
