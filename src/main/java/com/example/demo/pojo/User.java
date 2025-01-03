@@ -26,7 +26,7 @@ import java.sql.Timestamp;
 @Data
 public class User {
 
-    private String user_id;
+    private Integer user_id;
     private String username;
     private String password;
     private String email;

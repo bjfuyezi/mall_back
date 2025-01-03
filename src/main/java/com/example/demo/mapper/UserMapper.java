@@ -21,10 +21,10 @@ public interface UserMapper {
     /**
      * 根据ID获取用户
      *
-     * @param id 用户ID
+     * @param userId 用户ID
      * @return 用户对象
      */
-    User selectById(@Param("id") int id);
+    User selectById(@Param("userId") Integer userId);
 
     /**
      * 根据用户名获取用户
@@ -40,14 +40,14 @@ public interface UserMapper {
      * @param user 用户对象
      * @return 受影响的行数
      */
-    int updateUser(@Param("user") User user);
+    int updateUser(User user);
     /**
      * 插入新用户
      *
      * @param user 用户对象
      * @return 受影响的行数
      */
-    int insertUser(@Param("user") User user);
+    int insertUser(User user);
     /**
      * 根据邮箱获取用户
      *
@@ -55,4 +55,7 @@ public interface UserMapper {
      * @return 用户对象
      */
     User selectByEmail(@Param("email") String email);
+
+    // 更新用户个人资料
+    int updateUserProfile(User user);
 }

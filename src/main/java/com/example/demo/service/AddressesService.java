@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.mapper.AddressesMapper;
-import com.example.demo.pojo.Address;
+import com.example.demo.pojo.Addresses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -12,34 +14,81 @@ public class AddressesService {
     @Autowired
     private AddressesMapper addressesMapper;
 
-    public List<Address> getAllAddresses() {
+    public List<Addresses> getAllAddresses() {
         return addressesMapper.selectAll();
     }
 
-    public Address getAddressById(int id) {
+    public Addresses getAddressById(int id) {
         return addressesMapper.selectById(id);
     }
 
-    public boolean addAddress(Address address) {
-        addressesMapper.insert(address);
-        return true;
+    public List<Addresses> getAddressesByUserId(int userId) {
+        return addressesMapper.selectByUserId(userId);
     }
 
-    public boolean updateAddress(Address address) {
-        Address existing = addressesMapper.selectById(address.getAddressId());
-        if (existing == null) {
+    @Transactional
+    public boolean addAddress(Addresses address) {
+        try {
+            address.setCreatedTime(new Date());
+            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
+                addressesMapper.resetDefaultAddress(address.getUserId());
+            }
+            addressesMapper.insert(address);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-        addressesMapper.update(address);
-        return true;
     }
 
+    @Transactional
+    public boolean updateAddress(Addresses address) {
+        try {
+            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
+                addressesMapper.resetDefaultAddress(address.getUserId());
+            }
+            addressesMapper.update(address);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Transactional
     public boolean deleteAddress(int id) {
-        Address existing = addressesMapper.selectById(id);
-        if (existing == null) {
+        try {
+            Addresses address = addressesMapper.selectById(id);
+            if (address == null) {
+                return false;
+            }
+            addressesMapper.deleteById(id);
+            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
+                List<Addresses> addresses = addressesMapper.selectByUserId(address.getUserId());
+                if (!addresses.isEmpty()) {
+                    addressesMapper.setDefaultAddress(addresses.get(0).getAddressId());
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-        addressesMapper.deleteById(id);
-        return true;
+    }
+
+    @Transactional
+    public boolean setDefaultAddress(int addressId, int userId) {
+        try {
+            addressesMapper.resetDefaultAddress(userId);
+            addressesMapper.setDefaultAddress(addressId);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Addresses getDefaultAddress(int userId) {
+        return addressesMapper.getDefaultAddress(userId);
     }
 }

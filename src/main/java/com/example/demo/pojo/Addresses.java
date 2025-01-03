@@ -2,15 +2,14 @@ package com.example.demo.pojo;
 
 import lombok.Data;
 import java.util.Date;
-import java.util.Date;
 
 @Data
-public class Address {
+public class Addresses {
     private Integer addressId;
     private Integer userId;
     private String addressContent;
     private Date createdTime;
     private String province;
-    private boolean isDefault;
+    private Integer isDefault;
     private String phone;
 }
