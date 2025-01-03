@@ -49,4 +49,20 @@ public class PictureService {
         Path imagePath = Paths.get(UPLOAD_DIR).resolve(picture.getName());//根据名称计算路径
         return Files.readAllBytes(imagePath);//读文件
     }
+
+    public String getImageName(int id) throws IOException {
+        Picture picture = pictureMapper.selectById(id);
+        if (picture == null){
+            return null;
+        }
+        return picture.getName();
+    }
+
+    public String getImageUrl(int id) throws IOException {
+        Picture picture = pictureMapper.selectById(id);
+        if (picture == null){
+            return null;
+        }
+        return picture.getUrl();
+    }
 }
