@@ -24,30 +24,14 @@ public class ProductService {
      */
     @Autowired
     private ProductMapper productMapper;
-//    public List<Product> getAllSaleProduct() {
-//        return productMapper.selectAllSaleProduct();
-//    }
-//    public Product getProductById(int id) {
-//        return productMapper.selectById(id);
-//    }
-//    public Product getProductByName(String name) {
-//        return productMapper.selectByName(name);
-//    }
-//    public boolean setProductStatus(int id, ProductStatus status){
-//        Product product = getProductById(id);
-//        if(product == null){
-//            return false;
-//        }
-//        productMapper.updateStatus(id, status);
-//        return true;
-//    }
 
-//    public boolean updateProduct(Product product){
-//        Product test = productMapper.selectById(product.getProduct_id());
-//        if(test == null){
-//            return false;
-//        }
-//        productMapper.updateProduct(product);
-//        return true;
-//    }
+    public Integer getSalenumByShopId(Integer id) {
+        Integer sum = 0;
+        List<Product> products = productMapper.selectAllProductByShopId(id);
+        for (Product product : products) {
+            sum += product.getSalenum();
+        }
+        return sum;
+    }
+
 }
