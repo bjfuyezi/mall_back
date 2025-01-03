@@ -3,5 +3,88 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.UserCouponMapper">
+    <!-- 统计领取的优惠券数量 -->
+    <select id="countClaimedCoupons" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*) FROM user_coupons WHERE coupon_id = #{couponId}
+    </select>
+    <!-- 查询用户领取的某张券的总次数 -->
+    <select id="countClaimedCouponsByUserId" resultType="int">
+        SELECT COUNT(*) FROM user_coupons
+        WHERE user_id = #{userId} AND coupon_id = #{couponId}
+    </select>
 
+    <!-- 查询用户账户内未使用的该券数量 -->
+    <select id="countUnusedCouponsByUserId" resultType="int">
+        SELECT COUNT(*) FROM user_coupons
+        WHERE user_id = #{userId} AND coupon_id = #{couponId} AND status = 'Unused'
+    </select>
+
+    <!-- 插入用户优惠券记录 -->
+    <insert id="insertUserCoupon" parameterType="com.example.demo.pojo.UserCoupon" useGeneratedKeys="true" keyProperty="user_coupon_id">
+        INSERT INTO user_coupons (user_id, coupon_id, status, claim_time)
+        VALUES (#{userId}, #{couponId}, #{userCouponStatus}, #{claimTime})
+    </insert>
+
+    <!-- 查询平台券 -->
+    <select id="getPlatformCoupons" resultType="com.example.demo.pojo.UserCoupon">
+        SELECT uc.* FROM user_coupons uc
+        JOIN coupons c ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId} AND c.coupon_type = 'platform'
+        ORDER BY uc.claim_time DESC
+    </select>
+
+    <!-- 查询店铺券 -->
+    <select id="getShopCoupons" resultType="com.example.demo.pojo.UserCoupon">
+        SELECT uc.* FROM user_coupons uc
+        JOIN coupons c ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId} AND c.coupon_type = 'shop'
+        ORDER BY uc.claim_time DESC
+    </select>
+
+    <!-- 查询符合状态的平台券 -->
+    <select id="getPlatformCouponsByStatus" resultType="com.example.demo.pojo.UserCoupon">
+        SELECT uc.* FROM user_coupons uc
+        JOIN coupons c ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId} AND c.coupon_type = 'platform' AND uc.status = #{status}
+        ORDER BY uc.claim_time DESC
+    </select>
+
+    <!-- 查询符合状态的店铺券 -->
+    <select id="getShopCouponsByStatus" resultType="com.example.demo.pojo.UserCoupon">
+        SELECT uc.* FROM user_coupons uc
+        JOIN coupons c ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId} AND c.coupon_type = 'shop' AND uc.status = #{status}
+        ORDER BY uc.claim_time DESC
+    </select>
+
+    <!-- 获取优惠券的类型和范围 -->
+    <select id="getCouponTypeAndScope" resultType="map">
+        SELECT coupon_type AS couponType, scope FROM coupons
+        WHERE coupon_id = #{couponId}
+    </select>
+
+    <!-- 更新用户优惠券状态为 Used -->
+    <update id="updateCouponStatusToUsed">
+        UPDATE user_coupons
+        SET status = 'Used'
+        WHERE user_id = #{userId} AND coupon_id = #{couponId} AND status = 'Unused';
+    </update>
+
+    <!-- 根据商品 ID 查询商品详情 -->
+    <select id="getProductsByIds" resultType="com.example.demo.pojo.Product">
+        SELECT * FROM products
+        WHERE product_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据店铺 ID 查询店铺详情 -->
+    <select id="getShopsByIds" resultType="com.example.demo.pojo.Shop">
+        SELECT *  FROM shops
+        WHERE shop_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
