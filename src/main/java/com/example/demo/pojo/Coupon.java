@@ -20,11 +20,13 @@ public class Coupon {
     private BigInteger total;//总数量
     private Integer claimLimit;//限制领取数量
     private Integer maxUnusedCount;//最多允许账户里存在几张未使用的本券
+    private Date createTime;//券的创建时间，根据这个进行排序
+    private int shopId;
 
     public Coupon() {
     }
 
-    public Coupon(CouponType couponType, Date startTime, Date endTime, String scope, double request, double off, CouponStatus couponStatus, BigInteger total, Integer claimLimit, Integer maxUnusedCount) {
+    public Coupon(CouponType couponType, Date startTime, Date endTime, String scope, double request, double off, CouponStatus couponStatus, BigInteger total, Integer claimLimit, Integer maxUnusedCount, Date createTime, int shopId) {
         this.couponType = couponType;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -35,5 +37,7 @@ public class Coupon {
         this.total = total;
         this.claimLimit = claimLimit;
         this.maxUnusedCount = maxUnusedCount;
+        this.createTime = createTime;
+        this.shopId = shopId;
     }
 }

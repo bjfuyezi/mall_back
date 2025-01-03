@@ -32,7 +32,7 @@ new ResponseEntity<>(HttpStatus.ok) 用于规范返回code，便于前端处理�
  */
 
 @RestController
-@RequestMapping("/shop")
+@RequestMapping("/product")
 public class ProductRouter {
 
     @Autowired
@@ -40,117 +40,28 @@ public class ProductRouter {
     @Autowired
     private PictureService pictureService;
 
-//    @GetMapping("/")
-//    public ResponseEntity<List<Product>> getAllSaleProduct() {
-//        return new ResponseEntity<>(productService.getAllSaleProduct(), HttpStatus.OK);
-//    }
-
     /**
-     * 更新指定ID的店铺状态。
+     * 查找指定店铺ID的销量。
      *
-     * @param id     店铺唯一标识符 (作为查询参数)
-     * @param status 新的状态值 (作为查询参数)
-     * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
-     *         如果更新失败，则返回 500 Internal Server Error。
+     * @param request     查询体
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
      */
-//    @PutMapping("/status")//http://localhost:8081/shop/status?id=1&status=closed
-//    public ResponseEntity<Void> setShopStatus(
-//            @RequestParam("id") int id,
-//            @RequestParam("status") ProductStatus status) {
-//        try {
-//            boolean updated = productService.setProductStatus(id, status);
-//            if (updated) {
-//                return new ResponseEntity<>(HttpStatus.OK); //200ok
-//            } else {
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
-//            }
-//        } catch (Exception e) {
-//            // 记录异常信息到日志
-//            System.out.println(e);
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
-//        }
-//    }
-//
-//    /**
-//     * 查找指定ID的店铺。
-//     *
-//     * @param request     查询体
-//     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
-//     */
-//    @PostMapping("/getById")//http://localhost:8081/shop/getById
-//    public Shop getShopById(@RequestBody Map<String, Object> request) {
-//        Integer id = (Integer) request.get("id");
-//        try {
-//            Shop t = productService.getShopById(id);
-//            if (t != null) {
-//                return t;
-//            } else {
-//                return null;
-//            }
-//        } catch (Exception e) {
-//            // 记录异常信息到日志
-//            System.out.println(e);
-//            return null;
-//        }
-//    }
-//
-//    /**
-//     * 查找指定User_id的店铺状态。
-//     *
-//     * @param request     查询体
-//     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
-//     */
-//    @PostMapping("/checkStatus")
-//    public String checkStatus(@RequestBody Map<String, Object> request) {
-//        System.out.println("Check");
-//        Integer id = (Integer) request.get("id");
-//        try {
-//            Shop t = productService.getShopByUserId(id);
-//            if (t != null) {
-//                if ( t.getStatus() != ShopStatus.waiting )
-//                    return "almost shop";
-//                return "waiting";
-//            } else {
-//                return "no shop";
-//            }
-//        } catch (Exception e) {
-//            // 记录异常信息到日志
-//            System.out.println(e);
-//            return null;
-//        }
-//    }
-//
-//    // 处理店铺申请的 POST 请求
-//    @PostMapping("/apply")
-//    public ResponseEntity<String> apply(
-//            @RequestParam("shop_name") String shopName,
-//            @RequestParam("shop_description") String shopDescription,
-//            @RequestParam("province") String province,
-//            @RequestParam("pictures") MultipartFile pictures,
-//            @RequestParam("user_id") String user_id) {
-//
-//        // 打印接收到的参数（用于调试）
-////        System.out.println("店铺名称: " + shopName);
-////        System.out.println("店铺描述: " + shopDescription);
-////        System.out.println("特产地: " + province);
-////        System.out.println(Integer.valueOf(user_id));
-//
-//        Integer picture_id = null;
-//        // 处理文件上传
-//        try {
-//            if (!pictures.isEmpty()) {
-//                picture_id = pictureService.save_picture(pictures);
-//                System.out.println(picture_id);
-//                productService.createShop(shopName, shopDescription, province, picture_id, Integer.valueOf(user_id));
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body("文件上传失败");
-//        } catch (NameException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        // 返回成功响应
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    @PostMapping("/getSalenumByShopId")
+    public ResponseEntity<Integer> getSalenumByShopId(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            Integer t = productService.getSalenumByShopId(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+
 }
