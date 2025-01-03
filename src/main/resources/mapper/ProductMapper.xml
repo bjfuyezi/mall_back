@@ -30,7 +30,7 @@
     </update>
     <update id="updateProduct" parameterType="com.example.demo.pojo.Product">
         update product set name = #{name}, description = #{description}, location = #{location}, updated_time = #{updated_time}, notice = #{notice},
-                           discount = #{discount}, unit = #{unit}, quantity = #{quantity}, picture_id = #{picture_id}, category = #{category}, price = #{price}
+                           discount = #{discount}, unit = #{unit}, quantity = #{quantity, typeHandler=com.example.demo.utils.JsonQuantityConverter}, picture_id = #{picture_id, typeHandler=com.example.demo.utils.JsonPicIdConverter}, category = #{category}, price = #{price}, salenum = #{salenum}
         where product_id = #{product_id};
     </update>
 
@@ -38,7 +38,7 @@
         delete from product where product_id = #{id};
     </delete>
     <insert id="insert" parameterType="com.example.demo.pojo.Product" useGeneratedKeys="true" keyProperty="product_id">
-        insert into product(shop_id, name, category, price, description, quantity, picture_id, status, created_time,updated_time, location, notice, discount, unit)
-        values (#{shop_id}, #{name}, #{category}, #{price}, #{description}, #{quantity}, #{picture_id}, #{status}, #{created_time},#{updated_time}, #{location}, #{notice}, #{discount}, #{unit})
+        insert into product(shop_id, name, category, price, description, quantity, picture_id, status, created_time,updated_time, location, notice, discount, unit, salenum)
+        values (#{shop_id}, #{name}, #{category}, #{price}, #{description}, #{quantity, typeHandler=com.example.demo.utils.JsonQuantityConverter}, #{picture_id, typeHandler=com.example.demo.utils.JsonPicIdConverter}, #{status}, #{created_time},#{updated_time}, #{location}, #{notice}, #{discount}, #{unit}, #{salenum})
     </insert>
 </mapper>

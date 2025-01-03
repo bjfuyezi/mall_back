@@ -150,4 +150,27 @@ public class ShopRouter {
         // 返回成功响应
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**
+     * 查找指定ID的店铺。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/getByUserId")//http://localhost:8081/shop/getById
+    public Shop getShopByUserId(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            Shop t = shopService.getShopByUserId(id);
+            if (t != null) {
+                return t;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return null;
+        }
+    }
 }
