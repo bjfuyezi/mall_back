@@ -1,5 +1,6 @@
 package com.example.demo.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,20 +13,20 @@ datetime 时间统一使用Date
  */
 @Data
 public class CartItem {
-    private Integer cartItemId;//购物车项id
-    private Integer userId;//购物车所属用户id
-    private Integer productId;//购物车项对应商品id
-    private Integer quantity;//商品数量
-    private Date addedTime;//加入购物车时间
-    private Integer shopId;//店铺id
+    private Integer cart_item_id; // 购物车项 ID
+    private Integer user_id;      // 购物车所属用户 ID
+    private Integer product_id;   // 购物车项对应商品 ID
+    private Integer quantity;     // 商品数量
+    private Date added_time;      // 加入购物车时间
+    private Integer shop_id;      // 店铺 ID
 
     public CartItem() {
     }
 
-    public CartItem(Integer userId, Integer productId, Integer quantity, Integer shopId) {
-        this.userId = userId;
-        this.productId = productId;
+    public CartItem(Integer user_id, Integer product_id, Integer quantity, Integer shop_id) {
+        this.user_id = user_id;
+        this.product_id = product_id;
         this.quantity = quantity;
-        this.shopId = shopId;
+        this.shop_id = shop_id;
     }
 }

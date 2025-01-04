@@ -1,5 +1,6 @@
 package com.example.demo.router;
 
+import com.example.demo.config.Utils;
 import com.example.demo.enums.CouponType;
 import com.example.demo.pojo.Coupon;
 import com.example.demo.service.CouponService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -18,50 +20,82 @@ public class CouponRouter {
     private CouponService couponService;
 
     /*优惠券的创建：【增】
-    * 前端需要传入的数据有：
-    *   -类型couponType:根据前端不同身份用户创建时指定，卖家指定为shop,平台指定为platform
-    *   -开始时间startTime:表单传参
-    *   -结束时间endTime:表单传参
-    *   -适用范围scope：平台券初始默认为空，店铺券必须初始至少支持适用一个商品，后续在生效前都可以再添加或者修改
-    *   -最低消费request:表单传参
-    *   -满减金额off:表单传参
-    *   -状态couponStatus:创建时初始默认为Pending【待生效】，不用传入
-    *   -总数量total：表单传参，表单上有默认值99999999
-    *   -限制领取数量claimLimit：表单传参，表单上有默认值3
-    *   -单用户账户内未使用的此优惠券最大数量maxUnusedCount：表单传参，表单上有默认值3
-    *   -店铺id：shopId,如果是平台券则为0
-    * */
+     * 前端需要传入的数据有：
+     *   - 类型coupon_type: 根据前端不同身份用户创建时指定，卖家指定为shop,平台指定为platform
+     *   - 开始时间start_time: 表单传参
+     *   - 结束时间end_time: 表单传参
+     *   - 适用范围scope：平台券初始默认为空，店铺券必须初始至少支持适用一个商品，后续在生效前都可以再添加或者修改
+     *   - 最低消费request: 表单传参
+     *   - 满减金额off: 表单传参
+     *   - 状态coupon_status: 创建时初始默认为Pending【待生效】，不用传入
+     *   - 总数量total：表单传参，表单上有默认值99999999
+     *   - 限制领取数量claim_limit：表单传参，表单上有默认值3
+     *   - 单用户账户内未使用的此优惠券最大数量max_unused_count：表单传参，表单上有默认值3
+     *   - 店铺id：shop_id,如果是平台券则为0
+     * */
+    /*预期传入的参数：[示例1]
+    * {
+    *   coupon_type:shop
+    *   start_time:2025-01-05 00:00:00
+    *   end_time:2025-02-05 00:00:00
+    *   scope:[1,2]
+    *   request:100
+    *   off:10
+    *   total:9999999999
+    *   claim_limit:5
+    *   max_unused_count:3
+    *   shop_id:1
+    * }
+    * 【示例2】
+    * {
+     *   coupon_type:platform
+     *   start_time:2025-01-06 00:00:00
+     *   end_time:2025-02-06 00:00:00
+     *   scope:[1,2]
+     *   request:100
+     *   off:10
+     *   total:9999999999
+     *   claim_limit:5
+     *   max_unused_count:3
+     *   shop_id:0
+     * }*/
     @PostMapping("/create")
     public ResponseEntity<String> createCoupon(
-            @RequestParam("coupon_type") CouponType couponType,
-            @RequestParam("start_time") String startTime,
-            @RequestParam("end_time") String endTime,
-            @RequestParam("scope") String scope,
-            @RequestParam("request") double request,
-            @RequestParam("off") double off,
-            @RequestParam("total") BigInteger total,
-            @RequestParam("claim_limit") Integer claimLimit,
-            @RequestParam("max_unused_count") Integer maxUnusedCount,
-            @RequestParam("shop_id") Integer shopId
+            @RequestBody Coupon coupon
     ) {
         try {
-            couponService.createCoupon(couponType,startTime,endTime,scope,
-                    request, off, total, claimLimit, maxUnusedCount,shopId);
-            return ResponseEntity.status(HttpStatus.CREATED).body("优惠券创建成功");
+            System.out.println("Coupon Type: " + coupon.getCoupon_type());
+            System.out.println("Start Time class" + coupon.getStart_time().getClass());
+            System.out.println("Start Time: " + coupon.getStart_time());
+            System.out.println("End Time: " + coupon.getEnd_time());
+            System.out.println("Scope: " + coupon.getScope());
+            System.out.println("Request: " + coupon.getRequest());
+            System.out.println("Off: " + coupon.getOff());
+            System.out.println("Total: " + coupon.getTotal());
+            System.out.println("Claim Limit: " + coupon.getClaim_limit());
+            System.out.println("Max Unused Count: " + coupon.getMax_unused_count());
+            System.out.println("Shop ID: " + coupon.getShop_id());
+
+            couponService.createCoupon(coupon);
+            System.out.println("ok");
+            return ResponseEntity.status(HttpStatus.OK).body("优惠券创建成功");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("创建失败,格式不符合要求: " + e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("创建失败: " + e.getMessage());
         }
     }
 
     /*删除某券【删】
     * 传入参数：
-    *   - 券的id：couponId
+    *   - 券的id：coupon_id
     * 处理逻辑：
     *   - 先判断，券的状态，如果为Pending未生效，则可以直接删除，如果为其它状态则需要判断券是否被领取过，
     *   - 也就是用户的领取的券里面是否有该券，有则不可以删除并给出提示，没有则可以删除*/
-    @DeleteMapping("/delete/{couponId}")
-    public ResponseEntity<String> deleteCoupon(@PathVariable Integer couponId) {
-        boolean result = couponService.deleteCoupon(couponId);
+    @DeleteMapping("/delete/{coupon_id}")
+    public ResponseEntity<String> deleteCoupon(@PathVariable Integer coupon_id) {
+        boolean result = couponService.deleteCoupon(coupon_id);
         if (result) {
             return ResponseEntity.ok("优惠券删除成功");
         }
@@ -81,9 +115,9 @@ public class CouponRouter {
      *   - 创建的晚的券排序更靠前
      *   - 列表形式展示
      *   - 提供的功能有：（修改）、（暂停发放）、（删除）【前端按钮实现】*/
-    @GetMapping("/shop/{shopId}")
-    public ResponseEntity<List<Coupon>> getShopCoupons(@PathVariable Integer shopId) {
-        return ResponseEntity.ok(couponService.getShopCoupons(shopId));
+    @GetMapping("/shop/{shop_id}")
+    public ResponseEntity<List<Coupon>> getShopCoupons(@PathVariable Integer shop_id) {
+        return ResponseEntity.ok(couponService.getShopCoupons(shop_id));
     }
 
     /*用户页面展示平台券【查】
@@ -99,30 +133,30 @@ public class CouponRouter {
 
     /*用户页面展示某一店铺券【查】
     * 传入参数：
-    *   - 店铺id：shopId
+    *   - 店铺id：shop_id
     * 返回结果：
     *   - 该店铺当前所有已生效状态Active的店铺优惠券*/
-    @GetMapping("/shop/{shopId}/active")
-    public ResponseEntity<List<Coupon>> getActiveShopCoupons(@PathVariable Integer shopId) {
-        List<Coupon> coupons = couponService.getActiveShopCoupons(shopId);
+    @GetMapping("/shop/{shop_id}/active")
+    public ResponseEntity<List<Coupon>> getActiveShopCoupons(@PathVariable Integer shop_id) {
+        List<Coupon> coupons = couponService.getActiveShopCoupons(shop_id);
         return ResponseEntity.ok(coupons);
     }
 
     /*券未生效前，修改券的内容【改】
     * 可以修改：开始时间、结束时间、适用范围、最低消费、满减金额、总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
     * 传入券的id和要修改的内容*/
-    @PutMapping("/update/pending/{couponId}")
+    @PutMapping("/update/pending/{coupon_id}")
     public ResponseEntity<String> updatePendingCoupon(
-            @PathVariable Integer couponId,
-            @RequestParam String startTime,
-            @RequestParam String endTime,
+            @PathVariable Integer coupon_id,
+            @RequestParam String start_time,
+            @RequestParam String end_time,
             @RequestParam Double request,
             @RequestParam Double off,
             @RequestParam BigInteger total,
-            @RequestParam Integer claimLimit,
-            @RequestParam Integer maxUnusedCount) {
+            @RequestParam Integer claim_limit,
+            @RequestParam Integer max_unused_count) {
         try {
-            couponService.updatePendingCouponContent(couponId, startTime, endTime, request, off, total, claimLimit, maxUnusedCount);
+            couponService.updatePendingCouponContent(coupon_id, start_time, end_time, request, off, total, claim_limit, max_unused_count);
             return ResponseEntity.ok("未生效优惠券修改成功");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未生效优惠券修改失败: " + e.getMessage());
@@ -133,15 +167,15 @@ public class CouponRouter {
     /*券生效后，修改券的内容【改】
     * 可以修改：总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
     * 传入券的id和要修改的内容*/
-    @PutMapping("/update/active/{couponId}")
+    @PutMapping("/update/active/{coupon_id}")
     public ResponseEntity<String> updateActiveCoupon(
-            @PathVariable Integer couponId,
+            @PathVariable Integer coupon_id,
             @RequestParam Integer total,
-            @RequestParam Integer claimLimit,
-            @RequestParam Integer maxUnusedCount) {
+            @RequestParam Integer claim_limit,
+            @RequestParam Integer max_unused_count) {
 
         try {
-            couponService.updateActiveCouponContent(couponId, total, claimLimit, maxUnusedCount);
+            couponService.updateActiveCouponContent(coupon_id, total, claim_limit, max_unused_count);
             return ResponseEntity.ok("已生效优惠券修改成功");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("已生效优惠券修改失败: " + e.getMessage());
@@ -151,11 +185,11 @@ public class CouponRouter {
 
     /*券生效后，暂停发放券【改】
     * 传入券的id，将该券的状态变更为Paused【暂停领取】【主要是为了避免发错券后的补救措施】*/
-    @PutMapping("/pause/{couponId}")
-    public ResponseEntity<String> pauseActiveCoupon(@PathVariable Integer couponId) {
+    @PutMapping("/pause/{coupon_id}")
+    public ResponseEntity<String> pauseActiveCoupon(@PathVariable Integer coupon_id) {
 
         try {
-            couponService.pauseActiveCoupon(couponId);
+            couponService.pauseActiveCoupon(coupon_id);
             return ResponseEntity.ok("优惠券暂停发放成功");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("优惠券暂停发放失败: " + e.getMessage());
@@ -167,31 +201,31 @@ public class CouponRouter {
 
     /*店铺加入参与某一平台券【改】
     * 传入参数：
-    *   - 店铺id：shopId,前端传入
-    *   - 平台券id：couponId,前端传入
+    *   - 店铺id：shop_id,前端传入
+    *   - 平台券id：coupon_id,前端传入
     * 结果：
     *   将该id券的适用范围增加一个店铺id信息并更新*/
     @PostMapping("/addShopToCoupon")
     public ResponseEntity<String> addShopToCoupon(
-            @RequestParam Integer shopId,
-            @RequestParam Integer couponId
+            @RequestParam Integer shop_id,
+            @RequestParam Integer coupon_id
     ) throws Exception {
-        couponService.addShopToCoupon(shopId, couponId);
+        couponService.addShopToCoupon(shop_id, coupon_id);
         return ResponseEntity.ok("Shop successfully added to the coupon");
     }
 
     /*店铺修改店铺券的适用范围【改】
     * 传入参数：
-    *   - 店铺券id：couponId,前端传入
-    *   - 参与的商品id数组：productIds,前端传入，通过多选框进行选择，前端先展示已参与的商品，卖家可以随意选择参与商品，但至少选择一个
+    *   - 店铺券id：coupon_id,前端传入
+    *   - 参与的商品id数组：product_ids,前端传入，通过多选框进行选择，前端先展示已参与的商品，卖家可以随意选择参与商品，但至少选择一个
     * 结果：
     *   - 更新该id券的适用范围为参与的商品id数组*/
     @PostMapping("/updateShopCouponScope")
     public ResponseEntity<String> updateShopCouponScope(
-            @RequestParam Integer couponId,
-            @RequestParam List<Integer> productIds
+            @RequestParam Integer coupon_id,
+            @RequestParam List<Integer> product_ids
     ) throws Exception {
-        couponService.updateShopCouponScope(couponId, productIds);
+        couponService.updateShopCouponScope(coupon_id, product_ids);
         return ResponseEntity.ok("Shop coupon scope updated successfully");
     }
 
