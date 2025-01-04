@@ -12,38 +12,38 @@ import java.util.List;
 
 @Mapper
 public interface CouponMapper {
-    int createCoupon(Coupon coupon);
+    void createCoupon(Coupon coupon);
 
-    Coupon selectCouponById(Integer couponId);
+    Coupon selectCouponById(Integer coupon_id);
 
-    int deleteCouponById(Integer couponId);
+    int deleteCouponById(Integer coupon_id);
 
-    List<Coupon> selectCouponsByType(CouponType couponType);
+    List<Coupon> selectCouponsByType(CouponType coupon_type);
 
-    List<Coupon> selectCouponsByShopId(Integer shopId);
+    List<Coupon> selectCouponsByShopId(Integer shop_id);
 
     // 获取当前生效的平台券
-    List<Coupon> getActivePlatformCoupons(CouponType couponType);
+    List<Coupon> getActivePlatformCoupons(CouponType coupon_type);
 
     // 获取某一店铺当前生效的优惠券
-    List<Coupon> getActiveShopCoupons(Integer shopId);
+    List<Coupon> getActiveShopCoupons(Integer shop_id);
 
-    int updatePendingCouponContent(Integer couponId, Date startTime, Date endTime, Double request, Double off,
-                                   BigInteger total, Integer claimLimit, Integer maxUnusedCount);
+    int updatePendingCouponContent(Integer coupon_id, Date start_time, Date end_time, Double request, Double off,
+                                   BigInteger total, Integer claim_limit, Integer max_unused_count);
 
 
-    int updateActiveCouponContent(Integer couponId, Integer total, Integer claimLimit, Integer maxUnusedCount);
+    int updateActiveCouponContent(Integer coupon_id, Integer total, Integer claim_limit, Integer max_unused_count);
 
     /**
      * 暂停发放已生效的券
-     * @param couponId 优惠券ID
+     * @param coupon_id 优惠券ID
      * @return 更新结果
      */
-    int pauseActiveCoupon(Integer couponId);
+    int pauseActiveCoupon(Integer coupon_id);
 
     // 更新券的范围
     void updateCouponScope(Coupon coupon);
 
-    int decrementCouponTotal(@Param("couponId") Integer couponId);
+    int decrementCouponTotal(@Param("coupon_id") Integer coupon_id);
     // @Param 注解，MyBatis 会将参数封装为 Map，自动通过别名查找参数。
 }

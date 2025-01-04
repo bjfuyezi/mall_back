@@ -6,45 +6,45 @@
     <!-- 创建优惠券 -->
     <insert id="createCoupon" parameterType="com.example.demo.pojo.Coupon"
             useGeneratedKeys="true" keyProperty="coupon_id">
-        INSERT INTO coupons (coupon_type, start_time, end_time, scope, request, off, coupon_status, total, claim_limit, max_unused_count, create_time,shop_id)
-        VALUES (#{couponType}, #{startTime}, #{endTime}, #{scope}, #{request}, #{off}, #{couponStatus}, #{total}, #{claimLimit}, #{maxUnusedCount}, #{createTime},#{shopId})
+        INSERT INTO coupons(coupon_type, start_time, end_time, scope, request, off, coupon_status, total, claim_limit, max_unused_count, create_time,shop_id)
+        VALUES (#{coupon_type}, #{start_time}, #{end_time}, #{scope}, #{request}, #{off}, #{coupon_status}, #{total}, #{claim_limit}, #{max_unused_count}, #{create_time},#{shop_id})
     </insert>
 
     <!-- 删除优惠券 -->
     <delete id="deleteCouponById" parameterType="Integer">
-        DELETE FROM coupons WHERE coupon_id = #{couponId}
+        DELETE FROM coupons WHERE coupon_id = #{coupon_id}
     </delete>
 
     <!-- 查询优惠券 -->
     <select id="selectCouponById" parameterType="Integer" resultType="com.example.demo.pojo.Coupon">
-        SELECT * FROM coupons WHERE coupon_id = #{couponId}
+        SELECT * FROM coupons WHERE coupon_id = #{coupon_id}
     </select>
 
     <!-- 获取平台券 -->
     <select id="selectCouponsByType" parameterType="com.example.demo.enums.CouponType" resultType="com.example.demo.pojo.Coupon">
         SELECT * FROM coupons
-        WHERE coupon_type = #{couponType}
+        WHERE coupon_type = #{coupon_type}
         ORDER BY create_time DESC
     </select>
 
     <!-- 获取店铺券 -->
     <select id="selectCouponsByShopId" parameterType="Integer" resultType="com.example.demo.pojo.Coupon">
         SELECT * FROM coupons
-        WHERE shop_id = #{shopId} AND coupon_type = 'shop'
+        WHERE shop_id = #{shop_id} AND coupon_type = 'shop'
         ORDER BY create_time DESC
     </select>
 
     <!-- 获取当前生效的平台券 -->
     <select id="getActivePlatformCoupons" parameterType="com.example.demo.enums.CouponType" resultType="com.example.demo.pojo.Coupon">
         SELECT * FROM coupons
-        WHERE coupon_type = #{couponType} AND coupon_status = 'Active'
+        WHERE coupon_type = #{coupon_type} AND coupon_status = 'Active'
         ORDER BY create_time DESC
     </select>
 
     <!-- 获取某一店铺当前生效的优惠券 -->
     <select id="getActiveShopCoupons" parameterType="integer" resultType="com.example.demo.pojo.Coupon">
         SELECT * FROM coupons
-        WHERE shop_id = #{shopId} AND coupon_status = 'Active'
+        WHERE shop_id = #{shop_id} AND coupon_status = 'Active'
         ORDER BY create_time DESC
     </select>
 
@@ -52,14 +52,14 @@
     <update id="updatePendingCouponContent" parameterType="map">
         UPDATE coupons
         SET
-            start_time = #{startTime},
-            end_time = #{endTime},
+            start_time = #{start_time},
+            end_time = #{end_time},
             request = #{request},
             off = #{off},
             total = #{total},
-            claim_limit = #{claimLimit},
-            max_unused_count = #{maxUnusedCount}
-        WHERE coupon_id = #{couponId} AND coupon_status = 'Pending';
+            claim_limit = #{claim_limit},
+            max_unused_count = #{max_unused_count}
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Pending';
     </update>
 
     <!-- 修改已生效券的部分内容 -->
@@ -67,29 +67,31 @@
         UPDATE coupons
         SET
             total = #{total},
-            claim_limit = #{claimLimit},
-            max_unused_count = #{maxUnusedCount}
-        WHERE coupon_id = #{couponId} AND coupon_status = 'Active';
+            claim_limit = #{claim_limit},
+            max_unused_count = #{max_unused_count}
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active';
     </update>
 
     <!-- 暂停发放已生效的券 -->
     <update id="pauseActiveCoupon" parameterType="Integer">
         UPDATE coupons
         SET coupon_status = 'Paused'
-        WHERE coupon_id = #{couponId} AND coupon_status = 'Active';
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active';
     </update>
 
     <update id="updateCouponScope" parameterType="com.example.demo.pojo.Coupon">
         UPDATE coupons
         <set>
-            <if test="scope != null">scope = #{scope}</if>
+            <if test="scope != null">
+                scope = #{scope}
+            </if>
         </set>
-        WHERE coupon_id = #{couponId}
+        WHERE coupon_id = #{coupon_id}
     </update>
 
     <!-- 减少优惠券总量 -->
     <update id="decrementCouponTotal">
         UPDATE coupons SET total = total - 1
-        WHERE coupon_id = #{couponId} AND total > 0
+        WHERE coupon_id = #{coupon_id} AND total > 0
     </update>
 </mapper>

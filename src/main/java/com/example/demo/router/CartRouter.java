@@ -36,30 +36,30 @@ public class CartRouter {
     /**
      * 获取用户购物车商品列表
      *
-     * @param userId 用户ID
+     * @param user_id 用户ID
      * @return 返回用户的购物车商品列表
      */
     @GetMapping("/items")  // 使用 GET 方法来获取用户购物车商品
-    public ResponseEntity<?> getCartItems(@RequestParam int userId) {
+    public ResponseEntity<?> getCartItems(@RequestParam int user_id) {
         // 调用 CartService 获取用户购物车商品列表，返回一个包含商品信息的列表
-        return ResponseEntity.ok(cartService.getCartItemsByUserId(userId));  // 使用 ResponseEntity 返回 HTTP 响应
+        return ResponseEntity.ok(cartService.getCartItemsByUserId(user_id));  // 使用 ResponseEntity 返回 HTTP 响应
     }
 
     /**
      * 用户加入商品到购物车
      *
-     * @param userId    用户ID
-     * @param productId 商品ID
+     * @param user_id    用户ID
+     * @param product_id 商品ID
      * @param quantity  商品数量
-     * @param shopId    商品所属店铺ID
+     * @param     商品所属店铺ID
      * @return 是否成功加入购物车
      */
     @PostMapping("/add")
-    public ResponseEntity<String> addProductToCart(@RequestParam int userId,
-                                                   @RequestParam int productId,
+    public ResponseEntity<String> addProductToCart(@RequestParam int user_id,
+                                                   @RequestParam int product_id,
                                                    @RequestParam int quantity,
-                                                   @RequestParam int shopId) {
-        boolean isAdded = cartService.addProductToCart(userId, productId, quantity, shopId);
+                                                   @RequestParam int shop_id) {
+        boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
         if (isAdded) {
             return ResponseEntity.status(HttpStatus.CREATED).body("商品已加入购物车");
         } else {
@@ -70,16 +70,16 @@ public class CartRouter {
     /**
      * 更新购物车商品数量
      *
-     * @param userId    用户ID
-     * @param productId 商品ID
+     * @param user_id    用户ID
+     * @param product_id 商品ID
      * @param quantity  更新后的商品数量
      * @return 是否成功更新购物车商品数量
      */
     @PutMapping("/update")
-    public ResponseEntity<String> updateCartItemQuantity(@RequestParam int userId,
-                                                         @RequestParam int productId,
+    public ResponseEntity<String> updateCartItemQuantity(@RequestParam int user_id,
+                                                         @RequestParam int product_id,
                                                          @RequestParam int quantity) {
-        boolean isUpdated = cartService.updateCartItemQuantity(userId, productId, quantity);
+        boolean isUpdated = cartService.updateCartItemQuantity(user_id, product_id, quantity);
         if (isUpdated) {
             return ResponseEntity.ok("购物车商品数量更新成功");
         } else {
@@ -90,14 +90,14 @@ public class CartRouter {
     /**
      * 删除购物车商品
      *
-     * @param userId    用户ID
-     * @param productId 商品ID
+     * @param user_id    用户ID
+     * @param product_id 商品ID
      * @return 删除是否成功
      */
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteCartItem(@RequestParam int userId,
-                                                 @RequestParam int productId) {
-        boolean isDeleted = cartService.deleteCartItem(userId, productId);
+    public ResponseEntity<String> deleteCartItem(@RequestParam int user_id,
+                                                 @RequestParam int product_id) {
+        boolean isDeleted = cartService.deleteCartItem(user_id, product_id);
         if (isDeleted) {
             return ResponseEntity.ok("商品已从购物车中删除");
         } else {

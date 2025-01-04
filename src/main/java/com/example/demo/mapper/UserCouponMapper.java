@@ -11,29 +11,29 @@ import java.util.Map;
 
 @Mapper
 public interface UserCouponMapper {
-    Integer countClaimedCoupons(Integer couponId);
+    Integer countClaimedCoupons(Integer coupon_id);
 
-    int countClaimedCouponsByUserId(@Param("userId") Integer userId, @Param("couponId") Integer couponId);
-    int countUnusedCouponsByUserId(@Param("userId") Integer userId, @Param("couponId") Integer couponId);
+    int countClaimedCouponsByUserId(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
+    int countUnusedCouponsByUserId(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
     int insertUserCoupon(UserCoupon userCoupon);
 
-    List<UserCoupon> getPlatformCoupons(@Param("userId") Integer userId);
+    List<UserCoupon> getPlatformCoupons(@Param("user_id") Integer user_id);
 
-    List<UserCoupon> getShopCoupons(@Param("userId") Integer userId);
+    List<UserCoupon> getShopCoupons(@Param("user_id") Integer user_id);
 
     // 查询用户的符合状态的平台券
-    List<UserCoupon> getPlatformCouponsByStatus(@Param("userId") Integer userId,
+    List<UserCoupon> getPlatformCouponsByStatus(@Param("user_id") Integer user_id,
                                                 @Param("status") String status);
 
     // 查询用户的符合状态的店铺券
-    List<UserCoupon> getShopCouponsByStatus(@Param("userId") Integer userId,
+    List<UserCoupon> getShopCouponsByStatus(@Param("user_id") Integer user_id,
                                             @Param("status") String status);
 
     // 获取优惠券的类型和范围
-    Map<String, Object> getCouponTypeAndScope(@Param("couponId") Integer couponId);
+    Map<String, Object> getCouponTypeAndScope(@Param("coupon_id") Integer coupon_id);
 
     // 更新优惠券状态为 Used
-    int updateCouponStatusToUsed(@Param("userId") Integer userId, @Param("couponId") Integer couponId);
+    int updateCouponStatusToUsed(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
 
     //其实本来应该是product和shop类的,[现在懒得管了]
     // 根据商品 ID 查询商品详情
