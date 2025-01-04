@@ -11,8 +11,9 @@ public class Comment {
     private String content;
     private int level;
     private int product_id;
-    private String status;
+    private String status="待评价";
     private Date created_time;
+    private int picture_id;
 
     public int getComment_id() {
         return comment_id;
@@ -84,4 +85,8 @@ public class Comment {
     public void setCreated_time(Date created_time) {
         this.created_time = created_time;
     }
+    public int getPicture_id() {
+        return picture_id;
+    }
+    public void setPicture_id(int picture_id) {}
 }

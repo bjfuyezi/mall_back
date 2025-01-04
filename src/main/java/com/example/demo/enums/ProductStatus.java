@@ -1,5 +1,5 @@
 package com.example.demo.enums;
 
 public enum ProductStatus {
-    sale, empty, waiting
+    pending, shoping, delivered, cancelled,comment;
 }

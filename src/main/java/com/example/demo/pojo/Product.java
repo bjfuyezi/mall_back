@@ -16,8 +16,11 @@ public class Product {
     private ProductType category;
     private double price;
     private String description;
-    private Map<String, Double> quantity;
-    private List<Integer> picture_id;
+
+    private String quantity;
+
+    private String picture_id;
+
     private ProductStatus status;
     private Date created_time;
     private Date updated_time;
@@ -25,4 +28,6 @@ public class Product {
     private String notice;
     private double discount;
     private String unit;
+    private Integer salenum;
+    private Integer greedy;
 }
