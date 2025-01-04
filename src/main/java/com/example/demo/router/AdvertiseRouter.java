@@ -1,6 +1,7 @@
 package com.example.demo.router;
 
 import com.example.demo.Exception.NameException;
+import com.example.demo.config.Utils;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
 import com.example.demo.pojo.Advertise;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -60,7 +62,7 @@ public class AdvertiseRouter {
      * 申请新的广告
      */
     @PostMapping("/create")
-    public ResponseEntity<Void> createAdvertise(
+    public ResponseEntity<String> createAdvertise(
             @RequestParam("ps_id") int ps_id,
             @RequestParam("type") AdvertisementType type,
             @RequestParam("start_time") String start_time,
@@ -68,15 +70,30 @@ public class AdvertiseRouter {
             @RequestParam("price") double price,
             @RequestParam("picture") MultipartFile picture,
             @RequestParam("banner") boolean banner,
+            @RequestParam("times") int times,
             @RequestParam("name") String name){
         try {
-            int pic_id = pictureService.save_picture(picture);
-            advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,name);
-        } catch (ParseException | NameException | IOException e) {
+            if(banner){
+                Date start = Utils.TimetoDate(start_time);
+                Date end = Utils.TimetoDate(end_time);
+                if(!advertiseService.CheckBanner(start,end)){
+                    return new ResponseEntity<>("time error",HttpStatus.CONFLICT);
+                }else {
+                    int pic_id = pictureService.save_picture(picture);
+                    advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,times, name);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }
+            }else{
+                int pic_id = pictureService.save_picture(picture);
+                advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner, times, name);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+
+        } catch (ParseException | NameException | IOException | ClassNotFoundException e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
     /**
      * 更新指定 ID 的广告状态。
@@ -145,6 +162,19 @@ public class AdvertiseRouter {
             // 记录异常信息到日志
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+    @GetMapping("/money")
+    public ResponseEntity<String> CheckTime( @RequestParam("start") String start_time,
+                                             @RequestParam("end") String end_time,
+                                             @RequestParam("times") int times,
+                                             @RequestParam("banner") boolean banner){
+        try {
+            String money = advertiseService.Cal_Money(start_time,end_time,times,banner);
+            System.out.println(money);
+            return new ResponseEntity<>(money,HttpStatus.OK);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);//500 error
         }
     }
 }
