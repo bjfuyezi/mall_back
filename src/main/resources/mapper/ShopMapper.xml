@@ -16,7 +16,7 @@
         select * from shops where status = 'waiting';
     </select>
 
-    <update id="updateStatus" parameterType="com.example.demo.enums.ShopStatus">
+    <update id="updateStatus">
         update shops set status = #{status} where shop_id = #{id};
     </update>
     <update id="updateShop" parameterType="com.example.demo.pojo.Shop">

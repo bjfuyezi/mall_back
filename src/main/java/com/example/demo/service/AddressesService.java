@@ -23,7 +23,14 @@ public class AddressesService {
     }
 
     public List<Addresses> getAddressesByUserId(int userId) {
-        return addressesMapper.selectByUserId(userId);
+        try {
+            List<Addresses> addresses = addressesMapper.selectByUserId(userId);
+            System.out.println("Service layer - addresses found: " + addresses);
+            return addresses;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Transactional

@@ -45,15 +45,13 @@ public class ShopRouter {
     /**
      * 更新指定ID的店铺状态。
      *
-     * @param id     店铺唯一标识符 (作为查询参数)
-     * @param status 新的状态值 (作为查询参数)
      * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
      *         如果更新失败，则返回 500 Internal Server Error。
      */
-    @PutMapping("/status")//http://localhost:8081/shop/status?id=1&status=closed
-    public ResponseEntity<Void> setShopStatus(
-            @RequestParam("id") int id,
-            @RequestParam("status") ShopStatus status) {
+    @PostMapping("/status")//http://localhost:8081/shop/status?id=1&status=closed
+    public ResponseEntity<Void> setShopStatus(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        ShopStatus status = ShopStatus.valueOf((String) request.get("status"));
         try {
             boolean updated = shopService.setShopStatus(id, status);
             if (updated) {
@@ -99,7 +97,6 @@ public class ShopRouter {
      */
     @PostMapping("/checkStatus")
     public String checkStatus(@RequestBody Map<String, Object> request) {
-        System.out.println("Check");
         Integer id = (Integer) request.get("id");
         try {
             Shop t = shopService.getShopByUserId(id);
@@ -126,18 +123,11 @@ public class ShopRouter {
             @RequestParam("pictures") MultipartFile pictures,
             @RequestParam("user_id") String user_id) {
 
-        // 打印接收到的参数（用于调试）
-//        System.out.println("店铺名称: " + shopName);
-//        System.out.println("店铺描述: " + shopDescription);
-//        System.out.println("特产地: " + province);
-//        System.out.println(Integer.valueOf(user_id));
-
         Integer picture_id = null;
         // 处理文件上传
         try {
             if (!pictures.isEmpty()) {
                 picture_id = pictureService.save_picture(pictures);
-                System.out.println(picture_id);
                 shopService.createShop(shopName, shopDescription, province, picture_id, Integer.valueOf(user_id));
             }
         } catch (IOException e) {
@@ -172,5 +162,69 @@ public class ShopRouter {
             System.out.println(e);
             return null;
         }
+    }
+
+    /**
+     * 删除指定ID的店铺状态。
+     *
+     * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
+     *         如果更新失败，则返回 500 Internal Server Error。
+     */
+    @PostMapping("/deleteShop")
+    public ResponseEntity<Void> deleteShop(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            boolean updated = shopService.deleteShop(id);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 更新指定ID的店铺。
+     *
+     * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
+     *         如果更新失败，则返回 500 Internal Server Error。
+     */
+    @PostMapping("/updateShop")
+    public ResponseEntity<Void> updateShop(
+            @RequestParam("shop_id") String shopId,
+            @RequestParam("shop_name") String shopName,
+            @RequestParam("description") String description,
+            @RequestParam("location") String location,
+            @RequestParam("picture") MultipartFile picture) {
+        Integer id = Integer.parseInt(shopId);
+
+        Integer picture_id = null;
+        // 处理文件上传
+        try {
+            if (!picture.isEmpty()) {
+                picture_id = pictureService.save_picture(picture);
+                Shop shop = shopService.getShopById(id);
+                shop.setShop_name(shopName);
+                shop.setShop_description(description);
+                shop.setLocation(location);
+                shop.setPicture_id(picture_id);
+
+                shopService.updateShop(shop);
+                shopService.setShopStatus(id, ShopStatus.waiting);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+        } catch (NameException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 返回成功响应
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

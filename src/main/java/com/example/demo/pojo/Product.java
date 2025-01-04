@@ -17,9 +17,9 @@ public class Product {
     private double price;
     private String description;
 
-    private Map<String, Integer> quantity;
+    private String quantity;
 
-    private List<Integer> picture_id;
+    private String picture_id;
 
     private ProductStatus status;
     private Date created_time;
@@ -29,4 +29,5 @@ public class Product {
     private double discount;
     private String unit;
     private Integer salenum;
+    private Integer greedy;
 }

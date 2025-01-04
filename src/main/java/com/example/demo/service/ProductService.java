@@ -1,16 +1,22 @@
 package com.example.demo.service;
 
 import com.example.demo.enums.ProductStatus;
+import com.example.demo.enums.ProductType;
 import com.example.demo.enums.ShopStatus;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.Product;
 import com.example.demo.pojo.Shop;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 /*
 服务（Service）实现业务逻辑。
 @Service 标记的类通常包含复杂的业务规则、事务管理以及对多个 DAO 的协调调用。
@@ -24,30 +30,68 @@ public class ProductService {
      */
     @Autowired
     private ProductMapper productMapper;
-//    public List<Product> getAllSaleProduct() {
-//        return productMapper.selectAllSaleProduct();
-//    }
-//    public Product getProductById(int id) {
-//        return productMapper.selectById(id);
-//    }
-//    public Product getProductByName(String name) {
-//        return productMapper.selectByName(name);
-//    }
-//    public boolean setProductStatus(int id, ProductStatus status){
-//        Product product = getProductById(id);
-//        if(product == null){
-//            return false;
-//        }
-//        productMapper.updateStatus(id, status);
-//        return true;
-//    }
+    @Autowired
+    private ShopMapper shopMapper;
 
-//    public boolean updateProduct(Product product){
-//        Product test = productMapper.selectById(product.getProduct_id());
-//        if(test == null){
-//            return false;
-//        }
-//        productMapper.updateProduct(product);
-//        return true;
-//    }
+    public Integer getSalenumByShopId(Integer id) {
+        Integer sum = 0;
+        List<Product> products = productMapper.selectAllProductByShopId(id);
+        for (Product product : products) {
+            sum += product.getSalenum();
+        }
+        return sum;
+    }
+
+    public List<Product> getAllByShopId(Integer id) {
+        return productMapper.selectAllProductByShopId(id);
+    }
+
+    public String createProduct(String name, String category, Double price, String description, String unit, String notice, String stockJson, String images, Integer shop_id) throws JsonProcessingException {
+        // 处理重名
+        List<Product> productList = productMapper.selectAllProductByShopId(shop_id);
+        for (Product product : productList) {
+            if (product.getName().equals(name)) {
+                return "409";       // 存在重名
+            }
+        }
+        // 查找店铺
+        Shop shop = shopMapper.selectById(shop_id);
+        if (shop == null) {
+            return "404";     // 404
+        }
+        // 数据转换
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> imageList = new ArrayList<>(Arrays.asList(images.replaceAll(",$", "").split(",")));
+        String imageJson = objectMapper.writeValueAsString(imageList);
+        Map<String, String> categoryMap = new HashMap<>();
+        // 将中文类别和英文简写加入Map中
+        categoryMap.put("生鲜食品", "fresh");
+        categoryMap.put("零食小吃", "snack");
+        categoryMap.put("酒水饮料", "drink");
+        categoryMap.put("干货腌货", "dry");
+        categoryMap.put("即食食品", "instant");
+        categoryMap.put("农产品", "green");
+        // 新建商品
+        Product product = new Product();
+        product.setName(name);
+        product.setCategory(ProductType.valueOf(categoryMap.get(category)));
+        product.setPrice(price);
+        product.setDescription(description);
+        product.setUnit(unit);
+        product.setNotice(notice);
+        product.setShop_id(shop_id);
+        product.setQuantity(stockJson);
+        product.setPicture_id(imageJson);
+        product.setStatus(ProductStatus.waiting);
+        product.setCreated_time(new Date());
+        product.setUpdated_time(new Date());
+        product.setLocation(shop.getLocation());
+        product.setDiscount(0);
+        product.setSalenum(0);
+        product.setGreedy(0);
+
+        productMapper.insert(product);
+
+        return "200";
+    }
 }

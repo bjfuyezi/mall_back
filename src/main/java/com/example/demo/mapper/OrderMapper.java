@@ -9,5 +9,5 @@ import java.util.List;
 public interface OrderMapper {
     List<Orders> selectAll();
     void addOrder(Orders order);
-    void updateStatus(String id);
+    void updateStatusAndPaymentMethod(Orders order);
 }

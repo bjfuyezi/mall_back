@@ -20,7 +20,7 @@ public class Orders {
     private int shop_id;
     private int product_id;
     private int quantity;
-
+    private String discount;
 
     public int getOrder_id() {
         return order_id;
@@ -95,5 +95,11 @@ public class Orders {
     }
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+    public String getDiscount() {
+        return discount;
+    }
+    public void setDiscount(String discount) {
+        this.discount = discount;
     }
 }

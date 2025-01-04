@@ -15,7 +15,17 @@
 
     <!-- 根据用户ID获取地址列表 -->
     <select id="selectByUserId" parameterType="int" resultType="com.example.demo.pojo.Addresses">
-        SELECT * FROM addresses WHERE user_id = #{userId}
+        SELECT 
+            address_id as addressId,
+            user_id as userId,
+            address_content as addressContent,
+            created_time as createdTime,
+            province,
+            is_default as isDefault,
+            phone
+        FROM addresses 
+        WHERE user_id = #{userId}
+        ORDER BY is_default DESC, created_time DESC
     </select>
 
     <!-- 获取用户的默认地址 -->
@@ -25,8 +35,21 @@
 
     <!-- 插入新地址 -->
     <insert id="insert" parameterType="com.example.demo.pojo.Addresses" useGeneratedKeys="true" keyProperty="addressId">
-        INSERT INTO addresses (user_id, address_content, created_time, province, is_default, phone)
-        VALUES (#{userId}, #{addressContent}, #{createdTime}, #{province}, #{isDefault}, #{phone})
+        INSERT INTO addresses (
+            user_id, 
+            address_content, 
+            created_time, 
+            province, 
+            is_default, 
+            phone
+        ) VALUES (
+            #{userId}, 
+            #{addressContent}, 
+            #{createdTime}, 
+            #{province}, 
+            #{isDefault}, 
+            #{phone}
+        )
     </insert>
 
     <!-- 更新地址信息 -->

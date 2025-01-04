@@ -11,4 +11,7 @@ public class OrderService {
     public void addOrder(Orders order) {
         orderMapper.addOrder(order);
     }
+    public void updateStatusAndPaymentMethod(Orders order) {
+        orderMapper.updateStatusAndPaymentMethod(order);
+    }
 }
