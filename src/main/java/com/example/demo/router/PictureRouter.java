@@ -70,4 +70,16 @@ public class PictureRouter {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("/uploadAndId")
+    public ResponseEntity<String> uploadAndId(@RequestParam("file") MultipartFile file) {
+        try {
+            String id = String.valueOf(pictureService.save_picture(file));
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("图片无法解析",HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NameException e) {
+            return new ResponseEntity<>("图片名称有误",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

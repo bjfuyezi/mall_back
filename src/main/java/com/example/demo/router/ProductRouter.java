@@ -1,16 +1,15 @@
 package com.example.demo.router;
 
 import com.example.demo.Exception.NameException;
-import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.ProductStatus;
-import com.example.demo.enums.ShopStatus;
-import com.example.demo.pojo.Advertise;
+import com.example.demo.enums.ProductType;
 import com.example.demo.pojo.Product;
 import com.example.demo.pojo.Shop;
-import com.example.demo.service.AdvertiseService;
 import com.example.demo.service.PictureService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.ShopService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 @RestController restful方式返回前端，具体格式code标准百度查询
@@ -39,12 +37,14 @@ public class ProductRouter {
     private ProductService productService;
     @Autowired
     private PictureService pictureService;
+    @Autowired
+    private ShopService shopService;
 
     /**
      * 查找指定店铺ID的销量。
      *
      * @param request     查询体
-     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
      */
     @PostMapping("/getSalenumByShopId")
     public ResponseEntity<Integer> getSalenumByShopId(@RequestBody Map<String, Object> request) {
@@ -63,5 +63,53 @@ public class ProductRouter {
         }
     }
 
+    /**
+     * 查找指定店铺ID的商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回商品列表；如果未找到对应的商品，则返回 null。
+     */
+    @PostMapping("/getAllByShopId")
+    public ResponseEntity<List<Product>> getAllByShopId(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            List<Product> t = productService.getAllByShopId(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
 
+    /**
+     * 增加商品。
+     *
+     * @param
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/addProduct")
+    public ResponseEntity<String> addProduct(
+            @RequestParam("name") String name,
+            @RequestParam("category") String category,
+            @RequestParam("price") Double price,
+            @RequestParam("description") String description,
+            @RequestParam("unit") String unit,
+            @RequestParam("notice") String notice,
+            @RequestParam("stock") String stockJson,    // Json字符串 用于接收库存信息
+            @RequestParam("images") String images,     // 接受图片
+            @RequestParam("shop_id") Integer shop_id) throws JsonProcessingException {
+        String result = productService.createProduct(name, category, price, description, unit, notice, stockJson, images, shop_id);
+        if ( result == "404" ) {
+            return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
+        } else if ( result == "409" ) {
+            return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
+        }
+        // 返回成功响应
+        return ResponseEntity.ok("商品创建成功");
+    }
 }
