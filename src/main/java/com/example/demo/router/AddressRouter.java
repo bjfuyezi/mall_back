@@ -25,11 +25,19 @@ public class AddressRouter {
     public ResponseEntity<Map<String, Object>> getUserAddresses(@PathVariable String userId) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // 打印接收到的用户ID
+            System.out.println("Fetching addresses for userId: " + userId);
+            
             List<Addresses> addresses = addressesService.getAddressesByUserId(Integer.parseInt(userId));
+            
+            // 打印查询结果
+            System.out.println("Found addresses: " + addresses);
+            
             response.put("status", "success");
             response.put("data", addresses);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             response.put("status", "error");
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -40,13 +48,34 @@ public class AddressRouter {
     public ResponseEntity<Map<String, Object>> addAddress(@RequestBody Addresses address) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // 打印接收到的地址信息
+            System.out.println("Received address: " + address);
+            
+            if (address.getUserId() == null) {
+                response.put("status", "error");
+                response.put("message", "用户ID不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (address.getAddressContent() == null || address.getAddressContent().trim().isEmpty()) {
+                response.put("status", "error");
+                response.put("message", "地址内容不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 设置默认值
             if (address.getIsDefault() == null) {
                 address.setIsDefault(0);
             }
+
             boolean success = addressesService.addAddress(address);
             response.put("status", success ? "success" : "error");
+            if (!success) {
+                response.put("message", "添加地址失败");
+            }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             response.put("status", "error");
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
