@@ -8,6 +8,7 @@ import com.example.demo.pojo.Shop;
 import com.example.demo.service.AdvertiseService;
 import com.example.demo.service.PictureService;
 import com.example.demo.service.ShopService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -101,9 +103,14 @@ public class ShopRouter {
         try {
             Shop t = shopService.getShopByUser_id(id);
             if (t != null) {
-                if ( t.getStatus() != ShopStatus.waiting )
+                if ( t.getStatus() == ShopStatus.waiting )
+                    return "waiting";
+                else if ( t.getStatus() == ShopStatus.closed || t.getStatus() == ShopStatus.open ) {
                     return "almost shop";
-                return "waiting";
+                } else {
+                    String reason = t.getReason();
+                    return "您的申请被打回，请参照以下原因进行修改：" + reason;
+                }
             } else {
                 return "no shop";
             }
@@ -128,7 +135,10 @@ public class ShopRouter {
         try {
             if (!pictures.isEmpty()) {
                 picture_id = pictureService.save_picture(pictures);
-                shopService.createShop(shopName, shopDescription, province, picture_id, Integer.valueOf(user_id));
+                Integer shop_id = shopService.createShop(shopName, shopDescription, province, picture_id, Integer.valueOf(user_id));
+                if ( shop_id == -1 ) {
+                    return ResponseEntity.status(409).body("存在重名店铺！");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -212,6 +222,7 @@ public class ShopRouter {
                 shop.setShop_description(description);
                 shop.setLocation(location);
                 shop.setPicture_id(picture_id);
+                shop.setUpdated_time(new Date());
 
                 shopService.updateShop(shop);
                 shopService.setShopStatus(id, ShopStatus.waiting);

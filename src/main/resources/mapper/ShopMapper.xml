@@ -15,13 +15,16 @@
     <select id="selectAllWaitingShop" resultType="com.example.demo.pojo.Shop">
         select * from shops where status = 'waiting';
     </select>
+    <select id="selectByName" parameterType="String" resultType="com.example.demo.pojo.Shop">
+        select * from shops where shop_name = #{name};
+    </select>
 
     <update id="updateStatus">
         update shops set status = #{status} where shop_id = #{id};
     </update>
     <update id="updateShop" parameterType="com.example.demo.pojo.Shop">
         update shops set shop_name = #{shop_name}, shop_description = #{shop_description},
-        location = #{location}, updated_time = #{updated_time}, salary = #{salary} where shop_id = #{shop_id};
+        location = #{location}, updated_time = #{updated_time}, salary = #{salary}, picture_id = #{picture_id} where shop_id = #{shop_id};
     </update>
 
     <delete id="deleteById" parameterType="Integer">

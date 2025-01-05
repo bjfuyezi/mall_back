@@ -62,7 +62,11 @@ public class ShopService {
         return true;
     }
 
-    public boolean createShop(String name, String description, String location, Integer picture_id, Integer user_id) {
+    public Integer createShop(String name, String description, String location, Integer picture_id, Integer user_id) {
+        Shop checkName = shopMapper.selectByName(name);
+        if ( checkName != null ) {
+            return -1;
+        }
         Shop shop = new Shop();
         shop.setShop_description(description);
         shop.setShop_name(name);
@@ -75,7 +79,13 @@ public class ShopService {
         shop.setCreated_time(new Date());
         shop.setUpdated_time(new Date());
 
-        shopMapper.createShop(shop);
-        return true;
+        Shop test = shopMapper.selectByUser_id(user_id);
+        if ( test != null && test.getStatus() == ShopStatus.suspended ) {
+            shop.setShop_id(test.getShop_id());
+            shopMapper.updateShop(shop);
+            shopMapper.updateStatus(test.getShop_id(), ShopStatus.waiting);
+        } else
+            shopMapper.createShop(shop);
+        return shopMapper.selectByUser_id(user_id).getShop_id();
     }
 }
