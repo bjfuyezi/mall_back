@@ -26,4 +26,5 @@ public class Shop {
     private String location;
     private Double salary;
     private Integer picture_id;
+    private String reason;
 }
