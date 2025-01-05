@@ -21,10 +21,10 @@ public interface UserMapper {
     /**
      * 根据ID获取用户
      *
-     * @param userId 用户ID
+     * @param user_id 用户ID
      * @return 用户对象
      */
-    User selectById(@Param("userId") Integer userId);
+    User selectById(@Param("user_id") Integer user_id);
 
     /**
      * 根据用户名获取用户

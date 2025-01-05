@@ -26,21 +26,21 @@ public class CartService {
 
     /**
      * 用户进入自己的购物车：获取用户购物车中的商品，按店铺和加入时间排序。
-     * @param userId 用户ID
+     * @param user_id 用户ID
      * @return 该用户的购物车商品列表，按同一店铺商品的加入时间排序。
      */
-    public List<Map<String, Object>> getCartItemsByUserId(int userId) {
+    public List<Map<String, Object>> getCartItemsByUser_id(int user_id) {
         // 获取该用户的所有购物车商品
-        List<CartItem> cartItems = cartMapper.getCartByUserId(userId);
+        List<CartItem> cartItems = cartMapper.getCartByUser_id(user_id);
 
         // 分组：将同一店铺的商品分在一起
         // 创建一个 HashMap，用来存储按店铺分组的购物车商品
-        // shopId 是键，商品列表是值
+        //  是键，商品列表是值
         Map<Integer, List<CartItem>> shopGroups = new HashMap<>();
         for (CartItem item : cartItems) {// 遍历每个购物车商品 (cartItems 是查询结果，包含所有购物车商品的列表)
-            shopGroups.computeIfAbsent(item.getShopId(), k -> new ArrayList<>()).add(item);
+            shopGroups.computeIfAbsent(item.getShop_id(), k -> new ArrayList<>()).add(item);
             // 使用 computeIfAbsent 方法来确保每个店铺的商品列表都已初始化
-            // 如果当前 shopId 的条目不存在，就调用传入的 k -> new ArrayList<>()创建一个新的 ArrayList<CartItem> 并放入 map,新创建的键就是传入的 item.getShopId()
+            // 如果当前  的条目不存在，就调用传入的 k -> new ArrayList<>()创建一个新的 ArrayList<CartItem> 并放入 map,新创建的键就是传入的 item.getShop_id()
             // 如果已经存在，则返回现有的列表
         }
 
@@ -49,13 +49,13 @@ public class CartService {
             // 每个 entry 代表一个店铺和该店铺内的商品列表。
             // Map.Entry 是 Map 中一个内部接口，用于表示键值对。每个 Map.Entry 对象包含一个 key 和一个 value，
             // entry.getValue() 获取当前店铺的商品列表---值
-            // entry.getKey() 获取当前店铺的 shopId---键
+            // entry.getKey() 获取当前店铺的 ---键
             // entry.getValue().sort(Comparator.comparing(CartItem::getAddedTime).reversed()); 对商品列表按照加入时间进行排序
 
             // 排序逻辑：
-            // 使用 Comparator.comparing(CartItem::getAddedTime) 创建一个比较器，依据 CartItem 的 addedTime 字段进行排序
+            // 使用 Comparator.comparing(CartItem::getAddedTime) 创建一个比较器，依据 CartItem 的 added_time 字段进行排序
             // reversed() 是用来反转排序顺序的，默认情况下是升序排序（越早越前），而 reversed() 将其变为降序（越晚越前）
-            entry.getValue().sort(Comparator.comparing(CartItem::getAddedTime).reversed());
+            entry.getValue().sort(Comparator.comparing(CartItem::getAdded_time).reversed());
         }
 
         // 对店铺按照该店铺内商品的最晚加入时间排序（越晚越前）
@@ -64,14 +64,14 @@ public class CartService {
                 .stream()  // 将Set集合转换为Stream流，便于进行流式操作
                 .sorted((entry1, entry2) -> {  // 对流中的元素进行排序，entry1和entry2分别表示两个Map.Entry对象
                     // 获取店铺内商品最晚加入时间
-                    Date latestAddedTime1 = entry1.getValue().get(0).getAddedTime();  // 获取第一个商品的加入时间作为该店铺的最晚加入时间
-                    Date latestAddedTime2 = entry2.getValue().get(0).getAddedTime();  // 获取第二个店铺的最晚加入时间
+                    Date latestAddedTime1 = entry1.getValue().get(0).getAdded_time();  // 获取第一个商品的加入时间作为该店铺的最晚加入时间
+                    Date latestAddedTime2 = entry2.getValue().get(0).getAdded_time();  // 获取第二个店铺的最晚加入时间
                     return latestAddedTime2.compareTo(latestAddedTime1);  // 倒序排序（最新加入的店铺排在前面）
                 })
                 .forEach(entry -> {  // 遍历排序后的结果，对每个Map.Entry进行处理
                     Map<String, Object> shopGroup = new HashMap<>();  // 创建一个新的Map用于存储该店铺的详细信息
-                    shopGroup.put("shopId", entry.getKey());  // 将店铺ID作为key，添加到shopGroup中
-                    // 使用 shopMapper 根据 shopId 获取店铺名称
+                    shopGroup.put("", entry.getKey());  // 将店铺ID作为key，添加到shopGroup中
+                    // 使用 shopMapper 根据  获取店铺名称
                     String shopName = shopMapper.selectById(entry.getKey()).getShop_name();
                     shopGroup.put("shopName", shopName);  // 获取该店铺的名称（假设第一个商品的店铺名就是该店铺的名称）
                     shopGroup.put("items", entry.getValue());  // 将店铺下的商品列表添加到shopGroup中
@@ -83,18 +83,18 @@ public class CartService {
 
     /**
      * 用户加入商品到购物车：根据用户ID和商品ID将商品加入购物车。
-     * @param userId 用户ID
-     * @param productId 商品ID
+     * @param user_id 用户ID
+     * @param product_id 商品ID
      * @param quantity 商品数量
-     * @param shopId 商品所属店铺ID
+     * @param shop_id 商品所属店铺ID
      * @return 是否成功加入购物车
      */
-    public boolean addProductToCart(int userId, int productId, int quantity, int shopId) {
+    public boolean addProductToCart(int user_id, int product_id, int quantity, int shop_id) {
         // 创建新的购物车项对象
-        CartItem cartItem = new CartItem(userId,productId,quantity,shopId);
+        CartItem cartItem = new CartItem(user_id,product_id,quantity,shop_id);
 
         // 获取当前时间并设置为加入购物车时间
-        cartItem.setAddedTime(new Date());
+        cartItem.setAdded_time(new Date());
 
         // 插入购物车项到数据库
         int result = cartMapper.insertCartItem(cartItem);
@@ -104,27 +104,27 @@ public class CartService {
 
     /**
      * 用户改变购物车商品数量：根据用户ID和商品ID更新购物车中的商品数量。
-     * @param userId 用户ID
-     * @param productId 商品ID
+     * @param user_id 用户ID
+     * @param product_id 商品ID
      * @param quantity 更新后的商品数量
      * @return 是否成功更新购物车商品数量
      */
-    public boolean updateCartItemQuantity(int userId, int productId, int quantity) {
+    public boolean updateCartItemQuantity(int user_id, int product_id, int quantity) {
         // 根据用户ID和商品ID更新购物车中的商品数量
-        int result = cartMapper.updateCartItemQuantity(userId, productId, quantity);
+        int result = cartMapper.updateCartItemQuantity(user_id, product_id, quantity);
         return result > 0;
     }
 
     /**
      * 删除指定购物车商品
      *
-     * @param userId 用户 ID
-     * @param productId 商品 ID
+     * @param user_id 用户 ID
+     * @param product_id 商品 ID
      * @return 删除是否成功
      */
-    public boolean deleteCartItem(int userId, int productId) {
+    public boolean deleteCartItem(int user_id, int product_id) {
         try {
-            cartMapper.deleteCartItem(userId, productId);  // 调用 CartMapper 删除购物车商品
+            cartMapper.deleteCartItem(user_id, product_id);  // 调用 CartMapper 删除购物车商品
             return true;  // 如果删除成功，返回 true
         } catch (Exception e) {
             // 捕获异常，返回 false 表示删除失败

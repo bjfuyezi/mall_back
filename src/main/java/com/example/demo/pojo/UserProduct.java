@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Data
 public class UserProduct {
-    private int userId;
-    private int productId;
-    private Date createdTime;
+    private int user_id;
+    private int product_id;
+    private Date create_time;
 }

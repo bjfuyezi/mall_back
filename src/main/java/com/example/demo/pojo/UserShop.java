@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserShop {
-    private Integer userId;
-    private Integer shopId;
+    private Integer user_id;
+    private Integer shop_id;
     private String relation; // black 或 star
 }

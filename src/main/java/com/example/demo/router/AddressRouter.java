@@ -21,14 +21,14 @@ public class AddressRouter {
     @Autowired
     private AddressesService addressesService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserAddresses(@PathVariable String userId) {
+    @GetMapping("/user/{user_id}")
+    public ResponseEntity<Map<String, Object>> getUserAddresses(@PathVariable String user_id) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 打印接收到的用户ID
-            System.out.println("Fetching addresses for userId: " + userId);
+            System.out.println("Fetching addresses for user_id: " + user_id);
             
-            List<Addresses> addresses = addressesService.getAddressesByUserId(Integer.parseInt(userId));
+            List<Addresses> addresses = addressesService.getAddressesByUser_id(Integer.parseInt(user_id));
             
             // 打印查询结果
             System.out.println("Found addresses: " + addresses);
@@ -51,21 +51,21 @@ public class AddressRouter {
             // 打印接收到的地址信息
             System.out.println("Received address: " + address);
             
-            if (address.getUserId() == null) {
+            if (address.getUser_id() == null) {
                 response.put("status", "error");
                 response.put("message", "用户ID不能为空");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            if (address.getAddressContent() == null || address.getAddressContent().trim().isEmpty()) {
+            if (address.getAddress_content() == null || address.getAddress_content().trim().isEmpty()) {
                 response.put("status", "error");
                 response.put("message", "地址内容不能为空");
                 return ResponseEntity.badRequest().body(response);
             }
 
             // 设置默认值
-            if (address.getIsDefault() == null) {
-                address.setIsDefault(0);
+            if (address.getIs_default() == null) {
+                address.setIs_default(0);
             }
 
             boolean success = addressesService.addAddress(address);
@@ -110,13 +110,13 @@ public class AddressRouter {
         }
     }
 
-    @PutMapping("/default/{addressId}")
+    @PutMapping("/default/{address_id}")
     public ResponseEntity<Map<String, Object>> setDefaultAddress(
-        @PathVariable int addressId,
-        @RequestParam int userId) {
+        @PathVariable int address_id,
+        @RequestParam int user_id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            boolean success = addressesService.setDefaultAddress(addressId, userId);
+            boolean success = addressesService.setDefaultAddress(address_id, user_id);
             response.put("status", success ? "success" : "error");
             return ResponseEntity.ok(response);
         } catch (Exception e) {

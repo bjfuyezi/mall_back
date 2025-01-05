@@ -5,31 +5,31 @@
 <mapper namespace="com.example.demo.mapper.UserCouponMapper">
     <!-- 统计领取的优惠券数量 -->
     <select id="countClaimedCoupons" parameterType="Integer" resultType="Integer">
-        SELECT COUNT(*) FROM user_coupons WHERE coupon_id = #{couponId}
+        SELECT COUNT(*) FROM user_coupons WHERE coupon_id = #{coupon_id}
     </select>
     <!-- 查询用户领取的某张券的总次数 -->
-    <select id="countClaimedCouponsByUserId" resultType="int">
+    <select id="countClaimedCouponsByUser_id" resultType="int">
         SELECT COUNT(*) FROM user_coupons
-        WHERE user_id = #{userId} AND coupon_id = #{couponId}
+        WHERE user_id = #{user_id} AND coupon_id = #{coupon_id}
     </select>
 
     <!-- 查询用户账户内未使用的该券数量 -->
-    <select id="countUnusedCouponsByUserId" resultType="int">
+    <select id="countUnusedCouponsByUser_id" resultType="int">
         SELECT COUNT(*) FROM user_coupons
-        WHERE user_id = #{userId} AND coupon_id = #{couponId} AND status = 'Unused'
+        WHERE user_id = #{user_id} AND coupon_id = #{coupon_id} AND status = 'Unused'
     </select>
 
     <!-- 插入用户优惠券记录 -->
     <insert id="insertUserCoupon" parameterType="com.example.demo.pojo.UserCoupon" useGeneratedKeys="true" keyProperty="user_coupon_id">
         INSERT INTO user_coupons (user_id, coupon_id, status, claim_time)
-        VALUES (#{userId}, #{couponId}, #{userCouponStatus}, #{claimTime})
+        VALUES (#{user_id}, #{coupon_id}, #{user_coupon_status}, #{claim_time})
     </insert>
 
     <!-- 查询平台券 -->
     <select id="getPlatformCoupons" resultType="com.example.demo.pojo.UserCoupon">
         SELECT uc.* FROM user_coupons uc
         JOIN coupons c ON uc.coupon_id = c.coupon_id
-        WHERE uc.user_id = #{userId} AND c.coupon_type = 'platform'
+        WHERE uc.user_id = #{user_id} AND c.coupon_type = 'platform'
         ORDER BY uc.claim_time DESC
     </select>
 
@@ -37,7 +37,7 @@
     <select id="getShopCoupons" resultType="com.example.demo.pojo.UserCoupon">
         SELECT uc.* FROM user_coupons uc
         JOIN coupons c ON uc.coupon_id = c.coupon_id
-        WHERE uc.user_id = #{userId} AND c.coupon_type = 'shop'
+        WHERE uc.user_id = #{user_id} AND c.coupon_type = 'shop'
         ORDER BY uc.claim_time DESC
     </select>
 
@@ -45,7 +45,7 @@
     <select id="getPlatformCouponsByStatus" resultType="com.example.demo.pojo.UserCoupon">
         SELECT uc.* FROM user_coupons uc
         JOIN coupons c ON uc.coupon_id = c.coupon_id
-        WHERE uc.user_id = #{userId} AND c.coupon_type = 'platform' AND uc.status = #{status}
+        WHERE uc.user_id = #{user_id} AND c.coupon_type = 'platform' AND uc.status = #{status}
         ORDER BY uc.claim_time DESC
     </select>
 
@@ -53,21 +53,21 @@
     <select id="getShopCouponsByStatus" resultType="com.example.demo.pojo.UserCoupon">
         SELECT uc.* FROM user_coupons uc
         JOIN coupons c ON uc.coupon_id = c.coupon_id
-        WHERE uc.user_id = #{userId} AND c.coupon_type = 'shop' AND uc.status = #{status}
+        WHERE uc.user_id = #{user_id} AND c.coupon_type = 'shop' AND uc.status = #{status}
         ORDER BY uc.claim_time DESC
     </select>
 
     <!-- 获取优惠券的类型和范围 -->
     <select id="getCouponTypeAndScope" resultType="map">
-        SELECT coupon_type AS couponType, scope FROM coupons
-        WHERE coupon_id = #{couponId}
+        SELECT coupon_type, scope AS coupon_type, scope FROM coupons
+        WHERE coupon_id = #{coupon_id}
     </select>
 
     <!-- 更新用户优惠券状态为 Used -->
     <update id="updateCouponStatusToUsed">
         UPDATE user_coupons
         SET status = 'Used'
-        WHERE user_id = #{userId} AND coupon_id = #{couponId} AND status = 'Unused';
+        WHERE user_id = #{user_id} AND coupon_id = #{coupon_id} AND status = 'Unused';
     </update>
 
     <!-- 根据商品 ID 查询商品详情 -->

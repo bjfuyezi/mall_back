@@ -46,11 +46,11 @@ public class ProductRouter {
      * @param request     查询体
      * @return 如果成功，则返回总销量；如果未找到，则返回 null。
      */
-    @PostMapping("/getSalenumByShopId")
-    public ResponseEntity<Integer> getSalenumByShopId(@RequestBody Map<String, Object> request) {
+    @PostMapping("/getSalenumByShop_id")
+    public ResponseEntity<Integer> getSalenumByShop_id(@RequestBody Map<String, Object> request) {
         Integer id = (Integer) request.get("id");
         try {
-            Integer t = productService.getSalenumByShopId(id);
+            Integer t = productService.getSalenumByShop_id(id);
             if (t != null) {
                 return new ResponseEntity<>(t, HttpStatus.OK);
             } else {
@@ -69,11 +69,11 @@ public class ProductRouter {
      * @param request     查询体
      * @return 如果成功，则返回商品列表；如果未找到对应的商品，则返回 null。
      */
-    @PostMapping("/getAllByShopId")
-    public ResponseEntity<List<Product>> getAllByShopId(@RequestBody Map<String, Object> request) {
+    @PostMapping("/getAllByShop_id")
+    public ResponseEntity<List<Product>> getAllByShop_id(@RequestBody Map<String, Object> request) {
         Integer id = (Integer) request.get("id");
         try {
-            List<Product> t = productService.getAllByShopId(id);
+            List<Product> t = productService.getAllByShop_id(id);
             if (t != null) {
                 return new ResponseEntity<>(t, HttpStatus.OK);
             } else {

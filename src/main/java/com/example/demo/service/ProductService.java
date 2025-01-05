@@ -33,22 +33,22 @@ public class ProductService {
     @Autowired
     private ShopMapper shopMapper;
 
-    public Integer getSalenumByShopId(Integer id) {
+    public Integer getSalenumByShop_id(Integer id) {
         Integer sum = 0;
-        List<Product> products = productMapper.selectAllProductByShopId(id);
+        List<Product> products = productMapper.selectAllProductByShop_id(id);
         for (Product product : products) {
             sum += product.getSalenum();
         }
         return sum;
     }
 
-    public List<Product> getAllByShopId(Integer id) {
-        return productMapper.selectAllProductByShopId(id);
+    public List<Product> getAllByShop_id(Integer id) {
+        return productMapper.selectAllProductByShop_id(id);
     }
 
     public String createProduct(String name, String category, Double price, String description, String unit, String notice, String stockJson, String images, Integer shop_id) throws JsonProcessingException {
         // 处理重名
-        List<Product> productList = productMapper.selectAllProductByShopId(shop_id);
+        List<Product> productList = productMapper.selectAllProductByShop_id(shop_id);
         for (Product product : productList) {
             if (product.getName().equals(name)) {
                 return "409";       // 存在重名

@@ -22,9 +22,9 @@ public class AddressesService {
         return addressesMapper.selectById(id);
     }
 
-    public List<Addresses> getAddressesByUserId(int userId) {
+    public List<Addresses> getAddressesByUser_id(int user_id) {
         try {
-            List<Addresses> addresses = addressesMapper.selectByUserId(userId);
+            List<Addresses> addresses = addressesMapper.selectByUser_id(user_id);
             System.out.println("Service layer - addresses found: " + addresses);
             return addresses;
         } catch (Exception e) {
@@ -36,9 +36,9 @@ public class AddressesService {
     @Transactional
     public boolean addAddress(Addresses address) {
         try {
-            address.setCreatedTime(new Date());
-            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
-                addressesMapper.resetDefaultAddress(address.getUserId());
+            address.setCreate_time(new Date());
+            if (address.getIs_default() != null && address.getIs_default() == 1) {
+                addressesMapper.resetDefaultAddress(address.getUser_id());
             }
             addressesMapper.insert(address);
             return true;
@@ -51,8 +51,8 @@ public class AddressesService {
     @Transactional
     public boolean updateAddress(Addresses address) {
         try {
-            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
-                addressesMapper.resetDefaultAddress(address.getUserId());
+            if (address.getIs_default() != null && address.getIs_default() == 1) {
+                addressesMapper.resetDefaultAddress(address.getUser_id());
             }
             addressesMapper.update(address);
             return true;
@@ -70,10 +70,10 @@ public class AddressesService {
                 return false;
             }
             addressesMapper.deleteById(id);
-            if (address.getIsDefault() != null && address.getIsDefault() == 1) {
-                List<Addresses> addresses = addressesMapper.selectByUserId(address.getUserId());
+            if (address.getIs_default() != null && address.getIs_default() == 1) {
+                List<Addresses> addresses = addressesMapper.selectByUser_id(address.getUser_id());
                 if (!addresses.isEmpty()) {
-                    addressesMapper.setDefaultAddress(addresses.get(0).getAddressId());
+                    addressesMapper.setDefaultAddress(addresses.get(0).getAddress_id());
                 }
             }
             return true;
@@ -84,10 +84,10 @@ public class AddressesService {
     }
 
     @Transactional
-    public boolean setDefaultAddress(int addressId, int userId) {
+    public boolean setDefaultAddress(int address_id, int user_id) {
         try {
-            addressesMapper.resetDefaultAddress(userId);
-            addressesMapper.setDefaultAddress(addressId);
+            addressesMapper.resetDefaultAddress(user_id);
+            addressesMapper.setDefaultAddress(address_id);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,7 +95,7 @@ public class AddressesService {
         }
     }
 
-    public Addresses getDefaultAddress(int userId) {
-        return addressesMapper.getDefaultAddress(userId);
+    public Addresses getDefaultAddress(int user_id) {
+        return addressesMapper.getDefaultAddress(user_id);
     }
 }

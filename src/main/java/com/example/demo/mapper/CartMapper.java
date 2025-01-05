@@ -8,14 +8,14 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    List<CartItem> getCartByUserId(int userId);
+    List<CartItem> getCartByUser_id(int user_id);
 
     /**
      * 获取用户的购物车商品信息，按店铺和加入时间排序
-     * @param userId 用户ID
+     * @param user_id 用户ID
      * @return 该用户的购物车商品列表
      */
-    List<CartItem> selectCartItemsByUserId(int userId);
+    List<CartItem> selectCartItemsByUser_id(int user_id);
 
     /**
      * 将商品添加到购物车
@@ -26,14 +26,14 @@ public interface CartMapper {
 
     /**
      * 更新购物车商品的数量
-     * @param userId 用户ID
-     * @param productId 商品ID
+     * @param user_id 用户ID
+     * @param product_id 商品ID
      * @param quantity 新的商品数量
      * @return 更新的行数
      */
-    int updateCartItemQuantity(@Param("userId") int userId, @Param("productId") int productId, @Param("quantity") int quantity);
+    int updateCartItemQuantity(@Param("user_id") int user_id, @Param("product_id") int product_id, @Param("quantity") int quantity);
 
     // 删除购物车商品项
-    void deleteCartItem(@Param("userId") int userId, @Param("productId") int productId);
+    void deleteCartItem(@Param("user_id") int user_id, @Param("product_id") int product_id);
 
 }
