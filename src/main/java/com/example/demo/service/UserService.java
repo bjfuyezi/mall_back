@@ -51,11 +51,11 @@ public class UserService {
      * @param id 用户ID
      * @return 用户信息
      */
-    public User getUserById(Integer userId) {
-        if (userId == null) {
+    public User getUserById(Integer user_id) {
+        if (user_id == null) {
             return null;
         }
-        return userMapper.selectById(userId);
+        return userMapper.selectById(user_id);
     }
 
     /**

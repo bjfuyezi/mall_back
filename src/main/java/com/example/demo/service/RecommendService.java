@@ -16,20 +16,20 @@ public class RecommendService {
     /**
      * 插入新的推荐记录
      *
-     * @param userId 用户ID
-     * @param recentProductIds 最近访问的商品ID列表
+     * @param user_id 用户ID
+     * @param recentProduct_ids 最近访问的商品ID列表
      * @param recentSearches 最近的搜索文本列表
      */
-    public void insertRecommendation(Integer userId, List<String> recentProductIds, List<String> recentSearches) {
+    public void insertRecommendation(Integer user_id, List<String> recentProduct_ids, List<String> recentSearches) {
         try {
             // 创建一个新的Recommend实例
             Recommend recommend = new Recommend();
-            recommend.setUserId(userId);
-            recommend.setProductIdFromList(recentProductIds);
+            recommend.setUser_id(user_id);
+            recommend.setProduct_idFromList(recentProduct_ids);
             recommend.setSearchFromList(recentSearches);
 
             // 调用Mapper执行插入
-            recommendMapper.insertRecommend(recommend.getUserId(), recommend.getProductId(), recommend.getSearch());
+            recommendMapper.insertRecommend(recommend.getUser_id(), recommend.getProduct_id(), recommend.getSearch());
         } catch (Exception e) {
             throw new RuntimeException("Failed to convert lists to JSON or insert into database", e);
         }
@@ -40,7 +40,7 @@ public class RecommendService {
             // 调用Mapper执行查询
             Recommend recommend = recommendMapper.selectRecommend();
             System.out.println(recommend);
-            List<String> productIdAsList= recommend.getProductIdAsList();
+            List<String> productIdAsList= recommend.getProduct_idAsList();
             List<String> searchList = recommend.getSearchAsList();
             System.out.println(productIdAsList.size());
             System.out.println(searchList.size());

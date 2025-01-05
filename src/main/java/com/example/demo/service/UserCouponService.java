@@ -45,13 +45,13 @@ public class UserCouponService {
         }
 
         // 判断用户未使用的券是否超过限制
-        int unusedCount = userCouponMapper.countUnusedCouponsByUserId(user_id, coupon_id);
+        int unusedCount = userCouponMapper.countUnusedCouponsByUser_id(user_id, coupon_id);
         if (unusedCount >= coupon.getMax_unused_count()) {
             return "未使用的同类优惠券已达到上限";
         }
 
         // 判断用户领券数量是否已达到账户存放上限
-        int userClaimedCount = userCouponMapper.countClaimedCouponsByUserId(user_id, coupon_id);
+        int userClaimedCount = userCouponMapper.countClaimedCouponsByUser_id(user_id, coupon_id);
         if (userClaimedCount >= coupon.getClaim_limit()) {
             return "您已达本优惠券的领取上限";
         }

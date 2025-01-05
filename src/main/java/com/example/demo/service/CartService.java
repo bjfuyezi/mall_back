@@ -29,9 +29,9 @@ public class CartService {
      * @param user_id 用户ID
      * @return 该用户的购物车商品列表，按同一店铺商品的加入时间排序。
      */
-    public List<Map<String, Object>> getCartItemsByUserId(int user_id) {
+    public List<Map<String, Object>> getCartItemsByUser_id(int user_id) {
         // 获取该用户的所有购物车商品
-        List<CartItem> cartItems = cartMapper.getCartByUserId(user_id);
+        List<CartItem> cartItems = cartMapper.getCartByUser_id(user_id);
 
         // 分组：将同一店铺的商品分在一起
         // 创建一个 HashMap，用来存储按店铺分组的购物车商品
@@ -40,7 +40,7 @@ public class CartService {
         for (CartItem item : cartItems) {// 遍历每个购物车商品 (cartItems 是查询结果，包含所有购物车商品的列表)
             shopGroups.computeIfAbsent(item.getShop_id(), k -> new ArrayList<>()).add(item);
             // 使用 computeIfAbsent 方法来确保每个店铺的商品列表都已初始化
-            // 如果当前  的条目不存在，就调用传入的 k -> new ArrayList<>()创建一个新的 ArrayList<CartItem> 并放入 map,新创建的键就是传入的 item.getShopId()
+            // 如果当前  的条目不存在，就调用传入的 k -> new ArrayList<>()创建一个新的 ArrayList<CartItem> 并放入 map,新创建的键就是传入的 item.getShop_id()
             // 如果已经存在，则返回现有的列表
         }
 

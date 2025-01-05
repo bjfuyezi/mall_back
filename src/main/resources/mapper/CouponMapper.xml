@@ -28,7 +28,7 @@
     </select>
 
     <!-- 获取店铺券 -->
-    <select id="selectCouponsByShopId" parameterType="Integer" resultType="com.example.demo.pojo.Coupon">
+    <select id="selectCouponsByShop_id" parameterType="Integer" resultType="com.example.demo.pojo.Coupon">
         SELECT * FROM coupons
         WHERE shop_id = #{shop_id} AND coupon_type = 'shop'
         ORDER BY create_time DESC

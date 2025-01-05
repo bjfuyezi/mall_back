@@ -14,7 +14,7 @@ public interface AddressesMapper {
     Addresses selectById(@Param("id") int id);
 
     // 根据用户ID获取地址列表
-    List<Addresses> selectByUserId(@Param("userId") int userId);
+    List<Addresses> selectByUser_id(@Param("user_id") int user_id);
 
     // 插入新地址
     void insert(Addresses address);
@@ -26,11 +26,11 @@ public interface AddressesMapper {
     void deleteById(@Param("id") int id);
 
     // 重置用户的所有地址为非默认
-    void resetDefaultAddress(@Param("userId") int userId);
+    void resetDefaultAddress(@Param("user_id") int user_id);
 
     // 设置地址为默认地址
-    void setDefaultAddress(@Param("addressId") int addressId);
+    void setDefaultAddress(@Param("address_id") int address_id);
 
     // 获取用户的默认地址
-    Addresses getDefaultAddress(@Param("userId") int userId);
+    Addresses getDefaultAddress(@Param("user_id") int user_id);
 }

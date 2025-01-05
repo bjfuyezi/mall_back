@@ -8,18 +8,18 @@ import java.util.List;
 
 @Data
 public class Recommend {
-    private Integer userId;
-    private String productId; // JSON 格式
+    private Integer user_id;
+    private String product_id; // JSON 格式
     private String search; // JSON 格式
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // Helper methods for converting between JSON string and Java object
-    public List<String> getProductIdAsList() throws JsonProcessingException {
-        return productId == null ? null : objectMapper.readValue(productId, List.class);
+    public List<String> getProduct_idAsList() throws JsonProcessingException {
+        return product_id == null ? null : objectMapper.readValue(product_id, List.class);
     }
 
-    public void setProductIdFromList(List<String> productIds) throws JsonProcessingException {
-        this.productId = objectMapper.writeValueAsString(productIds.stream().toList());
+    public void setProduct_idFromList(List<String> productIds) throws JsonProcessingException {
+        this.product_id = objectMapper.writeValueAsString(productIds.stream().toList());
     }
 
     public List<String> getSearchAsList() throws JsonProcessingException {

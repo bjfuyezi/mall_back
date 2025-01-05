@@ -5,11 +5,11 @@ import java.util.Date;
 
 @Data
 public class Addresses {
-    private Integer addressId;
-    private Integer userId;
-    private String addressContent;
-    private Date createdTime;
+    private Integer address_id;
+    private Integer user_id;
+    private String address_content;
+    private Date create_time;
     private String province;
-    private Integer isDefault;
+    private Integer is_default;
     private String phone;
 }

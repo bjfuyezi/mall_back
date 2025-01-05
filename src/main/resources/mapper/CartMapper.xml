@@ -3,13 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.CartMapper">
-    <select id="getCartByUserId" parameterType="integer" resultType="com.example.demo.pojo.CartItem">
+    <select id="getCartByUser_id" parameterType="integer" resultType="com.example.demo.pojo.CartItem">
         select * from cart_items
         where user_id = #{user_id}
     </select>
 
     <!-- 根据用户ID查询购物车商品，按店铺和加入时间排序 -->
-    <select id="selectCartItemsByUserId" resultType="com.example.demo.pojo.CartItem">
+    <select id="selectCartItemsByUser_id" resultType="com.example.demo.pojo.CartItem">
         SELECT * FROM cart_items
         WHERE user_id = #{user_id}
         ORDER BY shop_id, added_time DESC

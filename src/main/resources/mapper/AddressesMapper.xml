@@ -14,27 +14,27 @@
     </select>
 
     <!-- 根据用户ID获取地址列表 -->
-    <select id="selectByUserId" parameterType="int" resultType="com.example.demo.pojo.Addresses">
+    <select id="selectByUser_id" parameterType="int" resultType="com.example.demo.pojo.Addresses">
         SELECT 
-            address_id as addressId,
-            user_id as userId,
-            address_content as addressContent,
-            created_time as createdTime,
+            address_id as address_id,
+            user_id as user_id,
+            address_content as address_content,
+            created_time as create_time,
             province,
             is_default as isDefault,
             phone
         FROM addresses 
-        WHERE user_id = #{userId}
+        WHERE user_id = #{user_id}
         ORDER BY is_default DESC, created_time DESC
     </select>
 
     <!-- 获取用户的默认地址 -->
     <select id="getDefaultAddress" parameterType="int" resultType="com.example.demo.pojo.Addresses">
-        SELECT * FROM addresses WHERE user_id = #{userId} AND is_default = 1 LIMIT 1
+        SELECT * FROM addresses WHERE user_id = #{user_id} AND is_default = 1 LIMIT 1
     </select>
 
     <!-- 插入新地址 -->
-    <insert id="insert" parameterType="com.example.demo.pojo.Addresses" useGeneratedKeys="true" keyProperty="addressId">
+    <insert id="insert" parameterType="com.example.demo.pojo.Addresses" useGeneratedKeys="true" keyProperty="address_id">
         INSERT INTO addresses (
             user_id, 
             address_content, 
@@ -43,9 +43,9 @@
             is_default, 
             phone
         ) VALUES (
-            #{userId}, 
-            #{addressContent}, 
-            #{createdTime}, 
+            #{user_id},
+            #{address_content},
+            #{create_time},
             #{province}, 
             #{isDefault}, 
             #{phone}
@@ -55,11 +55,11 @@
     <!-- 更新地址信息 -->
     <update id="update" parameterType="com.example.demo.pojo.Addresses">
         UPDATE addresses 
-        SET address_content = #{addressContent},
+        SET address_content = #{address_content},
             province = #{province},
             is_default = #{isDefault},
             phone = #{phone}
-        WHERE address_id = #{addressId}
+        WHERE address_id = #{address_id}
     </update>
 
     <!-- 删除地址 -->
@@ -69,11 +69,11 @@
 
     <!-- 重置用户的所有地址为非默认 -->
     <update id="resetDefaultAddress" parameterType="int">
-        UPDATE addresses SET is_default = 0 WHERE user_id = #{userId}
+        UPDATE addresses SET is_default = 0 WHERE user_id = #{user_id}
     </update>
 
     <!-- 设置地址为默认地址 -->
     <update id="setDefaultAddress" parameterType="int">
-        UPDATE addresses SET is_default = 1 WHERE address_id = #{addressId}
+        UPDATE addresses SET is_default = 1 WHERE address_id = #{address_id}
     </update>
 </mapper> 

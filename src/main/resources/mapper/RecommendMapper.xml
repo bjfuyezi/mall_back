@@ -6,7 +6,7 @@
 
     <insert id="insertRecommend" parameterType="com.example.demo.pojo.Recommend">
         INSERT INTO recommend (user_id, product_id, search)
-        VALUES (#{userId}, #{productId}, #{search})
+        VALUES (#{user_id}, #{product_id}, #{search})
     </insert>
 
     <select id="selectRecommend" resultType="com.example.demo.pojo.Recommend">

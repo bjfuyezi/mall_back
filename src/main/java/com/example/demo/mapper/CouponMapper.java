@@ -20,7 +20,7 @@ public interface CouponMapper {
 
     List<Coupon> selectCouponsByType(CouponType coupon_type);
 
-    List<Coupon> selectCouponsByShopId(Integer shop_id);
+    List<Coupon> selectCouponsByShop_id(Integer shop_id);
 
     // 获取当前生效的平台券
     List<Coupon> getActivePlatformCoupons(CouponType coupon_type);

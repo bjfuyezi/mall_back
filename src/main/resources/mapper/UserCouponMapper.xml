@@ -8,13 +8,13 @@
         SELECT COUNT(*) FROM user_coupons WHERE coupon_id = #{coupon_id}
     </select>
     <!-- 查询用户领取的某张券的总次数 -->
-    <select id="countClaimedCouponsByUserId" resultType="int">
+    <select id="countClaimedCouponsByUser_id" resultType="int">
         SELECT COUNT(*) FROM user_coupons
         WHERE user_id = #{user_id} AND coupon_id = #{coupon_id}
     </select>
 
     <!-- 查询用户账户内未使用的该券数量 -->
-    <select id="countUnusedCouponsByUserId" resultType="int">
+    <select id="countUnusedCouponsByUser_id" resultType="int">
         SELECT COUNT(*) FROM user_coupons
         WHERE user_id = #{user_id} AND coupon_id = #{coupon_id} AND status = 'Unused'
     </select>

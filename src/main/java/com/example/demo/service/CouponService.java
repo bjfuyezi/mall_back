@@ -122,7 +122,7 @@ public class CouponService {
      *   - 列表形式展示
      *   - 提供的功能有：（修改）、（暂停发放）、（删除）【前端按钮实现】*/
     public List<Coupon> getShopCoupons(Integer shop_id) {
-        return couponMapper.selectCouponsByShopId(shop_id);
+        return couponMapper.selectCouponsByShop_id(shop_id);
     }
 
     /*用户页面展示平台券【查】
@@ -209,14 +209,14 @@ public class CouponService {
         }*/
 
         // 更新适用范围，增加店铺id
-        String updatedScope = addShopIdToScope(currentScope, shop_id);
+        String updatedScope = addShop_idToScope(currentScope, shop_id);
 
 //        coupon.setScope(updatedScope);
         coupon.setScope(currentScope);
         couponMapper.updateCouponScope(coupon);
     }
 
-    private String addShopIdToScope(String currentScope, Integer shop_id) {
+    private String addShop_idToScope(String currentScope, Integer shop_id) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Integer> shop_ids = objectMapper.readValue(currentScope, List.class);
@@ -253,13 +253,13 @@ public class CouponService {
     private String updateScopeForProducts(String currentScope, List<Integer> product_ids) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<Integer> existingProductIds = objectMapper.readValue(currentScope, List.class);
+            List<Integer> existingProduct_ids = objectMapper.readValue(currentScope, List.class);
 
             // 清空并重新设置为选中的产品ID
-            existingProductIds.clear();
-            existingProductIds.addAll(product_ids); // 将产品ID加入
+            existingProduct_ids.clear();
+            existingProduct_ids.addAll(product_ids); // 将产品ID加入
 
-            return objectMapper.writeValueAsString(existingProductIds); // 转换回JSON字符串
+            return objectMapper.writeValueAsString(existingProduct_ids); // 转换回JSON字符串
         } catch (Exception e) {
             e.printStackTrace();
             return "[]"; // 如果出现异常，返回一个空的JSON数组

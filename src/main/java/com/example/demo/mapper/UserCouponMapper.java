@@ -13,8 +13,8 @@ import java.util.Map;
 public interface UserCouponMapper {
     Integer countClaimedCoupons(Integer coupon_id);
 
-    int countClaimedCouponsByUserId(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
-    int countUnusedCouponsByUserId(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
+    int countClaimedCouponsByUser_id(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
+    int countUnusedCouponsByUser_id(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
     int insertUserCoupon(UserCoupon userCoupon);
 
     List<UserCoupon> getPlatformCoupons(@Param("user_id") Integer user_id);

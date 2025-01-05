@@ -38,7 +38,7 @@ public class UserRouter {
             User user = userService.validateUserAndGetId(username, password);
             if (user != null) {
                 response.put("status", "success");
-                response.put("userId", user.getUser_id());
+                response.put("user_id", user.getUser_id());
                 System.out.println(user);
                 System.out.println(user.getUser_id());
                 return ResponseEntity.ok(response);
@@ -120,20 +120,20 @@ public class UserRouter {
     /**
      * 获取指定用户ID的用户信息
      *
-     * @param userId 用户的唯一标识符
+     * @param user_id 用户的唯一标识符
      * @return 如果成功找到用户返回 200 OK，否则返回 404 Not Found
      */
-    @GetMapping("/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Integer userId) {
+    @GetMapping("/{user_id}")
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Integer user_id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (userId == null) {
+            if (user_id == null) {
                 response.put("status", "error");
                 response.put("message", "用户ID不能为空");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            User user = userService.getUserById(userId);
+            User user = userService.getUserById(user_id);
             if (user != null) {
                 response.put("status", "success");
                 response.put("data", user);

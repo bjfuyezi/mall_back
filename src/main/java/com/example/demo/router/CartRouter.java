@@ -42,7 +42,7 @@ public class CartRouter {
     @GetMapping("/items")  // 使用 GET 方法来获取用户购物车商品
     public ResponseEntity<?> getCartItems(@RequestParam int user_id) {
         // 调用 CartService 获取用户购物车商品列表，返回一个包含商品信息的列表
-        return ResponseEntity.ok(cartService.getCartItemsByUserId(user_id));  // 使用 ResponseEntity 返回 HTTP 响应
+        return ResponseEntity.ok(cartService.getCartItemsByUser_id(user_id));  // 使用 ResponseEntity 返回 HTTP 响应
     }
 
     /**

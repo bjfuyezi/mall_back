@@ -86,16 +86,16 @@ public class UserCouponRouter {
 
     /*用户使用券，券的类型进行更改为Used【改】
     * 传入参数：
-    *   - 用户id:userId
+    *   - 用户id:user_id
     *   - 券的id:coupon_id*/
     @PutMapping("/use")
-    public String useCoupon(@RequestParam Integer userId, @RequestParam Integer coupon_id) {
-        boolean success = userCouponService.useCoupon(userId, coupon_id);
+    public String useCoupon(@RequestParam Integer user_id, @RequestParam Integer coupon_id) {
+        boolean success = userCouponService.useCoupon(user_id, coupon_id);
         return success ? "使用成功！" : "使用失败，可能优惠券已失效或不存在！";
     }
 
     /*券达到失效时间，更改状态为已失效Expired【改】
     * 传入参数：
-    *   - 用户id:userId
+    *   - 用户id:user_id
     *   - 券的id:coupon_id*/
 }

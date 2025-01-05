@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class Promotion {
-    private Integer promotionId;
-    private Integer productId;
+    private Integer promotion_id;
+    private Integer product_id;
     private String pictures; // JSON 格式
     private String content;
 }

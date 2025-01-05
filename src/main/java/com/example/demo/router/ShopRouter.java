@@ -99,7 +99,7 @@ public class ShopRouter {
     public String checkStatus(@RequestBody Map<String, Object> request) {
         Integer id = (Integer) request.get("id");
         try {
-            Shop t = shopService.getShopByUserId(id);
+            Shop t = shopService.getShopByUser_id(id);
             if (t != null) {
                 if ( t.getStatus() != ShopStatus.waiting )
                     return "almost shop";
@@ -147,11 +147,11 @@ public class ShopRouter {
      * @param request     查询体
      * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
      */
-    @PostMapping("/getByUserId")//http://localhost:8081/shop/getById
-    public Shop getShopByUserId(@RequestBody Map<String, Object> request) {
+    @PostMapping("/getByUser_id")//http://localhost:8081/shop/getById
+    public Shop getShopByUser_id(@RequestBody Map<String, Object> request) {
         Integer id = (Integer) request.get("id");
         try {
-            Shop t = shopService.getShopByUserId(id);
+            Shop t = shopService.getShopByUser_id(id);
             if (t != null) {
                 return t;
             } else {
@@ -195,12 +195,12 @@ public class ShopRouter {
      */
     @PostMapping("/updateShop")
     public ResponseEntity<Void> updateShop(
-            @RequestParam("shop_id") String shopId,
+            @RequestParam("shop_id") String shop_id,
             @RequestParam("shop_name") String shopName,
             @RequestParam("description") String description,
             @RequestParam("location") String location,
             @RequestParam("picture") MultipartFile picture) {
-        Integer id = Integer.parseInt(shopId);
+        Integer id = Integer.parseInt(shop_id);
 
         Integer picture_id = null;
         // 处理文件上传

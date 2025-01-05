@@ -8,14 +8,14 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    List<CartItem> getCartByUserId(int user_id);
+    List<CartItem> getCartByUser_id(int user_id);
 
     /**
      * 获取用户的购物车商品信息，按店铺和加入时间排序
      * @param user_id 用户ID
      * @return 该用户的购物车商品列表
      */
-    List<CartItem> selectCartItemsByUserId(int user_id);
+    List<CartItem> selectCartItemsByUser_id(int user_id);
 
     /**
      * 将商品添加到购物车

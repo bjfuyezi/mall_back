@@ -27,8 +27,8 @@ public class ShopService {
     public Shop getShopById(int id) {
         return shopMapper.selectById(id);
     }
-    public Shop getShopByUserId(int id) {
-        return shopMapper.selectByUserId(id);
+    public Shop getShopByUser_id(int id) {
+        return shopMapper.selectByUser_id(id);
     }
     public boolean setShopStatus(int id, ShopStatus status){
         Shop shop = getShopById(id);
