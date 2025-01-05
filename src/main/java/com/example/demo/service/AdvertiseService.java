@@ -57,7 +57,7 @@ public class AdvertiseService {
         System.out.println(advertises.size());
         LocalDate now = Utils.convertToLocalDate(new Date());
         for (Advertise ad : advertises) {
-            System.out.println(ad.getEnd_time().after(new Date()));
+            //System.out.println(ad.getEnd_time().after(new Date()));
             if (ad.getStatus() == AdvertisementStatus.running) {
                 LocalDate end_date = Utils.convertToLocalDate(ad.getEnd_time());
                 if (!end_date.isBefore(now)) {//结束时间不在现在之前则加入banner
