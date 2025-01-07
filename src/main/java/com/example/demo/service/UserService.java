@@ -22,6 +22,8 @@ public class UserService {
     @Autowired
     private AddressesService addressesService;
     private final Map<String, String> emailVerificationCodes = new HashMap<>();
+    private final Map<String, String> resetPasswordCodes = new HashMap<>();
+
     // 生成并发送验证码
     public boolean sendVerificationCode(String email) {
         String code = String.valueOf(new Random().nextInt(899999) + 100000); // 生成6位随机验证码
@@ -36,6 +38,55 @@ public class UserService {
     public boolean verifyCode(String email, String code) {
         return code.equals(emailVerificationCodes.get(email));
     }
+
+    public boolean sendResetCode(String username, String email) {
+        try {
+            User user = userMapper.selectByUsername(username);
+            if (user == null || !user.getEmail().equals(email)) {
+                System.out.println("User not found or email mismatch"); // 调试日志
+                return false;
+            }
+
+            String code = String.valueOf(new Random().nextInt(899999) + 100000);
+            resetPasswordCodes.put(username, code);
+            
+            // 输出验证码用于调试
+            System.out.println("==========================================");
+            System.out.println("Generated reset code for " + username + ": " + code);
+            System.out.println("==========================================");
+            
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean verifyResetCode(String username, String code) {
+        String savedCode = resetPasswordCodes.get(username);
+        return savedCode != null && savedCode.equals(code);
+    }
+
+    public boolean resetPassword(String username, String newPassword) {
+        try {
+            if (!validatePassword(newPassword)) {
+                return false;
+            }
+            
+            User user = userMapper.selectByUsername(username);
+            if (user == null) {
+                return false;
+            }
+            
+            user.setPassword(newPassword);
+            int result = userMapper.updatePassword(user);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * 获取所有用户信息
      *
@@ -163,6 +214,30 @@ public class UserService {
             return user;
         }
         return null;
+    }
+
+    /**
+     * 根据用户名获取用户信息
+     *
+     * @param username 用户名
+     * @return 用户对象，如果不存在返回null
+     */
+    public User getUserByUsername(String username) {
+        if (username == null) {
+            return null;
+        }
+        return userMapper.selectByUsername(username);
+    }
+
+    public boolean validateUserEmail(String username, String email) {
+        User user = userMapper.selectByUsername(username);
+        return user != null && user.getEmail().equals(email);
+    }
+
+    public boolean validatePassword(String password) {
+        // 密码必须包含大小写字母和数字，且长度至少为8位
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$";
+        return password.matches(passwordRegex);
     }
 
 }

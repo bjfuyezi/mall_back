@@ -58,4 +58,11 @@
             updated_time = NOW()
         WHERE user_id = #{user_id}
     </update>
+
+    <update id="updatePassword" parameterType="com.example.demo.pojo.User">
+        UPDATE users 
+        SET password = #{password},
+            updated_time = NOW()
+        WHERE username = #{username}
+    </update>
 </mapper>

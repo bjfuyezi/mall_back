@@ -58,4 +58,9 @@ public interface UserMapper {
 
     // 更新用户个人资料
     int updateUserProfile(User user);
+
+    /**
+     * 更新用户密码
+     */
+    int updatePassword(User user);
 }

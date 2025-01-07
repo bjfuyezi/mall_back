@@ -35,12 +35,14 @@ public class UserRouter {
         
         Map<String, Object> response = new HashMap<>();
         try {
+            System.out.println("Login attempt for username: " + username); // 添加日志
             User user = userService.validateUserAndGetId(username, password);
+            System.out.println("Validated user: " + user); // 添加日志
+            
             if (user != null) {
                 response.put("status", "success");
                 response.put("user_id", user.getUser_id());
-                System.out.println(user);
-                System.out.println(user.getUser_id());
+                System.out.println("Login success response: " + response); // 添加日志
                 return ResponseEntity.ok(response);
             } else {
                 response.put("status", "error");
@@ -48,8 +50,9 @@ public class UserRouter {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             response.put("status", "error");
-            response.put("message", "服务器错误");
+            response.put("message", "服务器错误: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -127,13 +130,10 @@ public class UserRouter {
     public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Integer user_id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (user_id == null) {
-                response.put("status", "error");
-                response.put("message", "用户ID不能为空");
-                return ResponseEntity.badRequest().body(response);
-            }
-
+            System.out.println("Getting user details for ID: " + user_id); // 添加日志
             User user = userService.getUserById(user_id);
+            System.out.println("Found user: " + user); // 添加日志
+
             if (user != null) {
                 response.put("status", "success");
                 response.put("data", user);
@@ -144,8 +144,9 @@ public class UserRouter {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             response.put("status", "error");
-            response.put("message", e.getMessage());
+            response.put("message", "获取用户信息失败: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -192,6 +193,120 @@ public class UserRouter {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/check/{username}")
+    public ResponseEntity<Map<String, Object>> checkUsername(@PathVariable String username) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = userService.getUserByUsername(username);
+            if (user != null) {
+                response.put("status", "success");
+                response.put("email", user.getEmail());
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "用户不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "服务器错误");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/sendResetCode")
+    public ResponseEntity<Map<String, Object>> sendResetCode(@RequestBody Map<String, String> payload) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String username = payload.get("username");
+            String email = payload.get("email");
+            System.out.println("Sending reset code for username: " + username + ", email: " + email); // 调试日志
+            
+            boolean sent = userService.sendResetCode(username, email);
+            if (sent) {
+                response.put("status", "success");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "发送验证码失败");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // 打印错误堆栈
+            response.put("status", "error");
+            response.put("message", "服务器错误: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/verifyResetCode")
+    public ResponseEntity<Map<String, Object>> verifyResetCode(@RequestBody Map<String, String> payload) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String username = payload.get("username");
+            String code = payload.get("code");
+            
+            if (userService.verifyResetCode(username, code)) {
+                response.put("status", "success");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "验证码错误");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "服务器错误");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> payload) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String username = payload.get("username");
+            String newPassword = payload.get("newPassword");
+            
+            boolean updated = userService.resetPassword(username, newPassword);
+            if (updated) {
+                response.put("status", "success");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "重置密码失败");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "服务器错误");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/checkUserEmail")
+    public ResponseEntity<Map<String, Object>> checkUserEmail(@RequestBody Map<String, String> payload) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String username = payload.get("username");
+            String email = payload.get("email");
+            
+            boolean isValid = userService.validateUserEmail(username, email);
+            if (isValid) {
+                response.put("status", "success");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "用户名和邮箱不匹配");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "服务器错误");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

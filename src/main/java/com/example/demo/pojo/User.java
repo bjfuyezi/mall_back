@@ -34,4 +34,16 @@ public class User {
     private String status;
     private Timestamp created_time;
     private Timestamp updated_time;
+
+    // toString 方法用于日志输出
+    @Override
+    public String toString() {
+        return "User{" +
+                "user_id=" + user_id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
