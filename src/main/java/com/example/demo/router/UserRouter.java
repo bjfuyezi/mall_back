@@ -29,32 +29,27 @@ public class UserRouter {
      * @return 登录结果，成功返回 200 OK，失败返回 401 Unauthorized
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(
-        @RequestParam("username") String username,
-        @RequestParam("password") String password) {
-        
+    public Map<String, Object> login(@RequestParam String username, @RequestParam String password) {
         Map<String, Object> response = new HashMap<>();
+        
         try {
-            System.out.println("Login attempt for username: " + username); // 添加日志
             User user = userService.validateUserAndGetId(username, password);
-            System.out.println("Validated user: " + user); // 添加日志
-            
             if (user != null) {
                 response.put("status", "success");
+                response.put("message", "登录成功");
+                response.put("user", user);
                 response.put("user_id", user.getUser_id());
-                System.out.println("Login success response: " + response); // 添加日志
-                return ResponseEntity.ok(response);
             } else {
                 response.put("status", "error");
                 response.put("message", "用户名或密码错误");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             response.put("status", "error");
-            response.put("message", "服务器错误: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "服务器错误");
+            e.printStackTrace();
         }
+        
+        return response;
     }
 
     /**
