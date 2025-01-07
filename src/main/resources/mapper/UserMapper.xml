@@ -46,8 +46,24 @@
     <!-- 插入新用户 -->
     <insert id="insertUser" parameterType="com.example.demo.pojo.User" 
             useGeneratedKeys="true" keyProperty="user_id">
-        INSERT INTO users (username, password, email, role, status, created_time, updated_time)
-        VALUES (#{username}, #{password}, #{email}, #{role}, #{status}, NOW(), NOW())
+        INSERT INTO users (
+            username, 
+            password, 
+            email, 
+            role, 
+            status,
+            created_time, 
+            updated_time
+        )
+        VALUES (
+            #{username}, 
+            #{password}, 
+            #{email}, 
+            #{role}, 
+            #{status},
+            NOW(), 
+            NOW()
+        )
     </insert>
 
     <!-- 更新用户个人资料 -->

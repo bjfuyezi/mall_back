@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.enums.UserRole;
+import com.example.demo.enums.UserStatus;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.pojo.User;
 import com.example.demo.pojo.Addresses;
@@ -148,10 +150,18 @@ public class UserService {
      * @return 如果添加成功返回 true，否则返回 false
      */
     public boolean addUser(User user) {
-        // 这里可以对密码进行加密，例如使用 BCrypt 或 MD5
-        user.setRole("buyer"); // 默认角色为 buyer
-        int rowsAffected = userMapper.insertUser(user);
-        return rowsAffected > 0;
+        try {
+            // 设置默认值
+            user.setRole(UserRole.buyer.toString());
+            user.setStatus(UserStatus.active.toString());
+            
+            // 添加用户到数据库
+            int rowsAffected = userMapper.insertUser(user);
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     /**
      * 检查邮箱是否已经存在

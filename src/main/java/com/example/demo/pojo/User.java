@@ -19,6 +19,8 @@ package com.example.demo.pojo;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import com.example.demo.enums.UserRole;
+import com.example.demo.enums.UserStatus;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
