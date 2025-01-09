@@ -43,6 +43,13 @@ public class AdvertiseService {
         }
     }
 
+    public List<Advertise> getAdvertiseByStatusAndUser(int id,AdvertisementStatus status) {
+        if(status == null) return advertiseMapper.selectAllByUser(id);
+        else{
+            return advertiseMapper.selectByStatusAndUser(id,status);
+        }
+    }
+
     public List<Advertise> searchByKey(String s) {
         System.out.println("search");
         if(s == null) return advertiseMapper.selectAll();

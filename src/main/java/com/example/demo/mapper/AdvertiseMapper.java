@@ -13,6 +13,8 @@ import java.util.List;
 public interface AdvertiseMapper {
     List<Advertise> selectAll();
     List<Advertise> selectByStatus(@Param("status") AdvertisementStatus status);
+    List<Advertise> selectAllByUser(@Param("user_id") int id);
+    List<Advertise> selectByStatusAndUser(@Param("user_id") int id, @Param("status") AdvertisementStatus status);
     List<Advertise> selectByKey(@Param("key") String key);
     List<Advertise> selectBanners();
     Advertise selectById(@Param("id") int id);

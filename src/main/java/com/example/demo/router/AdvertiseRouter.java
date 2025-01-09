@@ -41,9 +41,20 @@ public class AdvertiseRouter {
      * 显示所有广告，包括已失效
      * @return 所有广告
      */
-    @GetMapping("/")
+    @GetMapping("/admin")
     public ResponseEntity<List<Advertise>> getAdvertiseByStatus(@Param("status") AdvertisementStatus status) {
         return new ResponseEntity<>(advertiseService.getAdvertiseByStatus(status), HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param id
+     * @param status
+     * @return
+     */
+    @GetMapping("/user")
+    public ResponseEntity<List<Advertise>> getAdvertiseByStatusAndUser(@Param("id") int id, @Param("status") AdvertisementStatus status) {
+        return new ResponseEntity<>(advertiseService.getAdvertiseByStatusAndUser(id,status), HttpStatus.OK);
     }
     /**
      * 显示在banner页的广告，要求广告状态为running
