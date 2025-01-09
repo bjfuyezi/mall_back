@@ -42,6 +42,7 @@ public class UserRouter {
             if (user != null) {
                 response.put("status", "success");
                 response.put("user_id", user.getUser_id());
+                response.put("role", user.getRole());
                 System.out.println("Login success response: " + response); // 添加日志
                 return ResponseEntity.ok(response);
             } else {
