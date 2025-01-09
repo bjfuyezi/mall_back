@@ -30,4 +30,5 @@ public class Product {
     private String unit;
     private Integer salenum;
     private Integer greedy;
+    private String reason;
 }
