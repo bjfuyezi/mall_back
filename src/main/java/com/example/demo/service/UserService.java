@@ -250,4 +250,15 @@ public class UserService {
         return password.matches(passwordRegex);
     }
 
+    // 更新用户信息
+    public void updateUser(Integer userId, User user) {
+        user.setUser_id(userId); // 确保设置用户ID
+        userMapper.updateUser(user);
+    }
+
+    // 删除用户
+    public void deleteUser(Integer userId) {
+        userMapper.deleteUser(userId);
+    }
+
 }

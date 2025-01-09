@@ -63,4 +63,8 @@ public interface UserMapper {
      * 更新用户密码
      */
     int updatePassword(User user);
+
+    List<User> getAllUsers(); // 获取所有用户
+
+    void deleteUser(Integer userId); // 删除用户
 }

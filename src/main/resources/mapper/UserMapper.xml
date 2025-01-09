@@ -81,4 +81,8 @@
             updated_time = NOW()
         WHERE username = #{username}
     </update>
+    <!-- 删除用户 -->
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM users WHERE user_id = #{user_id}
+    </delete>
 </mapper>

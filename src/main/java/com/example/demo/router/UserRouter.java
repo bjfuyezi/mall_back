@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -310,5 +311,33 @@ public class UserRouter {
             response.put("message", "服务器错误");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    // 获取用户列表
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> getUserList() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // 编辑用户信息
+    @PutMapping("/edit/{user_id}")
+    public ResponseEntity<String> editUser(@PathVariable Integer user_id, @RequestBody User user) {
+        userService.updateUser(user_id, user);
+        return ResponseEntity.ok("用户信息更新成功");
+    }
+
+    // 添加新用户
+    @PostMapping("/add")
+    public ResponseEntity<String> addUser(@RequestBody User user) {
+        userService.addUser(user);
+        return ResponseEntity.ok("用户添加成功");
+    }
+
+    // 删除用户
+    @DeleteMapping("/delete/{user_id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Integer user_id) {
+        userService.deleteUser(user_id);
+        return ResponseEntity.ok("用户删除成功");
     }
 }
