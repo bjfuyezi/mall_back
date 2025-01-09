@@ -22,17 +22,15 @@ public class AddressRouter {
     private AddressesService addressesService;
 
     @GetMapping("/user/{user_id}")
-    public ResponseEntity<Map<String, Object>> getUserAddresses(@PathVariable String user_id) {
+    public ResponseEntity<Map<String, Object>> getUserAddresses(@PathVariable Integer user_id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // 打印接收到的用户ID
             System.out.println("Fetching addresses for user_id: " + user_id);
-            
-            List<Addresses> addresses = addressesService.getAddressesByUser_id(Integer.parseInt(user_id));
-            
-            // 打印查询结果
+
+            List<Addresses> addresses = addressesService.getAddressesByUser_id(user_id);
+
             System.out.println("Found addresses: " + addresses);
-            
+
             response.put("status", "success");
             response.put("data", addresses);
             return ResponseEntity.ok(response);
@@ -44,13 +42,16 @@ public class AddressRouter {
         }
     }
 
+
+
+
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addAddress(@RequestBody Addresses address) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 打印接收到的地址信息
             System.out.println("Received address: " + address);
-            
+
             if (address.getUser_id() == null) {
                 response.put("status", "error");
                 response.put("message", "用户ID不能为空");

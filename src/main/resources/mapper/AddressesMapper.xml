@@ -21,7 +21,7 @@
             address_content as address_content,
             created_time as create_time,
             province,
-            is_default as isDefault,
+            is_default as is_default,
             phone
         FROM addresses 
         WHERE user_id = #{user_id}
@@ -36,28 +36,29 @@
     <!-- 插入新地址 -->
     <insert id="insert" parameterType="com.example.demo.pojo.Addresses" useGeneratedKeys="true" keyProperty="address_id">
         INSERT INTO addresses (
-            user_id, 
-            address_content, 
-            created_time, 
-            province, 
-            is_default, 
+            user_id,
+            address_content,
+            created_time,
+            province,
+            is_default,
             phone
         ) VALUES (
-            #{user_id},
-            #{address_content},
-            #{create_time},
-            #{province}, 
-            #{isDefault}, 
-            #{phone}
-        )
+                     #{user_id},
+                     #{address_content},
+                     #{create_time},
+                     #{province},
+                     #{is_default},
+                     #{phone}
+                 )
     </insert>
+
 
     <!-- 更新地址信息 -->
     <update id="update" parameterType="com.example.demo.pojo.Addresses">
         UPDATE addresses 
         SET address_content = #{address_content},
             province = #{province},
-            is_default = #{isDefault},
+            is_default = #{is_default},
             phone = #{phone}
         WHERE address_id = #{address_id}
     </update>
