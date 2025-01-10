@@ -5,6 +5,7 @@ import com.example.demo.pojo.Advertise;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 /*
 @mapper 自动扫描mapper
@@ -12,13 +13,14 @@ import java.util.List;
 @Mapper
 public interface AdvertiseMapper {
     List<Advertise> selectAll();
-    List<Advertise> selectByStatus(@Param("status") AdvertisementStatus status);
     List<Advertise> selectAllByUser(@Param("user_id") int id);
     List<Advertise> selectByStatusAndUser(@Param("user_id") int id, @Param("status") AdvertisementStatus status);
     List<Advertise> selectByKey(@Param("key") String key);
     List<Advertise> selectBanners();
     Advertise selectById(@Param("id") int id);
-    void updateStatus(@Param("id") int id, @Param("status") AdvertisementStatus status);
+    void updateStatus(@Param("id") int id, @Param("status") AdvertisementStatus status,@Param("reason") String reason);
+    void deleteAdvertise(@Param("id") int id);
+    void updateInfo(@Param("id") int id, @Param("name") String name, @Param("updated") Date time);
     void addAdvertise(Advertise advertise);
     void updateReason(@Param("id") int id, @Param("status") AdvertisementStatus status, @Param("reason") String reason);
 }

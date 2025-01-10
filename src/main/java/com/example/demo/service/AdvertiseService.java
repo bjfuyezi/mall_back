@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -35,12 +34,16 @@ public class AdvertiseService {
     @Autowired
     private PictureMapper pictureMapper;
 
-    public List<Advertise> getAdvertiseByStatus(AdvertisementStatus status) {
-        System.out.println("111111");
-        if(status == null) return advertiseMapper.selectAll();
-        else{
-           return advertiseMapper.selectByStatus(status);
+    public List<Advertise> getAdvertiseAll() {
+        List<Advertise> ads = advertiseMapper.selectAll();
+        for(Advertise ad: ads){
+            String name =shopMapper.selectById(ad.getShop_id()).getShop_name();
+            ad.setShop_name(name);
+            if(ad.getPicture_id() != null){
+                ad.setUrl(pictureMapper.selectById(ad.getPicture_id()).getUrl());
+            }
         }
+        return ads;
     }
 
     public List<Advertise> getAdvertiseByStatusAndUser(int id,AdvertisementStatus status) {
@@ -70,12 +73,12 @@ public class AdvertiseService {
                 if (!end_date.isBefore(now)) {//结束时间不在现在之前则加入banner
                     result.add(ad);
                 } else {//结束时间在现在之后就更新
-                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.expired);
+                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.expired,null);
                 }
             } else if (ad.getStatus() == AdvertisementStatus.approved) {
                 LocalDate start_date = Utils.convertToLocalDate(ad.getStart_time());
                 if (!start_date.isAfter(now)) {//开始时间不在现在时间之后，证明已经需要开始了
-                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.running);
+                    advertiseMapper.updateStatus(ad.getAdvertisement_id(), AdvertisementStatus.running,null);
                     result.add(ad);
                 }
             }
@@ -109,7 +112,6 @@ public class AdvertiseService {
         }else{
             advertise.setProduct_id(ps_id);
             advertise.setStart_time(d);
-            advertise.setEnd_time(d);
             //这里根据psid更新商品的times
         }
 
@@ -138,12 +140,20 @@ public class AdvertiseService {
         return null;
     }
 
-    public boolean setAdvertiseStatus(int id, AdvertisementStatus status){
+    public boolean deleteAdvertise(int id){
         Advertise advertisement = advertiseMapper.selectById(id);
         if(advertisement == null){
             return false;
         }
-        advertiseMapper.updateStatus(id,status);
+        advertiseMapper.deleteAdvertise(id);
+        return true;
+    }
+    public boolean setAdvertiseStatus(int id, AdvertisementStatus status,String reason){
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if(advertisement == null){
+            return false;
+        }
+        advertiseMapper.updateStatus(id,status,reason);
         return true;
     }
     // 将TreeMap<Calendar, Integer>转换为TreeMap<Long, Integer>
@@ -232,5 +242,15 @@ public class AdvertiseService {
         }else{
             return String.valueOf(times*10);
         }
+    }
+
+    public boolean updateAdvertise(int id, String name){
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if(advertisement == null){
+            return false;
+        }
+        Date d = new Date();
+        advertiseMapper.updateInfo(id,name,d);
+        return true;
     }
 }
