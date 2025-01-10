@@ -41,9 +41,20 @@ public class AdvertiseRouter {
      * 显示所有广告，包括已失效
      * @return 所有广告
      */
-    @GetMapping("/")
-    public ResponseEntity<List<Advertise>> getAdvertiseByStatus(@Param("status") AdvertisementStatus status) {
-        return new ResponseEntity<>(advertiseService.getAdvertiseByStatus(status), HttpStatus.OK);
+    @GetMapping("/admin")
+    public ResponseEntity<List<Advertise>> getAdvertiseAll() {
+        return new ResponseEntity<>(advertiseService.getAdvertiseAll(), HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param id
+     * @param status
+     * @return
+     */
+    @GetMapping("/user")
+    public ResponseEntity<List<Advertise>> getAdvertiseByStatusAndUser(@Param("id") int id, @Param("status") AdvertisementStatus status) {
+        return new ResponseEntity<>(advertiseService.getAdvertiseByStatusAndUser(id,status), HttpStatus.OK);
     }
     /**
      * 显示在banner页的广告，要求广告状态为running
@@ -95,20 +106,17 @@ public class AdvertiseRouter {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     /**
-     * 更新指定 ID 的广告状态。
      *
-     * @param status 新的状态值 (作为查询参数)
-     * @return 如果成功更新，则返回 200 OK；如果未找到对应的广告，则返回 404 Not Found；
-     *         如果更新失败，则返回 500 Internal Server Error。
+     * @param advertise
+     * @return
      */
-    @PutMapping("/status")//http://localhost:8081/advertise/status?id=1&status=running
+    @PostMapping("/status")//http://localhost:8081/advertise/status?id=1&status=running
     public ResponseEntity<Void> setAdvertiseStatus(
-            @RequestParam("status") AdvertisementStatus status) {
+            @RequestBody Advertise advertise) {
         try {
-            //To do: 获取当前用户的商铺id
-            int id = 1;
-            boolean updated = advertiseService.setAdvertiseStatus(id, status);
+            boolean updated = advertiseService.setAdvertiseStatus(advertise.getAdvertisement_id(),advertise.getStatus(),advertise.getReason());
             if (updated) {
                 return new ResponseEntity<>(HttpStatus.OK); //200ok
             } else {
@@ -128,6 +136,22 @@ public class AdvertiseRouter {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(advertise, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/del")
+    public ResponseEntity<List<Advertise>> deleteAdvertise(@RequestParam("id") Integer id){
+        try {
+            boolean updated = advertiseService.deleteAdvertise(id);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
     }
     /**
      *
@@ -175,6 +199,24 @@ public class AdvertiseRouter {
             return new ResponseEntity<>(money,HttpStatus.OK);
         } catch (ParseException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    @PostMapping("/updateinfo")//http://localhost:8081/advertise/status?id=1&status=running
+    public ResponseEntity<Void> updateAdvertise(
+            @RequestBody Advertise advertise) {
+        System.out.println(advertise);
+        try {
+            boolean updated = advertiseService.updateAdvertise(advertise.getAdvertisement_id(), advertise.getName());
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
         }
     }
 }
