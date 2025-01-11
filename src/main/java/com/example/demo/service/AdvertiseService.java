@@ -90,7 +90,7 @@ public class AdvertiseService {
         }
     }
 
-    public void createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
+    public Advertise createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
                                 int pic_id,boolean banner,int times,String name) throws ParseException {
         Advertise advertise = new Advertise();
         Date d = new Date();
@@ -116,12 +116,13 @@ public class AdvertiseService {
         advertise.setPrice(price);
         advertise.setPicture_id(pic_id);
         advertise.setBanner(banner);
-        advertise.setStatus(AdvertisementStatus.pending);
+        advertise.setStatus(AdvertisementStatus.expired);
         advertise.setName(name);
         advertise.setCreated_time(d);
         advertise.setUpdated_time(d);
 
         advertiseMapper.addAdvertise(advertise);
+        return advertise;
     }
 
     public Advertise getAdvertiseDetail(int id) {
@@ -137,12 +138,13 @@ public class AdvertiseService {
         return null;
     }
 
-    public boolean deleteAdvertise(int id){
+    public boolean deleteAdvertise(int id) throws IOException, ClassNotFoundException {
         Advertise advertisement = advertiseMapper.selectById(id);
         if(advertisement == null){
             return false;
         }
         advertiseMapper.deleteAdvertise(id);
+        CalenderMapDel(advertisement.getStart_time(),advertisement.getEnd_time());
         return true;
     }
     public boolean setAdvertiseStatus(int id, AdvertisementStatus status,String reason){
@@ -224,6 +226,22 @@ public class AdvertiseService {
         // 如果所有日期都满足条件，则可以添加新广告
         return true;
     }
+
+    public void CalenderMapDel(Date starttime, Date endtime) throws IOException, ClassNotFoundException {
+        TreeMap<Calendar, Integer> dailyChanges = readFromFile("src/main/resources/static/calender.txt");
+        System.out.println("删除时dailychanges大小:"+dailyChanges.size());
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(starttime);
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(endtime);
+        // 删除dailyChanges里这个广告的影响
+        dailyChanges.put(calendar1, dailyChanges.getOrDefault(calendar1, 0) - 1);
+        calendar2.add(Calendar.DAY_OF_MONTH, 1);//天数+1包含最后一天
+        dailyChanges.put(calendar2, dailyChanges.getOrDefault(calendar2, 0) + 1);
+        System.out.println(dailyChanges);
+        writeToFile("src/main/resources/static/calender.txt",dailyChanges);
+    }
+
 
     public boolean rejectAdvertise(int id, String reason){
         Advertise advertisement = advertiseMapper.selectById(id);
