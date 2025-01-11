@@ -24,13 +24,29 @@ public class Coupon {
     private BigInteger total; // 总数量
     private Integer claim_limit; // 限制领取数量
     private Integer max_unused_count; // 最多允许账户里存在几张未使用的本券
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date create_time; // 创建时间
-    private int shop_id; // 店铺ID
+    private Integer shop_id; // 店铺ID
 
     public Coupon() {
     }
 
-    public Coupon(CouponType coupon_type, Date start_time, Date end_time, String scope, double request, double off, CouponStatus coupon_status, BigInteger total, Integer claim_limit, Integer max_unused_count, Date create_time, int shop_id) {
+    public Coupon(CouponType coupon_type, Date start_time, Date end_time, String scope, double request, double off, CouponStatus coupon_status, BigInteger total, Integer claim_limit, Integer max_unused_count, Date create_time, Integer shop_id) {
+        this.coupon_type = coupon_type;
+        this.start_time = start_time;
+        this.end_time = end_time;
+        this.scope = scope;
+        this.request = request;
+        this.off = off;
+        this.coupon_status = coupon_status;
+        this.total = total;
+        this.claim_limit = claim_limit;
+        this.max_unused_count = max_unused_count;
+        this.create_time = create_time;
+        this.shop_id = shop_id;
+    }
+
+    public Coupon(CouponType coupon_type, Date start_time, Date end_time, String scope, double request, double off, CouponStatus coupon_status, BigInteger total, Integer claim_limit, Integer max_unused_count,Integer shop_id) {
         this.coupon_type = coupon_type;
         this.start_time = start_time;
         this.end_time = end_time;
