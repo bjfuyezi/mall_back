@@ -9,8 +9,12 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Utils {
-    public static Date TimetoDate(String s) throws ParseException {
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static Date TimetoDate(String s,Boolean type) throws ParseException {
+        SimpleDateFormat simpleDateFormat;
+        if(type){
+            simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        }else simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+
         return simpleDateFormat.parse(s);
     }
 
@@ -51,6 +55,6 @@ public class Utils {
         String formattedDateStr = outputFormat.format(parsedDate);
         System.out.println("after:"+formattedDateStr);
 //        return outputFormat.parse(formattedDateStr);
-        return TimetoDate(formattedDateStr);
+        return TimetoDate(formattedDateStr,true);
     }
 }

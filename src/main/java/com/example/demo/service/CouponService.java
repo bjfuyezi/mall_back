@@ -150,8 +150,8 @@ public class CouponService {
                                            Double request, Double off, BigInteger total, Integer claim_limit,
                                            Integer max_unused_count) throws Exception {
 
-        Date start = Utils.TimetoDate(start_time);
-        Date end =Utils.TimetoDate(end_time);
+        Date start = Utils.TimetoDate(start_time,true);
+        Date end =Utils.TimetoDate(end_time,false);
 
         // 调用Mapper更新未生效券
         int rowsAffected = couponMapper.updatePendingCouponContent(coupon_id, start, end, request, off, total, claim_limit, max_unused_count);
