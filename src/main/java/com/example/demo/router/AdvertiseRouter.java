@@ -48,13 +48,12 @@ public class AdvertiseRouter {
 
     /**
      *
-     * @param id
-     * @param status
+     * @param uid
      * @return
      */
     @GetMapping("/user")
-    public ResponseEntity<List<Advertise>> getAdvertiseByStatusAndUser(@Param("id") int id, @Param("status") AdvertisementStatus status) {
-        return new ResponseEntity<>(advertiseService.getAdvertiseByStatusAndUser(id,status), HttpStatus.OK);
+    public ResponseEntity<List<Advertise>> getAdvertiseByStatusAndUser(@Param("uid") Integer uid) {
+        return new ResponseEntity<>(advertiseService.getAdvertiseByStatusAndUser(uid), HttpStatus.OK);
     }
     /**
      * 显示在banner页的广告，要求广告状态为running
@@ -85,8 +84,8 @@ public class AdvertiseRouter {
             @RequestParam("name") String name){
         try {
             if(banner){
-                Date start = Utils.TimetoDate(start_time);
-                Date end = Utils.TimetoDate(end_time);
+                Date start = Utils.TimetoDate(start_time,false);
+                Date end = Utils.TimetoDate(end_time,false);
                 if(!advertiseService.CheckBanner(start,end)){
                     return new ResponseEntity<>("time error",HttpStatus.CONFLICT);
                 }else {

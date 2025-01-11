@@ -46,11 +46,8 @@ public class AdvertiseService {
         return ads;
     }
 
-    public List<Advertise> getAdvertiseByStatusAndUser(int id,AdvertisementStatus status) {
-        if(status == null) return advertiseMapper.selectAllByUser(id);
-        else{
-            return advertiseMapper.selectByStatusAndUser(id,status);
-        }
+    public List<Advertise> getAdvertiseByStatusAndUser(int uid) {
+        return advertiseMapper.selectAllByUser(uid);
     }
 
     public List<Advertise> searchByKey(String s) {
@@ -105,8 +102,8 @@ public class AdvertiseService {
             }else{
                 advertise.setPicture_id(null);
             }
-            Date stime =Utils.TimetoDate(start_time);
-            Date etime =Utils.TimetoDate(end_time);
+            Date stime =Utils.TimetoDate(start_time,false);
+            Date etime =Utils.TimetoDate(end_time,false);
             advertise.setStart_time(stime);
             advertise.setEnd_time(etime);
         }else{
@@ -167,6 +164,7 @@ public class AdvertiseService {
 
     public static void writeToFile(String filePath, TreeMap<Calendar, Integer> dailyChanges) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            System.out.println("写入"+filePath);
             oos.writeObject(convertToLongMap(dailyChanges));
         }
     }
@@ -197,6 +195,7 @@ public class AdvertiseService {
     // 检查是否可以在advertiseList中添加新的Advertise对象
     public boolean CheckBanner(Date starttime, Date endtime) throws IOException, ClassNotFoundException {
         TreeMap<Calendar, Integer> dailyChanges = readFromFile("src/main/resources/static/calender.txt");
+        System.out.println("dailychanges大小:"+dailyChanges.size());
         Calendar calendar1 = Calendar.getInstance();
         calendar1.setTime(starttime);
         Calendar calendar2 = Calendar.getInstance();
@@ -220,7 +219,8 @@ public class AdvertiseService {
                 return false;
             }
         }
-        writeToFile("/calender.txt",dailyChanges);
+        System.out.println(dailyChanges);
+        writeToFile("src/main/resources/static/calender.txt",dailyChanges);
         // 如果所有日期都满足条件，则可以添加新广告
         return true;
     }
