@@ -33,4 +33,9 @@
         DELETE FROM cart_items
         WHERE user_id = #{user_id} AND product_id = #{product_id}
     </delete>
+
+    <select id="selectItemByUser_idAndProduct_id" resultType="com.example.demo.pojo.CartItem">
+        SELECT * FROM cart_items
+        WHERE user_id = #{user_id} AND product_id = #{product_id}
+    </select>
 </mapper>

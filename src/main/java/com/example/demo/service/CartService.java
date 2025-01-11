@@ -89,7 +89,13 @@ public class CartService {
      * @param shop_id 商品所属店铺ID
      * @return 是否成功加入购物车
      */
+    // 测试成功--浮笙
     public boolean addProductToCart(int user_id, int product_id, int quantity, int shop_id) {
+        // 先判断该用户的购物车里面有没有该商品
+        CartItem item = cartMapper.selectItemByUser_idAndProduct_id(user_id,product_id);
+        if(item!=null){
+            throw new IllegalArgumentException("该商品已经加入用户购物车");
+        }
         // 创建新的购物车项对象
         CartItem cartItem = new CartItem(user_id,product_id,quantity,shop_id);
 

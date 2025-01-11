@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /*
 cart: 购物车
 @RestController restful方式返回前端，具体格式code标准百度查询
@@ -51,21 +53,49 @@ public class CartRouter {
      * @param user_id    用户ID
      * @param product_id 商品ID
      * @param quantity  商品数量
-     * @param     商品所属店铺ID
+     * @param shop_id   商品所属店铺ID
      * @return 是否成功加入购物车
+    {
+        "user_id":1,
+        "product_id":1,
+        "quantity":1,
+        "shop_id":1
+    }
      */
     @PostMapping("/add")
-    public ResponseEntity<String> addProductToCart(@RequestParam int user_id,
-                                                   @RequestParam int product_id,
-                                                   @RequestParam int quantity,
-                                                   @RequestParam int shop_id) {
-        boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
-        if (isAdded) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("商品已加入购物车");
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("加入购物车失败");
+    public ResponseEntity<String> addProductToCart(@RequestBody Map<String,Object> requestBody) {
+        try{
+            Integer user_id = (Integer) requestBody.get("user_id");
+            Integer product_id = (Integer) requestBody.get("product_id");
+            Integer quantity = (Integer) requestBody.get("quantity");
+            Integer shop_id = (Integer) requestBody.get("shop_id");
+            System.out.println(user_id);
+            System.out.println(product_id);
+            System.out.println(quantity);
+            System.out.println(shop_id);
+            boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
+            if (isAdded) {
+                return ResponseEntity.ok("商品加入购物车成功");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("加入失败");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("加入失败"+e.getMessage());
         }
+
     }
+//    @PostMapping("/add")
+//    public ResponseEntity<String> addProductToCart(@RequestParam int user_id,
+//                                                   @RequestParam int product_id,
+//                                                   @RequestParam int quantity,
+//                                                   @RequestParam int shop_id) {
+//        boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
+//        if (isAdded) {
+//            return ResponseEntity.status(HttpStatus.CREATED).body("商品已加入购物车");
+//        } else {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("加入购物车失败");
+//        }
+//    }
 
     /**
      * 更新购物车商品数量
