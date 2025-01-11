@@ -72,7 +72,7 @@ public class AdvertiseRouter {
      * 申请新的广告
      */
     @PostMapping("/create")
-    public ResponseEntity<String> createAdvertise(
+    public ResponseEntity<Advertise> createAdvertise(
             @RequestParam("ps_id") int ps_id,
             @RequestParam("type") AdvertisementType type,
             @RequestParam("start_time") String start_time,
@@ -87,22 +87,22 @@ public class AdvertiseRouter {
                 Date start = Utils.TimetoDate(start_time,false);
                 Date end = Utils.TimetoDate(end_time,false);
                 if(!advertiseService.CheckBanner(start,end)){
-                    return new ResponseEntity<>("time error",HttpStatus.CONFLICT);
+                    return new ResponseEntity<>(HttpStatus.CONFLICT);
                 }else {
                     int pic_id = pictureService.save_picture(picture);
-                    advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,times, name);
-                    return new ResponseEntity<>(HttpStatus.OK);
+                    Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,times, name);
+                    return new ResponseEntity<>(advertise,HttpStatus.OK);
                 }
             }else{
                 int pic_id = pictureService.save_picture(picture);
-                advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner, times, name);
-                return new ResponseEntity<>(HttpStatus.OK);
+                Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner, times, name);
+                return new ResponseEntity<>(advertise,HttpStatus.OK);
             }
 
         } catch (ParseException | NameException | IOException | ClassNotFoundException e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
