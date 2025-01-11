@@ -46,6 +46,43 @@ public class ProductService {
         return productMapper.selectAllProductByShop_id(id);
     }
 
+    public String deleteById(Integer id) {
+        productMapper.deleteById(id);
+        return "200";
+    }
+
+    public String updateStatus(Integer id, String status) {
+        Product product = productMapper.selectById(id);
+        product.setStatus(ProductStatus.valueOf(status));
+        productMapper.updateStatus(product);
+        return "200";
+    }
+
+    public String updateQuantity(Integer id, String quantityJson) {
+        Product product = productMapper.selectById(id);
+        product.setQuantity(quantityJson);
+        productMapper.updateProduct(product);
+        return "200";
+    }
+
+    public String updateProduct(String name, String category, Double price, String description, String unit, String notice, String stockJson, String imagesJson, Integer id) {
+        Product product = productMapper.selectById(id);
+        Product checkName = productMapper.selectByName(name);
+        if ( checkName != null )
+            return "409";
+        product.setName(name);
+        product.setCategory(ProductType.valueOf(category));
+        product.setPrice(price);
+        product.setDescription(description);
+        product.setUnit(unit);
+        product.setNotice(notice);
+        product.setPicture_id(imagesJson);
+        product.setUpdated_time(new Date());
+        product.setQuantity(stockJson);
+        productMapper.updateProduct(product);
+        return "200";
+    }
+
     public String createProduct(String name, String category, Double price, String description, String unit, String notice, String stockJson, String images, Integer shop_id) throws JsonProcessingException {
         // 处理重名
         List<Product> productList = productMapper.selectAllProductByShop_id(shop_id);

@@ -87,6 +87,67 @@ public class ProductRouter {
     }
 
     /**
+     * 删除商品。
+     *
+     * @param
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/deleteById")
+    public ResponseEntity<String> deleteById(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        String result = productService.deleteById(id);
+        if (Objects.equals(result, "404")) {
+            return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
+        } else if (Objects.equals(result, "409")) {
+            return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
+        }
+        // 返回成功响应
+        return ResponseEntity.ok("商品删除成功");
+    }
+
+    /**
+     * 更新商品库存。
+     *
+     * @param
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/updateQuantity")
+    public ResponseEntity<String> updateQuantity(
+            @RequestParam("id") Integer id,
+            @RequestParam("quantity") String quantityJson) {
+        String result = productService.updateQuantity(id, quantityJson);
+        if (Objects.equals(result, "404")) {
+            return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
+        } else if (Objects.equals(result, "409")) {
+            return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
+        }
+        // 返回成功响应
+        return ResponseEntity.ok("商品更新库存成功");
+    }
+
+    /**
+     * 更新商品状态。
+     *
+     * @param
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/updateStatus")
+    public ResponseEntity<String> updateStatus(
+            @RequestParam("id") String id,
+            @RequestParam("status") String status) {
+        Integer id_int = Integer.parseInt(id);
+        System.out.println(status);
+        String result = productService.updateStatus(id_int, status);
+        if (Objects.equals(result, "404")) {
+            return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
+        } else if (Objects.equals(result, "409")) {
+            return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
+        }
+        // 返回成功响应
+        return ResponseEntity.ok("商品状态更新成功");
+    }
+
+    /**
      * 增加商品。
      *
      * @param
@@ -104,12 +165,39 @@ public class ProductRouter {
             @RequestParam("images") String images,     // 接受图片
             @RequestParam("shop_id") Integer shop_id) throws JsonProcessingException {
         String result = productService.createProduct(name, category, price, description, unit, notice, stockJson, images, shop_id);
-        if ( result == "404" ) {
+        if (Objects.equals(result, "404")) {
             return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
-        } else if ( result == "409" ) {
+        } else if (Objects.equals(result, "409")) {
             return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
         }
         // 返回成功响应
         return ResponseEntity.ok("商品创建成功");
+    }
+
+    /**
+     * 更新商品。
+     *
+     * @param
+     * @return 如果成功，则返回 shop 实体；如果未找到对应的店铺，则返回 null。
+     */
+    @PostMapping("/updateAll")
+    public ResponseEntity<String> updateAll(
+            @RequestParam("name") String name,
+            @RequestParam("category") String category,
+            @RequestParam("price") Double price,
+            @RequestParam("description") String description,
+            @RequestParam("unit") String unit,
+            @RequestParam("notice") String notice,
+            @RequestParam("quantity") String stockJson,    // Json字符串 用于接收库存信息
+            @RequestParam("images") String imagesJson,     // 接受图片
+            @RequestParam("product_id") Integer id) throws JsonProcessingException {
+        String result = productService.updateProduct(name, category, price, description, unit, notice, stockJson, imagesJson, id);
+        if (Objects.equals(result, "404")) {
+            return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);
+        } else if (Objects.equals(result, "409")) {
+            return new ResponseEntity<>("商品名称重复", HttpStatus.CONFLICT);
+        }
+        // 返回成功响应
+        return ResponseEntity.ok("商品更新成功");
     }
 }
