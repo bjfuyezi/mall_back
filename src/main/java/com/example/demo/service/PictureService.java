@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.Exception.NameException;
 import com.example.demo.mapper.PictureMapper;
 import com.example.demo.pojo.Picture;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -65,4 +68,29 @@ public class PictureService {
         }
         return picture.getUrl();
     }
+
+    public String getManyImageUrl(String ids) throws IOException {
+        List<String> result = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        if ( ids.contains(",") ) {
+            List<String> idList = objectMapper.readValue(ids, List.class);
+            for (String id : idList) {
+                Picture picture = pictureMapper.selectById(Integer.parseInt(id));
+                if (picture != null) {
+                    result.add(picture.getUrl());
+                }
+            }
+        } else {
+            List<Integer> idList = objectMapper.readValue(ids, List.class);
+            for (Integer id : idList) {
+                Picture picture = pictureMapper.selectById(id);
+                if (picture != null) {
+                    result.add(picture.getUrl());
+                }
+            }
+        }
+
+        return objectMapper.writeValueAsString(result);
+    }
+
 }

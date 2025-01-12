@@ -10,15 +10,19 @@ import java.util.List;
 @Mapper
 public interface ProductMapper {
     void insert(Product product);
-    Product selectById(@Param("id") int id);
+    Product selectById(@Param("id") Integer id);
     Product selectByName(@Param("name") String name);
     void updateProduct(Product product);
     void deleteById(@Param("id") int id);
-    void updateStatus(@Param("id") int id, @Param("status") ProductStatus status);
+    void updateStatus(Product product);
     List<Product> selectAllProductByShop_id(@Param("shop_id") int shop_id);
+    List<Product> selectAll();
+    List<Product> selectBuyHistoryByUser(@Param("uid") int uid);
     List<Product> selectAllProductBySaleLocation(@Param("location") String location);
     List<Product> selectAllProductBySaleCategory(@Param("category") String category);
     List<Product> selectAllSaleProduct();
     List<Product> selectAllEmptyProduct();
     List<Product> selectAllWaitingProduct();
+    List<Product> selectByAdvertise();
+    List<Integer> selectSaleByShop(@Param("shop_id") int shop_id);
 }

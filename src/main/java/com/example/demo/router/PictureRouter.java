@@ -70,6 +70,16 @@ public class PictureRouter {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @PostMapping("/getManyUrl")
+    public ResponseEntity<String> getManyUrl(@RequestBody Map<String, Object> ids) {
+        String picturesId = (String) ids.get("id"); // 从请求体中获取id
+        try {
+            String urls = pictureService.getManyImageUrl(picturesId);
+            return new ResponseEntity<>(urls, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PostMapping("/uploadAndId")
     public ResponseEntity<String> uploadAndId(@RequestParam("file") MultipartFile file) {
