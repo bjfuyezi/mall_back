@@ -17,6 +17,7 @@ public class CartItem {
     private Integer user_id;      // 购物车所属用户 ID
     private Integer product_id;   // 购物车项对应商品 ID
     private Integer quantity;     // 商品数量
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date added_time;      // 加入购物车时间
     private Integer shop_id;      // 店铺 ID
 

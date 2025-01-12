@@ -38,4 +38,20 @@
         SELECT * FROM cart_items
         WHERE user_id = #{user_id} AND product_id = #{product_id}
     </select>
+
+    <select id="selectItemById" resultType="com.example.demo.pojo.CartItem">
+        SELECT * FROM cart_items
+        WHERE cart_item_id = #{cart_item_id}
+    </select>
+
+    <update id="updateCartItemQuantity2">
+        UPDATE cart_items
+        SET quantity = #{quantity}
+        WHERE cart_item_id = #{cart_item_id}
+    </update>
+
+    <delete id="deleteCartItemById">
+        DELETE FROM cart_items
+        WHERE cart_item_id = #{cart_item_id}
+    </delete>
 </mapper>

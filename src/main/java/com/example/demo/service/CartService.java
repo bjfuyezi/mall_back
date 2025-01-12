@@ -29,6 +29,7 @@ public class CartService {
      * @param user_id 用户ID
      * @return 该用户的购物车商品列表，按同一店铺商品的加入时间排序。
      */
+    // 测试合格--浮笙
     public List<Map<String, Object>> getCartItemsByUser_id(int user_id) {
         // 获取该用户的所有购物车商品
         List<CartItem> cartItems = cartMapper.getCartByUser_id(user_id);
@@ -70,10 +71,10 @@ public class CartService {
                 })
                 .forEach(entry -> {  // 遍历排序后的结果，对每个Map.Entry进行处理
                     Map<String, Object> shopGroup = new HashMap<>();  // 创建一个新的Map用于存储该店铺的详细信息
-                    shopGroup.put("", entry.getKey());  // 将店铺ID作为key，添加到shopGroup中
+                    shopGroup.put("shop_id", entry.getKey());  // 将店铺ID作为key，添加到shopGroup中
                     // 使用 shopMapper 根据  获取店铺名称
                     String shopName = shopMapper.selectById(entry.getKey()).getShop_name();
-                    shopGroup.put("shopName", shopName);  // 获取该店铺的名称（假设第一个商品的店铺名就是该店铺的名称）
+                    shopGroup.put("shop_name", shopName);  // 获取该店铺的名称（假设第一个商品的店铺名就是该店铺的名称）
                     shopGroup.put("items", entry.getValue());  // 将店铺下的商品列表添加到shopGroup中
                     result.add(shopGroup);  // 将整理好的shopGroup添加到结果列表中
                 });
@@ -107,7 +108,23 @@ public class CartService {
         return result > 0;//看是否添加成功
     }
 
-
+    /**
+     * 用户改变购物车商品数量：根据购物车项ID更新购物车中的商品数量。
+     * @param cart_item_id 购物车项ID
+     * @param quantity 更新后的商品数量
+     * @return 是否成功更新购物车商品数量
+     */
+    // 测试合格--浮笙
+    public boolean updateCartItemQuantity(int cart_item_id, int quantity) {
+        CartItem item = cartMapper.selectItemById(cart_item_id);
+        if(item==null){
+            throw new IllegalArgumentException("购物车项不存在");
+        }
+        // 根据购物车项ID更新购物车中的商品数量
+        int result = cartMapper.updateCartItemQuantity2(cart_item_id, quantity);
+        System.out.println(cartMapper.selectItemById(cart_item_id));
+        return result > 0;
+    }
     /**
      * 用户改变购物车商品数量：根据用户ID和商品ID更新购物车中的商品数量。
      * @param user_id 用户ID
@@ -115,27 +132,33 @@ public class CartService {
      * @param quantity 更新后的商品数量
      * @return 是否成功更新购物车商品数量
      */
-    public boolean updateCartItemQuantity(int user_id, int product_id, int quantity) {
-        // 根据用户ID和商品ID更新购物车中的商品数量
-        int result = cartMapper.updateCartItemQuantity(user_id, product_id, quantity);
-        return result > 0;
-    }
+//    public boolean updateCartItemQuantity(int user_id, int product_id, int quantity) {
+//        // 根据用户ID和商品ID更新购物车中的商品数量
+//        int result = cartMapper.updateCartItemQuantity(user_id, product_id, quantity);
+//        return result > 0;
+//    }
 
     /**
      * 删除指定购物车商品
-     *
-     * @param user_id 用户 ID
-     * @param product_id 商品 ID
      * @return 删除是否成功
      */
-    public boolean deleteCartItem(int user_id, int product_id) {
-        try {
-            cartMapper.deleteCartItem(user_id, product_id);  // 调用 CartMapper 删除购物车商品
-            return true;  // 如果删除成功，返回 true
-        } catch (Exception e) {
-            // 捕获异常，返回 false 表示删除失败
-            e.printStackTrace();
-            return false;
+    // 测试合格--浮笙
+    public boolean deleteCartItem(Integer cart_item_id) {
+        CartItem item = cartMapper.selectItemById(cart_item_id);
+        if(item==null){
+            throw new IllegalArgumentException("购物车项不存在");
         }
+        int result = cartMapper.deleteCartItemById(cart_item_id);  // 调用 CartMapper 删除购物车商品
+        return result>0;
     }
+//    public boolean deleteCartItem(int user_id, int product_id) {
+//        try {
+//            cartMapper.deleteCartItem(user_id, product_id);  // 调用 CartMapper 删除购物车商品
+//            return true;  // 如果删除成功，返回 true
+//        } catch (Exception e) {
+//            // 捕获异常，返回 false 表示删除失败
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 }
