@@ -16,6 +16,7 @@ public interface ProductMapper {
     void deleteById(@Param("id") int id);
     void updateStatus(@Param("id") int id, @Param("status") ProductStatus status);
     List<Product> selectAllProductByShop_id(@Param("shop_id") int shop_id);
+    List<Product> selectAll();
     List<Product> selectAllProductBySaleLocation(@Param("location") String location);
     List<Product> selectAllProductBySaleCategory(@Param("category") String category);
     List<Product> selectAllSaleProduct();

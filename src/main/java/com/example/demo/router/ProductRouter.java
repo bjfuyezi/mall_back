@@ -3,6 +3,7 @@ package com.example.demo.router;
 import com.example.demo.Exception.NameException;
 import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
+import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Product;
 import com.example.demo.pojo.Shop;
 import com.example.demo.service.PictureService;
@@ -111,5 +112,10 @@ public class ProductRouter {
         }
         // 返回成功响应
         return ResponseEntity.ok("商品创建成功");
+    }
+    @GetMapping("/homeview")
+    public ResponseEntity<List<Product>> getHomeview(@RequestParam("uid") int uid){
+        List<Product> products=productService.getHomeview(uid);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 }

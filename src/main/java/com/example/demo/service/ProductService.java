@@ -32,6 +32,8 @@ public class ProductService {
     private ProductMapper productMapper;
     @Autowired
     private ShopMapper shopMapper;
+    @Autowired
+    private RecommendService recommendService;
 
     public Integer getSalenumByShop_id(Integer id) {
         Integer sum = 0;
@@ -93,5 +95,15 @@ public class ProductService {
         productMapper.insert(product);
 
         return "200";
+    }
+
+    public List<Product> getHomeview(int uid){
+        //基于用户行为的推荐
+        List<Product> productall = productMapper.selectAll();
+        List<Product> products_content = recommendService.Bycontent(productall,uid);
+        productall.removeAll(products_content);
+        List<Product> products_user = recommendService.Byuser(productall,uid);
+        products_content.addAll(products_user);
+        return products_content;
     }
 }

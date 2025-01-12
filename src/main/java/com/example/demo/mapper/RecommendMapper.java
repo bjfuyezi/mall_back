@@ -9,5 +9,5 @@ public interface RecommendMapper {
     void insertRecommend(@Param("user_id") Integer user_id,
                          @Param("product_id") String product_id,
                          @Param("search") String search);
-    Recommend selectRecommend();
+    Recommend selectRecommend(@Param("uid") Integer uid);
 }

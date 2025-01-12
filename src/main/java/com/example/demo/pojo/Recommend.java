@@ -14,11 +14,11 @@ public class Recommend {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // Helper methods for converting between JSON string and Java object
-    public List<String> getProduct_idAsList() throws JsonProcessingException {
+    public List<Integer> getProduct_idAsList() throws JsonProcessingException {
         return product_id == null ? null : objectMapper.readValue(product_id, List.class);
     }
 
-    public void setProduct_idFromList(List<String> productIds) throws JsonProcessingException {
+    public void setProduct_idFromList(List<Integer> productIds) throws JsonProcessingException {
         this.product_id = objectMapper.writeValueAsString(productIds.stream().toList());
     }
 
