@@ -31,4 +31,7 @@ public class Product {
     private Integer salenum;
     private Integer greedy;
     private String reason;
+
+    //数据库不存在的项
+    private Double similarityScore;
 }

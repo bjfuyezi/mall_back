@@ -16,9 +16,13 @@ public interface ProductMapper {
     void deleteById(@Param("id") int id);
     void updateStatus(Product product);
     List<Product> selectAllProductByShop_id(@Param("shop_id") int shop_id);
+    List<Product> selectAll();
+    List<Product> selectBuyHistoryByUser(@Param("uid") int uid);
     List<Product> selectAllProductBySaleLocation(@Param("location") String location);
     List<Product> selectAllProductBySaleCategory(@Param("category") String category);
     List<Product> selectAllSaleProduct();
     List<Product> selectAllEmptyProduct();
     List<Product> selectAllWaitingProduct();
+    List<Product> selectByAdvertise();
+    List<Integer> selectSaleByShop(@Param("shop_id") int shop_id);
 }
