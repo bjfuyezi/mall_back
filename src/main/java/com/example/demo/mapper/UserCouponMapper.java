@@ -33,7 +33,7 @@ public interface UserCouponMapper {
     Map<String, Object> getCouponTypeAndScope(@Param("coupon_id") Integer coupon_id);
 
     // 更新优惠券状态为 Used
-    int updateCouponStatusToUsed(@Param("user_id") Integer user_id, @Param("coupon_id") Integer coupon_id);
+    int updateCouponStatusToUsed(@Param("user_coupon_id") Integer user_coupon_id);
 
     //其实本来应该是product和shop类的,[现在懒得管了]
     // 根据商品 ID 查询商品详情
@@ -42,4 +42,10 @@ public interface UserCouponMapper {
     // 根据店铺 ID 查询店铺详情
     List<Shop> getShopsByIds(@Param("ids") List<Integer> ids);
 
+    void updateStatus();
+    List<UserCoupon> getALLByUser_id(@Param("user_id") Integer user_id);
+
+    int updateUserCouponStatusToExpired(@Param("user_coupon_id") Integer user_coupon_id);
+
+    UserCoupon getUserCouponById(@Param("user_coupon_id") Integer user_coupon_id);
 }

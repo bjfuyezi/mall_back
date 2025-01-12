@@ -29,9 +29,10 @@ public class UserCouponRouter {
     *   - 最后：以用户id、券的id、默认初始状态Unused、领取时间为当前时间为参数创建一条记录 */
     @PostMapping("/claim")
     public ResponseEntity<String> claimCoupon(
-            @RequestParam Integer user_id,
-            @RequestParam Integer coupon_id
+            @RequestBody Map<String,Object> requestBody
     ) {
+        Integer user_id = (Integer) requestBody.get("user_id");
+        Integer coupon_id = (Integer) requestBody.get("coupon_id");
         String message = userCouponService.claimCoupon(user_id, coupon_id);
         if(message.equals("优惠券领取成功")){
             return ResponseEntity.ok(message); // 返回状态码 200，并携带业务消息
@@ -39,6 +40,18 @@ public class UserCouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
         }
     }
+//    @PostMapping("/claim")
+//    public ResponseEntity<String> claimCoupon(
+//            @RequestParam Integer user_id,
+//            @RequestParam Integer coupon_id
+//    ) {
+//        String message = userCouponService.claimCoupon(user_id, coupon_id);
+//        if(message.equals("优惠券领取成功")){
+//            return ResponseEntity.ok(message); // 返回状态码 200，并携带业务消息
+//        }else{
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+//        }
+//    }
 
 
     /*用户查看券列表（全部）【查】
@@ -49,7 +62,8 @@ public class UserCouponRouter {
     *       - 店铺分块展示的顺序由每个店铺中最晚领取的券的时间决定，这个时间越晚，排序越靠前
     *   - 这里不区分券的状态，全部展示*/
     @GetMapping("/list")
-    public ResponseEntity<?> getUserCoupons(@RequestParam Integer user_id) {
+    public ResponseEntity<?> getUserCoupons(@RequestBody Map<String,Object> requestBody) {
+        Integer user_id = (Integer) requestBody.get("user_id");
         // ResponseEntity<?> 可以返回任意类型的数据，同时还可以灵活地设置 HTTP 状态码和头信息。
         Map<String, Object> couponList = userCouponService.getUserCoupons(user_id);
         return ResponseEntity.ok(couponList);
@@ -63,8 +77,11 @@ public class UserCouponRouter {
      *       - 店铺分块展示的顺序由每个店铺中最晚领取的券的时间决定，这个时间越晚，排序越靠前
      *   - 这里区分券的状态，需要传入券的某一状态，将这一状态的券按照上述要求返回给前端*/
     @GetMapping("/listByStatus")
-    public ResponseEntity<?> getUserCouponsByStatus(@RequestParam Integer user_id,
-                                                    @RequestParam String status) {
+    public ResponseEntity<?> getUserCouponsByStatus(@RequestBody Map<String,Object> requestBody) {
+        Integer user_id = (Integer) requestBody.get("user_id");
+        String status = (String) requestBody.get("status");
+        System.out.println(user_id);
+        System.out.println(status);
         Map<String, Object> couponList = userCouponService.getUserCouponsByStatus(user_id, status);
         return ResponseEntity.ok(couponList);
     }
@@ -72,15 +89,16 @@ public class UserCouponRouter {
     /*用户查看券的适用店铺或者适用商品【查】
     * 传入参数：
     *   - 券的id:coupon_id*/
-    @GetMapping("/scope/details/{coupon_id}")
-    public ResponseEntity<Map<String, List<Object>>> getCouponScopeDetails(@PathVariable Integer coupon_id) {
+    @GetMapping("/scope/details")
+    public ResponseEntity<Map<String, List<Object>>> getCouponScopeDetails(@RequestBody Map<String,Object> requestBody) {
         try {
+            Integer coupon_id = (Integer) requestBody.get("coupon_id");
+            System.out.println(coupon_id);
             Map<String, List<Object>> scopeDetails = userCouponService.getCouponScopeDetails(coupon_id);
             return ResponseEntity.ok(scopeDetails);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build(); // 参数错误
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build(); // 服务器错误
+            e.printStackTrace();
+            return (ResponseEntity<Map<String, List<Object>>>) ResponseEntity.badRequest();
         }
     }
 
@@ -89,13 +107,21 @@ public class UserCouponRouter {
     *   - 用户id:user_id
     *   - 券的id:coupon_id*/
     @PutMapping("/use")
-    public String useCoupon(@RequestParam Integer user_id, @RequestParam Integer coupon_id) {
-        boolean success = userCouponService.useCoupon(user_id, coupon_id);
-        return success ? "使用成功！" : "使用失败，可能优惠券已失效或不存在！";
+    public ResponseEntity<String> useCoupon(@RequestBody Map<String,Object> requestBody) {
+        try{
+            Integer user_coupon_id = (Integer) requestBody.get("user_coupon_id");
+            System.out.println(user_coupon_id);
+            boolean success = userCouponService.useCoupon(user_coupon_id);
+            if(success){
+                return ResponseEntity.ok("使用成功");
+            }else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("使用失败，可能优惠券已失效或不存在！");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("使用失败："+e.getMessage());
+        }
+
+//        return success ? "使用成功！" : "使用失败，可能优惠券已失效或不存在！";
     }
 
-    /*券达到失效时间，更改状态为已失效Expired【改】
-    * 传入参数：
-    *   - 用户id:user_id
-    *   - 券的id:coupon_id*/
 }
