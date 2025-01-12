@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import org.springframework.amqp.core.*;
+//import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 
 public class RabbitMQ {

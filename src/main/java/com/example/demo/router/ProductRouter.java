@@ -64,6 +64,52 @@ public class ProductRouter {
     }
 
     /**
+     * 查找所有商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/selectAll")
+    public ResponseEntity<List<Product>> selectAll(@RequestBody Map<String, Object> request) {
+        try {
+            List<Product> t = productService.getAllSaleProduct();
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查找指定id商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/selectById")
+    public ResponseEntity<Product> selectById(@RequestBody Map<String, Object> request) {
+        try {
+            Integer id = (Integer) request.get("id");
+            Product t = productService.getById(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+
+    /**
      * 查找指定店铺ID的商品。
      *
      * @param request     查询体
@@ -136,7 +182,6 @@ public class ProductRouter {
             @RequestParam("id") String id,
             @RequestParam("status") String status) {
         Integer id_int = Integer.parseInt(id);
-        System.out.println(status);
         String result = productService.updateStatus(id_int, status);
         if (Objects.equals(result, "404")) {
             return new ResponseEntity<>("店铺不存在", HttpStatus.NOT_FOUND);

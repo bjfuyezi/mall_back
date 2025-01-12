@@ -72,13 +72,24 @@ public class PictureService {
     public String getManyImageUrl(String ids) throws IOException {
         List<String> result = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> idList = objectMapper.readValue(ids, List.class);
-        for (String id : idList) {
-            Picture picture = pictureMapper.selectById(Integer.parseInt(id));
-            if (picture != null) {
-                result.add(picture.getUrl());
+        if ( ids.contains(",") ) {
+            List<String> idList = objectMapper.readValue(ids, List.class);
+            for (String id : idList) {
+                Picture picture = pictureMapper.selectById(Integer.parseInt(id));
+                if (picture != null) {
+                    result.add(picture.getUrl());
+                }
+            }
+        } else {
+            List<Integer> idList = objectMapper.readValue(ids, List.class);
+            for (Integer id : idList) {
+                Picture picture = pictureMapper.selectById(id);
+                if (picture != null) {
+                    result.add(picture.getUrl());
+                }
             }
         }
+
         return objectMapper.writeValueAsString(result);
     }
 

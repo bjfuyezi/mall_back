@@ -46,11 +46,6 @@ public class ProductService {
         return productMapper.selectAllProductByShop_id(id);
     }
 
-    public String deleteById(Integer id) {
-        productMapper.deleteById(id);
-        return "200";
-    }
-
     public String updateStatus(Integer id, String status) {
         Product product = productMapper.selectById(id);
         product.setStatus(ProductStatus.valueOf(status));
@@ -80,6 +75,19 @@ public class ProductService {
         product.setUpdated_time(new Date());
         product.setQuantity(stockJson);
         productMapper.updateProduct(product);
+        return "200";
+    }
+
+    public Product getById(Integer id) {
+        return productMapper.selectById(id);
+    }
+
+    public List<Product> getAllSaleProduct() {
+        return productMapper.selectAllSaleProduct();
+    }
+
+    public String deleteById(Integer id) {
+        productMapper.deleteById(id);
         return "200";
     }
 
