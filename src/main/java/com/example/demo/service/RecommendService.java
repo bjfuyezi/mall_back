@@ -42,6 +42,8 @@ public class RecommendService {
             throw new RuntimeException("Failed to convert lists to JSON or insert into database", e);
         }
     }
+
+    //这个用于加入购物车或收藏商品的时候调用
     public void insertRecommendInterest(Integer user_id,Integer product_id) throws JsonProcessingException {
         Recommend recommend = recommendMapper.selectRecommend(user_id);
         if(recommend==null){
@@ -59,6 +61,8 @@ public class RecommendService {
             recommendMapper.updateRecommend(recommend);
         }
     }
+
+    //点击查看详情的时候调用
     public void insertRecommendHistory(Integer user_id,Integer product_id) throws JsonProcessingException {
         Recommend recommend = recommendMapper.selectRecommend(user_id);
         if(recommend==null){
@@ -81,6 +85,33 @@ public class RecommendService {
         }
     }
 
+    //该函数用于更新other字段
+    public void insertRecommendOther(Integer user_id,List<Product> products) throws JsonProcessingException {
+        Recommend recommend = recommendMapper.selectRecommend(user_id);
+        List<Integer> other = new ArrayList<>();
+        for(Product p:products){
+            other.add(p.getProduct_id());
+        }
+        if(recommend==null){
+            Recommend r = new Recommend();
+            r.setUser_id(user_id);
+            r.setOtherFromList(other);
+            // 调用Mapper执行插入
+            recommendMapper.insertRecommend(r);
+        }else{
+            recommend.setOtherFromList(other);
+            recommendMapper.updateRecommend(recommend);
+        }
+    }
+
+    //获取用户排除的内容
+    public List<Integer> getOthersByUser(Integer user_id) throws JsonProcessingException {
+        Recommend recommend = recommendMapper.selectRecommend(user_id);
+        if(recommend == null) return new ArrayList<>();
+        else return recommend.getOtherAsList();
+    }
+
+    //搜索的时候调用
     public void insertRecommendSearch(Integer user_id,String key) throws JsonProcessingException {
         Recommend recommend = recommendMapper.selectRecommend(user_id);
         if(recommend==null){
@@ -103,6 +134,24 @@ public class RecommendService {
         }
     }
 
+    //收藏商铺的时候调用
+    public void insertRecommendStarShop(Integer user_id,int shop_id) throws JsonProcessingException {
+        Recommend recommend = recommendMapper.selectRecommend(user_id);
+        List<Integer> products = productMapper.selectSaleByShop(shop_id);
+        if(recommend==null){
+            Recommend r = new Recommend();
+            r.setUser_id(user_id);
+            r.setInterestFromList(products);
+            // 调用Mapper执行插入
+            recommendMapper.insertRecommend(r);
+        }else{
+            List<Integer> interest = recommend.getInterestAsList();
+            interest.addAll(products);
+            recommend.setInterestFromList(interest);
+            recommendMapper.updateRecommend(recommend);
+        }
+    }
+
     public void readRecommendation() {
         try {
             // 调用Mapper执行查询
@@ -117,7 +166,7 @@ public class RecommendService {
         }
     }
 
-    public List<Product> Bycontent(List<Product> all, List<Product> history, int uid) throws JsonProcessingException {
+    public List<Product> Bycontent(List<Product> all, List<Integer> others, List<Product> history, int uid) throws JsonProcessingException {
         List<Product> recommendedProducts = new ArrayList<>();
         //读取推荐表内容，获得最近20条浏览记录和最近20次搜索文本
         Recommend recommend = recommendMapper.selectRecommend(uid);
@@ -137,6 +186,7 @@ public class RecommendService {
         //开始遍历每个商品，计算每个商品的相似度
         for (Product product : all) {
             if (recentProductIds.contains(product.getProduct_id())) continue; // 排除最近点击的商品
+            if(others.contains(product.getProduct_id())) continue;//排除上一次返回过的商品
             //开始计算权重
             double similarityScore = 0.0;
             String text1 = product.getName()+product.getDescription();
@@ -208,13 +258,16 @@ public class RecommendService {
     }
 
     //当一个用户A需要个性化推荐时，可以先找到他有相似兴趣的其他用户，然后把那些用户喜欢的、而用户A没听过的物品推荐给A。
-    public List<Product> Byuser(List<Product> all, int uid) throws JsonProcessingException {
+    public List<Product> Byuser(List<Integer> others,int uid) throws JsonProcessingException {
         //由于商品数>用户数，以遍历用户表为选择,建立用户兴趣list，包括用户收藏的商品，加入购物车的商品和收藏店铺中的所有商品，即用户A：商品1，商品2，商品3
+        //第一步：获取当前用户的收藏商品，收藏店铺的商品，加入购物车的商品的集合u
         List<Product> recommendedProducts = new ArrayList<>();
         Recommend recommend = recommendMapper.selectRecommend(uid);
         List<Integer> target = recommend.getInterestAsList();
         Set<Integer> u=new HashSet<>(target);//去重
 
+        //第二步：遍历其他买家用户，获取其收藏商品，收藏店铺的商品，加入购物车的商品的集合v，计算u和v之间的余弦相似度，并保存在user中
+        //u对u为0，没收藏和购买过的买家余弦相似度也默认为0
         List<User> users = userMapper.selectAllUsers();
         for(User user:users){
             if(user.getUser_id() == uid) {
@@ -232,19 +285,23 @@ public class RecommendService {
             user.setRecommend(v);
         }
 
-        //对用户进行排名
+        //第三步：根据当前用户与其他用户之间的相似度进行排名
         users =users.stream()
                 .sorted((u1, u2) -> Double.compare(u2.getCosineSimilarity(), u1.getCosineSimilarity()))
                 .collect(Collectors.toList());
 
+        //第四步：从最相似到最不相似遍历，相似度为0则不考虑，得到相似的其他用户购买了，但当前用户没购买的商品合集
+        //到达20个则退出
         Set<Integer> result =new HashSet<>();
         for(User user: users){
             if(user.getCosineSimilarity()==0) break;
             u.retainAll(user.getRecommend());//求差集，实际上求用户u访问过而v没有访问过的内容
-            result.addAll(u);
+            u.retainAll(others);//去掉others里的商品，也就是上一轮推荐过的商品
+            result.addAll(u);//其余放进result
             if(u.size()>20) break;
         }
 
+        //第五步：获取商品的完整信息，若筛选得到的商品不足20个，则优先用广告来补充，加入广告补充后打乱顺序
         for(int pid : result){
             Product product = productMapper.selectById(pid);
             recommendedProducts.add(product);
@@ -256,6 +313,7 @@ public class RecommendService {
             Collections.shuffle(products);//打乱顺序
             recommendedProducts.addAll(products);
         }
+        //若补充后还是小于20直接返回
         if(recommendedProducts.size()<20){//还是小于20
             return recommendedProducts;
         }else return recommendedProducts.subList(0,20);//取前20个
