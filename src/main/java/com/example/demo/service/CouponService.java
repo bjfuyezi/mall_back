@@ -227,8 +227,8 @@ public class CouponService {
             System.out.println(coupon);
             System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
         }
-        Date start = Utils.TimetoDate(start_time);
-        Date end =Utils.TimetoDate(end_time);
+        Date start = Utils.TimetoDate(start_time,true);
+        Date end =Utils.TimetoDate(end_time,true);
         // 检查格式是否合格
         if (request <= 0 || off <= 0) {
             throw new IllegalArgumentException("最低消费或折扣金额必须为正");
