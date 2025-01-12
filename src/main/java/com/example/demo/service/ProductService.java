@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
 import com.example.demo.enums.ShopStatus;
+import com.example.demo.mapper.OrderMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.Product;
@@ -32,6 +33,10 @@ public class ProductService {
     private ProductMapper productMapper;
     @Autowired
     private ShopMapper shopMapper;
+    @Autowired
+    private RecommendService recommendService;
+    @Autowired
+    private OrderMapper orderMapper;
 
     public Integer getSalenumByShop_id(Integer id) {
         Integer sum = 0;
@@ -130,5 +135,23 @@ public class ProductService {
         productMapper.insert(product);
 
         return "200";
+    }
+
+    public List<Product> getHomeview(int uid) throws JsonProcessingException {
+        //基于用户行为的推荐
+        List<Product> productall = productMapper.selectAll();
+        List<Product> buyproducts = productMapper.selectBuyHistoryByUser(uid);//查询该用户所有购买的商品
+        buyproducts = new ArrayList<>(new HashSet<>(buyproducts));//去重
+
+        //基于用户行为的推荐
+        List<Product> products_content = recommendService.Bycontent(productall,buyproducts,uid);
+
+        //排除上一个方法推荐的商品，用另一种方法再获取20种推荐的商品，避免重复需要去除之前的结果
+        productall.removeAll(products_content);
+        //基于用户的协同过滤
+        List<Product> products_user = recommendService.Byuser(productall,uid);
+        products_content.addAll(products_user);
+        System.out.println(products_content);
+        return products_content;
     }
 }

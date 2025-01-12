@@ -5,12 +5,15 @@
 <mapper namespace="com.example.demo.mapper.RecommendMapper">
 
     <insert id="insertRecommend" parameterType="com.example.demo.pojo.Recommend">
-        INSERT INTO recommend (user_id, product_id, search)
-        VALUES (#{user_id}, #{product_id}, #{search})
+        INSERT INTO recommend (user_id, history, search, other, interest)
+        VALUES (#{user_id}, #{history}, #{search},#{other},#{interest})
     </insert>
+    <update id="updateRecommend" parameterType="com.example.demo.pojo.Recommend">
+        UPDATE recommend SET history=#{history}, search=#{search}, other=#{other}, interest=#{interest}) WHERE user_id = #{user_id}
+    </update>
 
     <select id="selectRecommend" resultType="com.example.demo.pojo.Recommend">
-        SELECT * FROM recommend
+        SELECT * FROM recommend where user_id = #{uid}
     </select>
 
 </mapper>

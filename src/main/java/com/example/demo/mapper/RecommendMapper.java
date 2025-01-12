@@ -6,8 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface RecommendMapper {
-    void insertRecommend(@Param("user_id") Integer user_id,
-                         @Param("product_id") String product_id,
-                         @Param("search") String search);
-    Recommend selectRecommend();
+    void insertRecommend(Recommend recommend);
+    void updateRecommend(Recommend recommend);
+    Recommend selectRecommend(@Param("uid") Integer uid);
 }

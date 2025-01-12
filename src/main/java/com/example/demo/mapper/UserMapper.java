@@ -65,6 +65,7 @@ public interface UserMapper {
     int updatePassword(User user);
 
     List<User> getAllUsers(); // 获取所有用户
+    List<User> selectAllUsers(); // 获取所有买家
 
     void deleteUser(Integer userId); // 删除用户
 }
