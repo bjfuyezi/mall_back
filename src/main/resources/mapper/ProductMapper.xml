@@ -21,6 +21,9 @@
     <select id="selectAllSaleProduct" resultType="com.example.demo.pojo.Product">
         select * from product where status = 'sale';
     </select>
+    <select id="selectByAdvertise" resultType="com.example.demo.pojo.Product">
+        select * from product where status = 'sale' and greedy > 0;
+    </select>
     <select id="selectAllWaitingProduct" resultType="com.example.demo.pojo.Product">
         select * from product where status = 'waiting';
     </select>
@@ -30,7 +33,9 @@
     <select id="selectAllProductBySaleCategory" parameterType="String" resultType="com.example.demo.pojo.Product">
         select * from product where status = 'sale' and category = #{category};
     </select>
-
+    <select id="selectBuyHistoryByUser" parameterType="Integer" resultType="com.example.demo.pojo.Product">
+        SELECT product.* FROM orders,product WHERE orders.user_id = #{uid} AND orders.product_id=product.product_id AND orders.status != 'pending'
+    </select>
     <update id="updateStatus" parameterType="com.example.demo.pojo.Product">
         update product set status = #{status} where product_id = #{product_id};
     </update>

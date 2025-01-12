@@ -19,6 +19,8 @@ package com.example.demo.pojo;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Set;
+
 import com.example.demo.enums.UserRole;
 import com.example.demo.enums.UserStatus;
 
@@ -37,6 +39,9 @@ public class User {
     private Timestamp created_time;
     private Timestamp updated_time;
 
+    //以下为不在数据库的内容
+    private double cosineSimilarity;
+    private Set<Integer> recommend;
     // toString 方法用于日志输出
     @Override
     public String toString() {

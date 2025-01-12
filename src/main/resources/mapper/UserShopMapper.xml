@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserShopMapper">
+    <select id="selectByUser" parameterType="Integer" resultType="Integer">
+        SELECT product.product_id FROM user_shop,product WHERE user_shop.user_id = #{uid} AND product.shop_id = prodcut.shop_id
+    </select>
+</mapper>

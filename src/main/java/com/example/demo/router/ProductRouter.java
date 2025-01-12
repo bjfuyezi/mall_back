@@ -203,7 +203,14 @@ public class ProductRouter {
     }
     @GetMapping("/homeview")
     public ResponseEntity<List<Product>> getHomeview(@RequestParam("uid") int uid){
-        List<Product> products=productService.getHomeview(uid);
-        return new ResponseEntity<>(products, HttpStatus.OK);
+        List<Product> products= null;
+        try {
+            products = productService.getHomeview(uid);
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
