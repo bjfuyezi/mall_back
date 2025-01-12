@@ -36,6 +36,9 @@
     <select id="selectBuyHistoryByUser" parameterType="Integer" resultType="com.example.demo.pojo.Product">
         SELECT product.* FROM orders,product WHERE orders.user_id = #{uid} AND orders.product_id=product.product_id AND orders.status != 'pending'
     </select>
+    <select id="selectSaleByShop" parameterType="Integer" resultType="Integer">
+        SELECT product_id FROM product WHERE product.shop_id=#{shop_id} AND product.status= 'sale'
+    </select>
     <update id="updateStatus" parameterType="com.example.demo.pojo.Product">
         update product set status = #{status} where product_id = #{product_id};
     </update>

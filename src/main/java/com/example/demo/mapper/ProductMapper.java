@@ -24,4 +24,5 @@ public interface ProductMapper {
     List<Product> selectAllEmptyProduct();
     List<Product> selectAllWaitingProduct();
     List<Product> selectByAdvertise();
+    List<Integer> selectSaleByShop(@Param("shop_id") int shop_id);
 }
