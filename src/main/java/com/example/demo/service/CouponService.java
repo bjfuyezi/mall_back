@@ -3,9 +3,11 @@ package com.example.demo.service;
 import com.example.demo.config.Utils;
 import com.example.demo.enums.CouponType;
 import com.example.demo.mapper.CouponMapper;
+import com.example.demo.mapper.ShopMapper;
 import com.example.demo.mapper.UserCouponMapper;
 import com.example.demo.pojo.Coupon;
 import com.example.demo.enums.CouponStatus;
+import com.example.demo.pojo.Shop;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class CouponService {
     private CouponMapper couponMapper;
     @Autowired
     private UserCouponMapper userCouponMapper;
+    @Autowired
+    private ShopMapper shopMapper;
     private ObjectMapper objectMapper = new ObjectMapper();
     /*优惠券的创建：【增】
      * 前端需要传入的数据有：
@@ -38,21 +42,25 @@ public class CouponService {
      *   -单用户账户内未使用的此优惠券最大数量max_unused_count：表单传参，表单上有默认值3
      *   -店铺id：shop_id,如果是平台券则为0
      * */
+    // 加券,检查合格--浮笙
     public void createCoupon( Coupon coupon) throws Exception {
         // 使用 Utils.TimetoDate 方法解析日期
         Date start = coupon.getStart_time();
         Date end = coupon.getEnd_time();
-        System.out.println("Start: " + start);
-        System.out.println("End: " + end);
+//        System.out.println("Start: " + start);
+//        System.out.println("End: " + end);
         double request = coupon.getRequest();
         double off =  coupon.getOff();
         BigInteger total = coupon.getTotal();
         int claim_limit = coupon.getClaim_limit();
         int max_unused_count = coupon.getMax_unused_count();
-        System.out.println(new Date());
+//        System.out.println(new Date());
         // 先进行检查
         if (request <= 0 || off <= 0) {
             throw new IllegalArgumentException("最低消费或折扣金额必须为正");
+        }
+        if(request<off){
+            throw new IllegalArgumentException("最低消费不能小于折扣金额");
         }
         if (total.compareTo(BigInteger.ZERO) <= 0) {
             throw new IllegalArgumentException("总数量必须为正");
@@ -69,21 +77,12 @@ public class CouponService {
         // 设置状态和创建时间
         coupon.setCoupon_status(CouponStatus.Pending);
         coupon.setCreate_time(new Date());
-        System.out.println(coupon);
-        couponMapper.createCoupon(coupon);
-        System.out.println("ok3");
-        // 将 scope 字符串转换为 List<Integer>
-//        if (coupon.getScope() != null && !coupon.getScope().isEmpty()) {
-//            List<Integer> scopeList = objectMapper.readValue(coupon.getScope().toString(), List.class);
-//            coupon.setScope(scopeList);
-//        }
-//        System.out.println("Received order data: " + coupon);
         // 调用 Mapper 插入数据库
-//        int rowsAffected = couponMapper.createCoupon(coupon);
-//        System.out.println(rowsAffected);
-        /*if (rowsAffected <= 0) {
+        int rowsAffected = couponMapper.createCoupon(coupon);
+        System.out.println(rowsAffected);
+        if (rowsAffected <= 0) {
             throw new Exception("优惠券创建失败");
-        }*/
+        }
     }
     
     /*删除某券【删】
@@ -92,19 +91,29 @@ public class CouponService {
      * 处理逻辑：
      *   - 先判断，券的状态，如果为Pending未生效，则可以直接删除，如果为其它状态则需要判断券是否被领取过，
      *   - 也就是用户的领取的券里面是否有该券，有则不可以删除并给出提示，没有则可以删除*/
-    // 删除优惠券
+    // 删除优惠券,检查合格--浮笙
     public boolean deleteCoupon(Integer coupon_id) {
         Coupon coupon = couponMapper.selectCouponById(coupon_id);
         if (coupon == null) {
             throw new IllegalArgumentException("优惠券不存在");
         }
+        //更新当前券的状态，给出id
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        if(updateNum>0){
+            coupon = couponMapper.selectCouponById(coupon_id);
+            System.out.println(coupon);
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+        }
         if (coupon.getCoupon_status() == CouponStatus.Pending) {//待生效，必定没有人领取
+            System.out.println("券的状态不为待生效");
             return couponMapper.deleteCouponById(coupon_id) > 0;
         }
         int claimedCount = userCouponMapper.countClaimedCoupons(coupon_id);
         if (claimedCount > 0) {
-            return false; // 优惠券已被领取，无法删除
+            throw new IllegalArgumentException("优惠券已被用户领取过，无法删除");
         }
+        int result = couponMapper.deleteCouponById(coupon_id);
         return couponMapper.deleteCouponById(coupon_id) > 0;
     }
 
@@ -112,7 +121,21 @@ public class CouponService {
      *   - 创建的晚的券排序更靠前
      *   - 列表形式展示
      *   - 提供的功能有：（修改）、（暂停发放）、（删除）【前端按钮实现】*/
+    // 检查合格--浮笙
     public List<Coupon> getPlatformCoupons() {
+        System.out.println("平台管理员页面展示平台券");
+        //此时获取当前所有平台券，并更新其状态
+        List<Coupon> coupons = couponMapper.selectCouponsByType(CouponType.platform);
+        for(Coupon coupon:coupons){
+            int coupon_id = coupon.getCoupon_id();
+            CouponStatus before = coupon.getCoupon_status();
+            int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+            if(updateNum>0){
+                coupon = couponMapper.selectCouponById(coupon_id);
+                System.out.println(coupon);
+                System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            }
+        }
         return couponMapper.selectCouponsByType(CouponType.platform);
     }
 
@@ -121,7 +144,21 @@ public class CouponService {
      *   - 创建的晚的券排序更靠前
      *   - 列表形式展示
      *   - 提供的功能有：（修改）、（暂停发放）、（删除）【前端按钮实现】*/
+    // 测试合格--浮笙
     public List<Coupon> getShopCoupons(Integer shop_id) {
+        System.out.println("店铺管理员页面展示自家店铺券");
+        //此时获取当前所有该店铺券，并更新其状态
+        List<Coupon> coupons = couponMapper.selectCouponsByShop_id(shop_id);
+        for(Coupon coupon:coupons){
+            int coupon_id = coupon.getCoupon_id();
+            CouponStatus before = coupon.getCoupon_status();
+            int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+            if(updateNum>0){
+                coupon = couponMapper.selectCouponById(coupon_id);
+                System.out.println(coupon);
+                System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            }
+        }
         return couponMapper.selectCouponsByShop_id(shop_id);
     }
 
@@ -129,7 +166,21 @@ public class CouponService {
      * 没有传入参数
      * 返回结果：
      *   - 平台当前所有已生效Active状态的平台券*/
+    // 测试合格--浮笙
     public List<Coupon> getActivePlatformCoupons() {
+        //此时先获取当前所有平台券，并更新其状态
+        System.out.println("用户页面展示平台券");
+        List<Coupon> coupons = couponMapper.selectCouponsByType(CouponType.platform);
+        for(Coupon coupon:coupons){
+            int coupon_id = coupon.getCoupon_id();
+            CouponStatus before = coupon.getCoupon_status();
+            int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+            if(updateNum>0){
+                coupon = couponMapper.selectCouponById(coupon_id);
+                System.out.println(coupon);
+                System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            }
+        }
         return couponMapper.getActivePlatformCoupons(CouponType.platform);
     }
 
@@ -139,22 +190,78 @@ public class CouponService {
      *   - 店铺id：shop_id
      * 返回结果：
      *   - 该店铺当前所有已生效状态Active的店铺优惠券*/
+    // 测试合格--浮笙
     public List<Coupon> getActiveShopCoupons(Integer shop_id) {
+        System.out.println("用户页面展示某一店铺券");
+        //此时获取当前所有该店铺券，并更新其状态
+        List<Coupon> coupons = couponMapper.selectCouponsByShop_id(shop_id);
+        for(Coupon coupon:coupons){
+            int coupon_id = coupon.getCoupon_id();
+            CouponStatus before = coupon.getCoupon_status();
+            int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+            if(updateNum>0){
+                coupon = couponMapper.selectCouponById(coupon_id);
+                System.out.println(coupon);
+                System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            }
+        }
         return couponMapper.getActiveShopCoupons(shop_id);
     }
 
     /*券未生效前，修改券的内容【改】
      * 可以修改：开始时间、结束时间、最低消费、满减金额、总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
      * 传入券的id和要修改的内容*/
+    // 测试合格
     public void updatePendingCouponContent(Integer coupon_id, String start_time, String end_time,
                                            Double request, Double off, BigInteger total, Integer claim_limit,
                                            Integer max_unused_count) throws Exception {
-
+        Coupon coupon = couponMapper.selectCouponById(coupon_id);
+        if (coupon == null) {
+            throw new IllegalArgumentException("优惠券不存在");
+        }
+        //更新当前券的状态，给出id
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        if(updateNum>0){
+            coupon = couponMapper.selectCouponById(coupon_id);
+            System.out.println(coupon);
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+        }
         Date start = Utils.TimetoDate(start_time,true);
-        Date end =Utils.TimetoDate(end_time,false);
-
+        Date end =Utils.TimetoDate(end_time,true);
+        // 检查格式是否合格
+        if (request <= 0 || off <= 0) {
+            throw new IllegalArgumentException("最低消费或折扣金额必须为正");
+        }
+        if(request<off){
+            throw new IllegalArgumentException("最低消费不能小于折扣金额");
+        }
+        if (total.compareTo(BigInteger.ZERO) <= 0) {
+            throw new IllegalArgumentException("总数量必须为正");
+        }
+        if (claim_limit <= 0 || max_unused_count <= 0) {
+            throw new IllegalArgumentException("领取限制或未使用限制必须为正");
+        }
+        if (start.after(end)) {
+            throw new IllegalArgumentException("开始时间不能晚于结束时间");
+        }
+        if (start.before(new Date())){
+            throw new IllegalArgumentException("开始时间不能早于当前时间");
+        }
+        System.out.println("updatePendingCouponContent");
+        System.out.println(coupon_id);
+        System.out.println(start);
+        System.out.println(end);
+        System.out.println(request);
+        System.out.println(off);
+        System.out.println(total);
+        System.out.println(claim_limit);
+        System.out.println(max_unused_count);
+        coupon = couponMapper.selectCouponById(coupon_id);
+        System.out.println(coupon);
         // 调用Mapper更新未生效券
         int rowsAffected = couponMapper.updatePendingCouponContent(coupon_id, start, end, request, off, total, claim_limit, max_unused_count);
+        System.out.println(rowsAffected);
         if (rowsAffected <= 0) {
             throw new Exception("未生效优惠券修改失败");
         }
@@ -164,7 +271,26 @@ public class CouponService {
     /*券生效后，修改券的内容【改】
      * 可以修改：总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
      * 传入券的id和要修改的内容*/
-    public void updateActiveCouponContent(Integer coupon_id, Integer total, Integer claim_limit, Integer max_unused_count) throws Exception {
+    // 测试合格--浮笙
+    public void updateActiveCouponContent(Integer coupon_id, BigInteger total, Integer claim_limit, Integer max_unused_count) throws Exception {
+        Coupon coupon = couponMapper.selectCouponById(coupon_id);
+        if (coupon == null) {
+            throw new IllegalArgumentException("优惠券不存在");
+        }
+        //更新当前券的状态，给出id
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        if(updateNum>0){
+            coupon = couponMapper.selectCouponById(coupon_id);
+            System.out.println(coupon);
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+        }
+        if (total.compareTo(BigInteger.ZERO) <= 0) {
+            throw new IllegalArgumentException("总数量必须为正");
+        }
+        if (claim_limit <= 0 || max_unused_count <= 0) {
+            throw new IllegalArgumentException("领取限制或未使用限制必须为正");
+        }
         // 调用Mapper更新已生效券
         int rowsAffected = couponMapper.updateActiveCouponContent(coupon_id, total, claim_limit, max_unused_count);
         if (rowsAffected <= 0) {
@@ -174,8 +300,24 @@ public class CouponService {
 
 
     /*券生效后，暂停发放券【改】
-     * 传入券的id，将该券的状态变更为Paused【暂停领取】【主要是为了避免发错券后的补救措施】*/
+     * 传入券的id，将该券的状态变更为Paused【暂停领取】【主要是为了避免发错券后的补救措施】
+     * 前端只给生效中的券提供该按钮功能*/
     public void pauseActiveCoupon(Integer coupon_id) throws Exception {
+        Coupon coupon = couponMapper.selectCouponById(coupon_id);
+        if (coupon == null) {
+            throw new IllegalArgumentException("优惠券不存在");
+        }
+        //更新当前券的状态，给出id【为了避免券实际上已经过期】
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        if(updateNum>0){
+            coupon = couponMapper.selectCouponById(coupon_id);
+            System.out.println(coupon);
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            if(coupon.getCoupon_status()==CouponStatus.Expired){
+                throw new IllegalArgumentException("该券已过期，状态已更新，无需暂停发放");
+            }
+        }
         // 调用Mapper暂停已生效券
         int rowsAffected = couponMapper.pauseActiveCoupon(coupon_id);
         if (rowsAffected <= 0) {
@@ -183,37 +325,65 @@ public class CouponService {
         }
     }
 
-    /*券生效前，不想发放券了，需要点击一个什么按钮【改/删】（todo:按钮想法
-     * 传入券的id,将该券的状态设置为已失效，或者直接删除该券，此时该券必定没有用户领取【这个在删除券的地方已经实现了】*/
-
-    /*店铺加入参与某一平台券【改】
+    /*店铺加入参与某一平台券【刚开始的时候只会有未生效的券显示】【改】
      * 传入参数：
      *   - 店铺id：shop_id,前端传入
      *   - 平台券id：coupon_id,前端传入
      * 结果：
-     *   将该id券的适用范围增加一个店铺id信息并更新*/
+     *   将该id券的适用范围增加一个店铺id信息并更新
+     * */
+    // 测试合格--浮笙
     public void addShopToCoupon(Integer shop_id, Integer coupon_id) throws Exception {
         Coupon coupon = couponMapper.selectCouponById(coupon_id);
         if (coupon == null) {
             throw new Exception("优惠券不存在");
         }
-
+        //更新当前券的状态，给出id【只有当券的状态为未生效才可以加入其中，为了避免当前状态更新了】
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        if(updateNum>0){
+            coupon = couponMapper.selectCouponById(coupon_id);
+            System.out.println(coupon);
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+            if(coupon.getCoupon_status()!=CouponStatus.Pending){
+                throw new IllegalArgumentException("该券不处于待生效Pending状态，无法加入");
+            }
+        }
+        Shop shop = shopMapper.selectById(shop_id);
+        if(shop==null){
+            throw new Exception("店铺不存在");
+        }
         // 处理 coupon scope，将店铺id加入适用范围
         String currentScope = coupon.getScope();
+        System.out.println("current: "+currentScope);
         if (currentScope == null) {
             currentScope = "[]";
         }
-        /*List<Integer> currentScope = coupon.getScope();
-        if (currentScope == null) {
-            currentScope = new ArrayList<>();
-        }*/
+
+        if (isShopAlreadyInScope(currentScope, shop_id)) {
+            throw new IllegalArgumentException("该商家已经在优惠券的适用范围中，无法重复添加");
+        }
 
         // 更新适用范围，增加店铺id
         String updatedScope = addShop_idToScope(currentScope, shop_id);
-
-//        coupon.setScope(updatedScope);
-        coupon.setScope(currentScope);
+        System.out.println("update: "+updatedScope);
+        coupon.setScope(updatedScope);
+//        System.out.println(coupon);
         couponMapper.updateCouponScope(coupon);
+//        couponMapper.updateScope(coupon_id,updatedScope);
+//        System.out.println(couponMapper.selectCouponById(coupon_id));
+    }
+
+    // 检查商家是否已经在适用范围中
+    private boolean isShopAlreadyInScope(String currentScope, Integer shop_id) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Integer> shop_ids = objectMapper.readValue(currentScope, List.class);
+            return shop_ids.contains(shop_id); // 检查是否包含指定店铺ID
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 解析失败时，默认返回false
+        }
     }
 
     private String addShop_idToScope(String currentScope, Integer shop_id) {
@@ -230,23 +400,35 @@ public class CouponService {
         }
     }
 
-    /*店铺修改店铺券的适用范围【改】
+    /*店铺修改店铺券的适用范围【改】--需要券的状态为Pending
      * 传入参数：
      *   - 店铺券id：coupon_id,前端传入
      *   - 参与的商品id数组：product_ids,前端传入，通过多选框进行选择，前端先展示已参与的商品，卖家可以随意选择参与商品，但至少选择一个
      * 结果：
      *   - 更新该id券的适用范围为参与的商品id数组*/
+    // 测试合格
     public void updateShopCouponScope(Integer coupon_id, List<Integer> product_ids) throws Exception {
         Coupon coupon = couponMapper.selectCouponById(coupon_id);
         if (coupon == null) {
             throw new Exception("优惠券不存在");
         }
-
+        //更新当前券的状态，给出id【只有当券的状态为未生效才可以加入其中，为了避免当前状态更新了】
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        coupon = couponMapper.selectCouponById(coupon_id);
+        System.out.println(coupon);
+        if(updateNum>0){
+            System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
+        }
+        if(coupon.getCoupon_status()!=CouponStatus.Pending){
+            throw new IllegalArgumentException("该券不处于待生效Pending状态，无法加入");
+        }
+        System.out.println("ids:"+product_ids);
         // 处理 coupon scope，将产品ID数组更新到适用范围
         String updatedScope = updateScopeForProducts(coupon.getScope(), product_ids);
-
+        System.out.println(updatedScope);
         coupon.setScope(updatedScope);
-//        coupon.setScope(product_ids);/**/
+        System.out.println(coupon);
         couponMapper.updateCouponScope(coupon);
     }
 
@@ -265,12 +447,4 @@ public class CouponService {
             return "[]"; // 如果出现异常，返回一个空的JSON数组
         }
     }
-
-    /*达到生效时间，更新所有符合条件的未生效的券的状态为已生效Active【改，自动的】
-    * 在用户查询平台券或者店铺券以及领券的时候先去更新一遍对应的数据，判断状态是否变化
-    * 是否从待生效变有效
-    * 是否从有效或者暂停发放变成无效*/
-
-
-    /*达到失效时间，更新所有符合条件的券的状态为已失效Expired【改，自动的】*/
 }

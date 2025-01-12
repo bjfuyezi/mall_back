@@ -36,4 +36,13 @@ public interface CartMapper {
     // 删除购物车商品项
     void deleteCartItem(@Param("user_id") int user_id, @Param("product_id") int product_id);
 
+    CartItem selectItemByUser_idAndProduct_id(@Param("user_id")int userId,@Param("product_id") int productId);
+
+    int updateCartItemQuantity(int cartItemId, int quantity);
+
+    CartItem selectItemById(@Param("cart_item_id")int cart_item_id);
+
+    int updateCartItemQuantity2(@Param("cart_item_id")int cartItemId,@Param("quantity")  int quantity);
+
+    int deleteCartItemById(@Param("cart_item_id") Integer cartItemId);
 }

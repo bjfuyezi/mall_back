@@ -10,6 +10,24 @@
         VALUES (#{coupon_type}, #{start_time}, #{end_time}, #{scope}, #{request}, #{off}, #{coupon_status}, #{total}, #{claim_limit}, #{max_unused_count}, #{create_time},#{shop_id})
     </insert>
 
+    <update id="updateCouponStatusByNowTime">
+        UPDATE coupons
+        SET
+            coupon_status =
+            CASE
+                WHEN NOW() &lt; start_time THEN 'Pending'<!-- 当前时间早于开始时间，状态设为待生效 -->
+                WHEN NOW() &gt;= start_time AND NOW() &lt;= end_time THEN 'Active'<!-- 当前时间在有效期内，状态设为生效中 -->
+                WHEN NOW() &gt; end_time THEN 'Expired'<!-- 当前时间晚于结束时间，状态设为已失效 -->
+                ELSE coupon_status                      <!-- 其他情况保持状态不变 -->
+            END
+        WHERE coupon_id = #{couponId} AND
+            (
+                (NOW() &lt; start_time AND coupon_status != 'Pending') OR
+                (NOW() &gt;= start_time AND NOW() &lt;= end_time AND coupon_status NOT IN ('Active', 'Paused')) OR
+                (NOW() &gt; end_time AND coupon_status != 'Expired')
+            )
+    </update>
+
     <!-- 删除优惠券 -->
     <delete id="deleteCouponById" parameterType="Integer">
         DELETE FROM coupons WHERE coupon_id = #{coupon_id}
@@ -59,33 +77,34 @@
             total = #{total},
             claim_limit = #{claim_limit},
             max_unused_count = #{max_unused_count}
-        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Pending';
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Pending'
     </update>
 
     <!-- 修改已生效券的部分内容 -->
-    <update id="updateActiveCouponContent" parameterType="map">
+    <update id="updateActiveCouponContent">
         UPDATE coupons
         SET
             total = #{total},
             claim_limit = #{claim_limit},
             max_unused_count = #{max_unused_count}
-        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active';
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active'
     </update>
 
     <!-- 暂停发放已生效的券 -->
     <update id="pauseActiveCoupon" parameterType="Integer">
         UPDATE coupons
         SET coupon_status = 'Paused'
-        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active';
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Active'
     </update>
 
     <update id="updateCouponScope" parameterType="com.example.demo.pojo.Coupon">
         UPDATE coupons
-        <set>
-            <if test="scope != null">
-                scope = #{scope}
-            </if>
-        </set>
+        set scope = #{scope}
+        WHERE coupon_id = #{coupon_id}
+    </update>
+    <update id="updateScope">
+        UPDATE coupons
+        set scope = #{scope}
         WHERE coupon_id = #{coupon_id}
     </update>
 
