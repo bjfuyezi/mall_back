@@ -14,4 +14,34 @@
             pay_time = #{pay_time}
         WHERE order_id = #{order_id}
     </update>
+    <select id="selectAllOrder" resultType="com.example.demo.pojo.Orders">
+        SELECT * FROM orders
+    </select>
+    <select id="selectAllOrderVo" parameterType="Integer" resultType="com.example.demo.pojo.Vo.OrderVo">
+        SELECT
+            o.order_id as order_id,
+            o.created_time as date,
+            o.status,
+            p.product_id,
+            p.name as product_name,
+            pic.url as product_image,
+            p.price as product_price,
+            o.quantity as totalQuantity,
+            (o.price * o.quantity) as totalAmount
+        FROM
+            orders o
+            JOIN
+            product p ON o.product_id = p.product_id
+            JOIN
+            picture pic ON p.picture_id = pic.picture_id
+        WHERE
+            o.user_id = #{user_id}
+    </select>
+
+    <update id="updateStatus" parameterType="com.example.demo.pojo.Orders">
+        UPDATE orders
+        SET status = #{status},
+            completed_time = #{completed_time}
+        WHERE order_id = #{order_id}
+    </update>
 </mapper>
