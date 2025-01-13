@@ -11,25 +11,23 @@ import java.util.List;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OrderVo {
-    public int order_id;
-    public Date date;
-    public String status;
-    public int product_id;
+public class CommentVo {
+    public int comment_id;
+    public Date created_time;
+    public int level;
     public String product_name;
     public String product_image;
+    public String product_firimg;
     public double product_price;
-    public int totalQuantity;
-    public double totalAmount;
-    public String url;
-    public static final ObjectMapper objectMapper = new ObjectMapper();
+    public String content;
+    public String commentimg_urls;
+    public List<String> imgList = new ArrayList<>();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     public List<String> getimgAsList() throws JsonProcessingException {
         return product_image == null ? new ArrayList<>() : objectMapper.readValue(product_image, List.class);
     }
 
-
-    public void setimgFromList(List<String> productIds) throws JsonProcessingException {
-        this.product_image = objectMapper.writeValueAsString(productIds.stream().toList());
+    public List<String> getimgAsList2() throws JsonProcessingException {
+        return commentimg_urls == null ? new ArrayList<>() : objectMapper.readValue(commentimg_urls, List.class);
     }
-
 }
