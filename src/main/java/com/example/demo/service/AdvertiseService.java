@@ -58,6 +58,17 @@ public class AdvertiseService {
         }
     }
 
+    public boolean checkAndDelete(int id){
+        Advertise advertisement = advertiseMapper.selectById(id);
+        if(advertisement == null){
+            return false;
+        }
+        if(advertisement.getStatus()!=AdvertisementStatus.unpaid){
+            return false;
+        }
+        advertiseMapper.updateStatus(id,AdvertisementStatus.pending,null);
+        return true;
+    }
     public List<Advertise> getBanners() {
         List<Advertise> advertises = advertiseMapper.selectBanners();
         List<Advertise> result = new ArrayList<>();
@@ -116,7 +127,7 @@ public class AdvertiseService {
         advertise.setPrice(price);
         advertise.setPicture_id(pic_id);
         advertise.setBanner(banner);
-        advertise.setStatus(AdvertisementStatus.expired);
+        advertise.setStatus(AdvertisementStatus.unpaid);
         advertise.setName(name);
         advertise.setCreated_time(d);
         advertise.setUpdated_time(d);

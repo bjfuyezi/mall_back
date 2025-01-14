@@ -42,8 +42,8 @@ public class AlipayTemplate {
     /**
      * 同步通知，支付成功，一般跳转到成功页
      */
-    @Value("${alipay.returnUrl1}")
-    public String returnUrl1;
+//    @Value("${alipay.returnUrl1}")
+//    public String returnUrl1;
     @Value("${alipay.returnUrl2}")
     public String returnUrl2;
 
@@ -81,8 +81,8 @@ public class AlipayTemplate {
         System.out.println("支付成功的信息:" + notifyUrl);
         if(flag)
             System.out.println("同步通知，支付成功，一般跳转到成功页:" + returnUrl2);
-        else
-            System.out.println("同步通知，支付成功，一般跳转到成功页:" + returnUrl1);
+//        else
+//            System.out.println("同步通知，支付成功，一般跳转到成功页:" + returnUrl1);
         System.out.println("签名方式:" + signType);
         System.out.println("字符编码格式:" + charset);
         System.out.println("订单超时时间:" + timeout);
@@ -107,7 +107,8 @@ public class AlipayTemplate {
         request.setNotifyUrl(notifyUrl);
         if(flag){
             request.setReturnUrl(returnUrl2);
-        }else request.setReturnUrl(returnUrl1);
+        }
+        //else request.setReturnUrl(returnUrl1);
 
 
 

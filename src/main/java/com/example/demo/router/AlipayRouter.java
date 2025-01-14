@@ -3,10 +3,13 @@ package com.example.demo.router;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.easysdk.factory.Factory;
+import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.AlipayTemplate;
+import com.example.demo.service.AdvertiseService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +27,9 @@ public class AlipayRouter {
     @Resource
     AlipayTemplate alipayTemplate;
     @Value("${alipay.alipayPub}")
-    public String alipayPublicKey;
+    private String alipayPublicKey;
+    @Autowired
+    private AdvertiseService advertiseService;
 
     //调用这个函数传入你的id和price,如果是订单传入true，广告传入false
     @GetMapping(value = "/pay", produces = "text/html")
@@ -78,6 +83,7 @@ public class AlipayRouter {
             // 更新订单状态，可以更改order的状态
             System.out.println("更改状态");
             if(tradeNo.startsWith("22222")){
+                advertiseService.setAdvertiseStatus(Integer.parseInt(tradeNo.substring(5,tradeNo.length())), AdvertisementStatus.pending,null);
                 System.out.println("广告订单");
             }else if(tradeNo.startsWith("11111")){
                 System.out.println("购物订单");
