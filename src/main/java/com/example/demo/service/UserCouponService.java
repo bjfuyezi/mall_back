@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -121,40 +122,18 @@ public class UserCouponService {
         //更新用户券
         List<UserCoupon> all = userCouponMapper.getALLByUser_id(user_id);
         updateExpiredCoupons(all);
-
-        // 查询所有平台券，按领取时间降序排列
-        List<UserCoupon> platformCoupons = userCouponMapper.getPlatformCoupons(user_id);
-
+        System.out.println("更新用户券完成");
+        // 查询所有平台券，并添加详细信息
+        List<Map<String, Object>> platformCoupons = userCouponMapper.getPlatformCoupons(user_id).stream()
+                .map(this::addCouponDetails)
+                .collect(Collectors.toList());
+        System.out.println("查询平台券完成");
         // 查询所有店铺券
         List<UserCoupon> shopCoupons = userCouponMapper.getShopCoupons(user_id);
-        // 按店铺的 coupon_id 对店铺券进行分组
-        /*shopCouponsGrouped 是一个 Map<Integer, List<UserCoupon>> 类型，
-        键为店铺 ID ()，值为该店铺的所有优惠券 (List<UserCoupon>)*/
-//        Map<Integer, List<UserCoupon>> shopCouponsGrouped = groupCouponsByShop(shopCoupons);
-
-        // 对店铺券分组按照每组的最近领取时间降序排序
-        /*  entrySet() 方法将 Map 转换为包含键值对的 Set<Map.Entry<Integer, List<UserCoupon>>>，
-            然后通过 stream() 将其转换为流，以便应用流操作
-            sorted 方法对流中的元素进行排序。排序规则由 Comparator 指定，
-            这里通过一个 lambda 表达式 (e1, e2) -> {...} 定义排序逻辑。
-            e1.getValue(): 获取第一个店铺的优惠券列表 (List<UserCoupon>）。
-            .get(0): 取出列表中第一个对象。
-            .getClaimTime(): 获取领取时间
-        */
-//        List<Map.Entry<Integer, List<UserCoupon>>> sortedShops = shopCouponsGrouped.entrySet().stream()
-//                .sorted((e1, e2) -> {
-//                    // 获取每个分组中最近领取的券的时间
-//                    Date latest1 = e1.getValue().get(0).getClaim_time();
-//                    Date latest2 = e2.getValue().get(0).getClaim_time();
-//                    return latest2.compareTo(latest1); // 按时间降序排序
-//                })
-//                .collect(Collectors.toList());
-//                //将排序后的流收集为一个 List<Map.Entry<Integer, List<UserCoupon>>>。
-//                // 每个元素是一个店铺 ID 和对应的优惠券列表。
-
+        System.out.println("查询店铺券完成");
         // 对店铺券分组并处理店铺信息（包括 shop_id、shop_name 和对应的优惠券列表）
         List<Map<String, Object>> sortedShops = groupCouponsByShop(shopCoupons);
-
+        System.out.println("处理店铺券完成");
         // 构造返回结果
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("platformCoupons", platformCoupons); // 平台券
@@ -189,42 +168,46 @@ public class UserCouponService {
                 })
                 .map(entry -> {
                     Integer shop_id = entry.getKey();
-                    List<UserCoupon> coupons = entry.getValue();
+                    List<UserCoupon> coupons = entry.getValue();//用户券的数组
                     // 查询店铺名称
                     Shop shop = shopMapper.selectById(shop_id);
                     String shop_name = shop.getShop_name();
 
-                    // 构造每个店铺的返回 Map
+                    // 构造每个店铺的返回 Map，包括用户券的详细信息
                     Map<String, Object> shopInfo = new LinkedHashMap<>();
                     shopInfo.put("shop_id", shop_id);
                     shopInfo.put("shop_name", shop_name);
-                    shopInfo.put("coupons", coupons);
+                    shopInfo.put("user_coupons", coupons.stream()
+                            .map(this::addCouponDetails)
+                            .collect(Collectors.toList()));
                     return shopInfo;
                 })
                 .collect(Collectors.toList()); // 将结果收集为 List<Map<String, Object>>
     }
 
-//    private Map<Integer, List<UserCoupon>> groupCouponsByShop2(List<UserCoupon> shopCoupons) {
-//        // 使用一个临时 Map 以 shop_id 为键分组
-//        Map<Integer, List<UserCoupon>> groupedCoupons = new HashMap<>();
-//        Map<Integer, String> shopNames = new HashMap<>(); // 存储店铺名称
-//        for (UserCoupon userCoupon : shopCoupons) {
-//            // 获取当前券的ID
-//            Integer coupon_id = userCoupon.getCoupon_id();
-//            // 通过券ID获取券信息，获得店铺ID
-//            Coupon coupon = couponMapper.selectCouponById(coupon_id);
-//            Integer shop_id = coupon.getShop_id();
-//            Shop shop = shopMapper.selectById(shop_id);
-//            System.out.println("shop_id:"+shop_id);
-//            System.out.println("shop:"+shop);
-//            String shop_name = shop.getShop_name();
-//
-//            // 如果map中不存在当前店铺ID，创建一个新的列表
-//            groupedCoupons.putIfAbsent(shop_id, new ArrayList<>());
-//            // 将当前用户券添加到对应店铺ID的列表中
-//            groupedCoupons.get(shop_id).add(userCoupon);
-//        }
-//        return groupedCoupons;
+    // 私有方法：添加用户券详细信息
+    private Map<String, Object> addCouponDetails(UserCoupon userCoupon) {
+        // 获取当前券的详细信息
+        Coupon coupon = couponMapper.selectCouponById(userCoupon.getCoupon_id());
+        // 构造返回 Map
+        Map<String, Object> couponWithDetail = new LinkedHashMap<>();
+        couponWithDetail.put("user_coupon_detail",userCoupon);
+        couponWithDetail.put("coupon_detail",coupon);
+//        couponWithDetail.put("user_coupon_id", userCoupon.getUser_coupon_id());
+//        couponWithDetail.put("coupon_id", userCoupon.getCoupon_id());
+//        couponWithDetail.put("coupon_request", coupon.getRequest());
+//        couponWithDetail.put("coupon_off", coupon.getOff());
+//        couponWithDetail.put("coupon_start_time", coupon.getStart_time());
+//        couponWithDetail.put("coupon_end_time", coupon.getEnd_time());
+//        couponWithDetail.put("user_coupon_status", userCoupon.getStatus());
+//        couponWithDetail.put("added_time", userCoupon.getClaim_time());
+        return couponWithDetail;
+    }
+
+//    private Date adjustTimeToBeijing(Date date) {
+//        ZoneId systemZone = ZoneId.systemDefault(); // 当前系统时区
+//        ZoneId beijingZone = ZoneId.of("Asia/Shanghai");
+//        return Date.from(date.toInstant().atZone(systemZone).withZoneSameInstant(beijingZone).toInstant());
 //    }
 
     /*用户查看券列表（根据状态分类）【查】
