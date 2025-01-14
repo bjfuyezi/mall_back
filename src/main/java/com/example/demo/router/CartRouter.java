@@ -76,7 +76,7 @@ public class CartRouter {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败");
             }
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败："+e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
     }
