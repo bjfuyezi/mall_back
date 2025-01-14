@@ -52,4 +52,17 @@ public class CommentRouter {
         return ResponseEntity.ok(commentvolist);
     }
 
+    /*pruduct详情下的商品评论
+    @PostMapping("/getProCommentVo")
+    public ResponseEntity<List<CommentVo>> getProCommentVo(@RequestBody Map<String, Object> request){
+        Integer user_id = (Integer) request.get("product_id");
+        System.out.println("Received order data: " + user_id);
+        List<CommentVo> commentvolist = null;
+        try {
+            commentvolist = commentService.selectAllCommentVo(user_id);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(commentvolist);
+    }*/
 }
