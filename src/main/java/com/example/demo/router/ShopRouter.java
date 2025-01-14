@@ -3,6 +3,7 @@ package com.example.demo.router;
 import com.example.demo.Exception.NameException;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.ShopStatus;
+import com.example.demo.enums.UserShopRelation;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Shop;
 import com.example.demo.service.AdvertiseService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.management.relation.Relation;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -39,8 +41,8 @@ public class ShopRouter {
     @Autowired
     private PictureService pictureService;
 
-    @GetMapping("/")
-    public ResponseEntity<List<Shop>> getAllShop() {
+    @PostMapping("/")
+    public ResponseEntity<List<Shop>> getAllShop(@RequestBody Map<String, Object> request) {
         return new ResponseEntity<>(shopService.getAllShop(), HttpStatus.OK);
     }
 
@@ -60,6 +62,103 @@ public class ShopRouter {
                 return new ResponseEntity<>(HttpStatus.OK); //200ok
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 更新指定ID的店铺状态并写入reason。
+     *
+     * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
+     *         如果更新失败，则返回 500 Internal Server Error。
+     */
+    @PostMapping("/insertReason")//http://localhost:8081/shop/status?id=1&status=closed
+    public ResponseEntity<Void> insertReason(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        String reason = (String) request.get("reason");
+        ShopStatus status = ShopStatus.valueOf((String) request.get("status"));
+        try {
+            boolean updated = shopService.insertReason(id, status, reason);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 更新商铺与用户的关系。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/selectByUser")
+    public ResponseEntity<List<Shop>> selectByUser(@RequestBody Map<String, Object> request) {
+        try {
+            Integer uid = (Integer) request.get("uid");
+            List<Shop> t = shopService.selectByUser(uid);
+            if (t!=null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 更新商铺与用户的关系。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/changeRelation")
+    public ResponseEntity<String> changeRelation(@RequestBody Map<String, Object> request) {
+        try {
+            Integer sid = (Integer) request.get("sid");
+            Integer uid = (Integer) request.get("uid");
+            String relation = (String) request.get("relation");
+            String t = shopService.changeRelation(sid,uid,relation);
+            if (t!=null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查询商铺与用户的关系。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/checkRelation")
+    public ResponseEntity<String> checkRelation(@RequestBody Map<String, Object> request) {
+        try {
+            Integer sid = (Integer) request.get("sid");
+            Integer uid = (Integer) request.get("uid");
+            String t = shopService.checkRelation(sid,uid);
+            if (t!=null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             // 记录异常信息到日志
@@ -204,7 +303,7 @@ public class ShopRouter {
      *         如果更新失败，则返回 500 Internal Server Error。
      */
     @PostMapping("/updateShop")
-    public ResponseEntity<Void> updateShop(
+    public ResponseEntity<String> updateShop(
             @RequestParam("shop_id") String shop_id,
             @RequestParam("shop_name") String shopName,
             @RequestParam("description") String description,
@@ -224,9 +323,10 @@ public class ShopRouter {
                 shop.setPicture_id(picture_id);
                 shop.setUpdated_time(new Date());
 
-                shopService.updateShop(shop);
-                shopService.setShopStatus(id, ShopStatus.waiting);
-                return new ResponseEntity<>(HttpStatus.OK);
+                String t = shopService.updateShop(shop);
+                if ( t.equals("200"))
+                    shopService.setShopStatus(id, ShopStatus.waiting);
+                return new ResponseEntity<>(t,HttpStatus.OK);
             }
         } catch (IOException e) {
             e.printStackTrace();

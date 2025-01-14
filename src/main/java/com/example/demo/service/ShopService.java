@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
 import com.example.demo.enums.ShopStatus;
+import com.example.demo.enums.UserShopRelation;
 import com.example.demo.mapper.ShopMapper;
+import com.example.demo.mapper.UserShopMapper;
 import com.example.demo.pojo.Shop;
+import com.example.demo.pojo.UserShop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,9 @@ public class ShopService {
      */
     @Autowired
     private ShopMapper shopMapper;
+    @Autowired
+    private UserShopMapper userShopMapper;
+
     public List<Shop> getAllShop() {
         return shopMapper.selectAll();
     }
@@ -39,13 +45,59 @@ public class ShopService {
         return true;
     }
 
-    public boolean updateShop(Shop shop){
-        Shop test = shopMapper.selectById(shop.getShop_id());
-        if(test == null){
+    public boolean insertReason(int id, ShopStatus status, String reason){
+        Shop shop = getShopById(id);
+        if(shop == null){
             return false;
         }
-        shopMapper.updateShop(shop);
+        shop.setStatus(status);
+        shop.setReason(reason);
+        shopMapper.updateReason(shop);
         return true;
+    }
+
+    public String updateShop(Shop shop){
+        Shop check = shopMapper.selectByName(shop.getShop_name());
+        Shop test = shopMapper.selectById(shop.getShop_id());
+        if ( test == null ) {
+            return "404";
+        }
+        if ( check != null && !check.getShop_id().equals(shop.getShop_id()))
+            return "409";
+        shopMapper.updateShop(shop);
+        return "200";
+    }
+
+    public String checkRelation(Integer sid, Integer uid){
+        UserShop test = userShopMapper.selectByUserAndShop(uid, sid);
+        if ( test == null )
+            return "none";
+        if ( test.getRelation() == UserShopRelation.black){
+            return "black";
+        }
+        return "star";
+    }
+
+    public List<Shop> selectByUser(Integer uid){
+        return userShopMapper.selectByUser(uid);
+    }
+
+    public String changeRelation(Integer sid, Integer uid, String relation){
+        UserShop test = userShopMapper.selectByUserAndShop(uid, sid);
+        if ( relation.equals("none") )
+            userShopMapper.delete(uid, sid);
+        else if ( test == null ) {
+            UserShop userShop = new UserShop();
+            userShop.setUser_id(uid);
+            userShop.setShop_id(sid);
+            userShop.setRelation(UserShopRelation.valueOf(relation));
+            userShopMapper.insert(userShop);
+        }
+        else {
+            test.setRelation(UserShopRelation.valueOf(relation));
+            userShopMapper.update(test);
+        }
+        return "200";
     }
 
     // @Todo 需要先检查有没有未完成的订单 需要订单的查询方法

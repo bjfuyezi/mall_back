@@ -15,6 +15,9 @@
     <select id="selectAll" resultType="com.example.demo.pojo.Product">
         select * from product where product.status = 'sale';
     </select>
+    <select id="getAllProduct" resultType="com.example.demo.pojo.Product">
+        select * from product;
+    </select>
     <select id="selectAllEmptyProduct" resultType="com.example.demo.pojo.Product">
         select * from product where status = 'empty';
     </select>
@@ -46,6 +49,9 @@
         update product set name = #{name}, description = #{description}, location = #{location}, updated_time = #{updated_time}, notice = #{notice},
                            discount = #{discount}, unit = #{unit}, quantity = #{quantity}, picture_id = #{picture_id}, category = #{category}, price = #{price}, salenum = #{salenum}, greedy = #{greedy}
         where product_id = #{product_id};
+    </update>
+    <update id="updateReason">
+        update product set reason = #{reason}, status = #{status} where product_id = #{product_id};
     </update>
 
     <delete id="deleteById" parameterType="Integer">
