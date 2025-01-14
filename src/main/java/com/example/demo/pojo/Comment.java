@@ -15,12 +15,19 @@ public class Comment {
     private Date created_time;
     private String picture_id;
 
+
     public int getComment_id() {
         return comment_id;
     }
 
     public void setComment_id(int comment_id) {
         this.comment_id = comment_id;
+    }
+    public String getPicture_id() {
+        return picture_id;
+    }
+    public void setPicture_id(String picture_id) {
+        this.picture_id = picture_id;
     }
 
     // Getter and Setter for user_id
@@ -85,8 +92,4 @@ public class Comment {
     public void setCreated_time(Date created_time) {
         this.created_time = created_time;
     }
-    public String getPicture_id() {
-        return picture_id;
-    }
-    public void setPicture_id(String picture_id) {}
 }
