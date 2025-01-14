@@ -13,6 +13,6 @@ public interface OrderMapper {
     void updateStatusAndPaymentMethod(Orders order);
 
     List<OrderVo> selectAllOrderVo(int userid);
-
+    void updateStatuspay(int order_id);
     void updateStatus(Orders order);
 }

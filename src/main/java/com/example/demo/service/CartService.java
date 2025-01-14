@@ -37,6 +37,8 @@ public class CartService {
     private ProductMapper productMapper;
     @Autowired
     private PictureMapper pictureMapper;
+    @Autowired
+    private RecommendService recommendService;
     /**
      * 用户进入自己的购物车：获取用户购物车中的商品，按店铺和加入时间排序。
      * @param user_id 用户ID
@@ -192,6 +194,13 @@ public class CartService {
 
         // 插入购物车项到数据库
         int result = cartMapper.insertCartItem(cartItem);
+        if(result>0){
+            try {
+                recommendService.insertRecommendInterest(user_id,product_id);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return result > 0;//看是否添加成功
     }
 

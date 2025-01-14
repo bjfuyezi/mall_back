@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("userCoupon")
+@RequestMapping("/userCoupon")
 public class UserCouponRouter {
     @Autowired
     private UserCouponService userCouponService;
@@ -40,20 +40,6 @@ public class UserCouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
         }
     }
-//    @PostMapping("/claim")
-//    public ResponseEntity<String> claimCoupon(
-//            @RequestParam Integer user_id,
-//            @RequestParam Integer coupon_id
-//    ) {
-//        String message = userCouponService.claimCoupon(user_id, coupon_id);
-//        if(message.equals("优惠券领取成功")){
-//            return ResponseEntity.ok(message); // 返回状态码 200，并携带业务消息
-//        }else{
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
-//        }
-//    }
-
-
     /*用户查看券列表（全部）【查】
     * 列表展示有一定的要求，要求如下：
     *   - 优先展示所有平台券，平台券按照领取时间，晚领取的优先展示
@@ -62,8 +48,9 @@ public class UserCouponRouter {
     *       - 店铺分块展示的顺序由每个店铺中最晚领取的券的时间决定，这个时间越晚，排序越靠前
     *   - 这里不区分券的状态，全部展示*/
     @GetMapping("/list")
-    public ResponseEntity<?> getUserCoupons(@RequestBody Map<String,Object> requestBody) {
-        Integer user_id = (Integer) requestBody.get("user_id");
+    public ResponseEntity<Map<String, Object>> getUserCoupons(@RequestParam("user_id") Integer user_id) {
+//        Integer user_id = (Integer) requestBody.get("user_id");
+        System.out.println("userCoupon/list获得数据："+user_id);
         // ResponseEntity<?> 可以返回任意类型的数据，同时还可以灵活地设置 HTTP 状态码和头信息。
         Map<String, Object> couponList = userCouponService.getUserCoupons(user_id);
         return ResponseEntity.ok(couponList);
@@ -77,7 +64,7 @@ public class UserCouponRouter {
      *       - 店铺分块展示的顺序由每个店铺中最晚领取的券的时间决定，这个时间越晚，排序越靠前
      *   - 这里区分券的状态，需要传入券的某一状态，将这一状态的券按照上述要求返回给前端*/
     @GetMapping("/listByStatus")
-    public ResponseEntity<?> getUserCouponsByStatus(@RequestBody Map<String,Object> requestBody) {
+    public ResponseEntity<Map<String, Object>> getUserCouponsByStatus(@RequestBody Map<String,Object> requestBody) {
         Integer user_id = (Integer) requestBody.get("user_id");
         String status = (String) requestBody.get("status");
         System.out.println(user_id);
@@ -90,9 +77,9 @@ public class UserCouponRouter {
     * 传入参数：
     *   - 券的id:coupon_id*/
     @GetMapping("/scope/details")
-    public ResponseEntity<Map<String, List<Object>>> getCouponScopeDetails(@RequestBody Map<String,Object> requestBody) {
+    public ResponseEntity<Map<String, List<Object>>> getCouponScopeDetails(@RequestParam("coupon_id") Integer coupon_id) {
         try {
-            Integer coupon_id = (Integer) requestBody.get("coupon_id");
+//            Integer coupon_id = (Integer) requestBody.get("coupon_id");
             System.out.println(coupon_id);
             Map<String, List<Object>> scopeDetails = userCouponService.getCouponScopeDetails(coupon_id);
             return ResponseEntity.ok(scopeDetails);
