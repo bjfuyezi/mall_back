@@ -17,4 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true) // 是否允许携带认证信息（cookie）
                 .maxAge(3600); // 预检请求缓存时间，单位为秒
     }
+
+
 }

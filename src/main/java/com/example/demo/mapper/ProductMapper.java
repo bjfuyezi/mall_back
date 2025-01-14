@@ -28,4 +28,5 @@ public interface ProductMapper {
     List<Product> selectByAdvertise();
     void updateReason(Product p);
     List<Integer> selectSaleByShop(@Param("shop_id") int shop_id);
+    void updateGreedy(@Param("id") int id);
 }

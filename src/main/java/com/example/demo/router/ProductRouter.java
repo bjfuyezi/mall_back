@@ -429,4 +429,10 @@ public class ProductRouter {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PostMapping("/flushGreedy")
+    public ResponseEntity<Void> getupdateGreedy(@RequestBody Map<String, String> ids) {
+        List<String> Ids = List.of(ids.get("ids").split(","));
+        productService.updateGreedy(Ids);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -47,7 +47,15 @@ public class AdvertiseService {
     }
 
     public List<Advertise> getAdvertiseByStatusAndUser(int uid) {
-        return advertiseMapper.selectAllByUser(uid);
+        List<Advertise> ads = advertiseMapper.selectAllByUser(uid);
+        for(Advertise ad: ads){
+            String name =shopMapper.selectById(ad.getShop_id()).getShop_name();
+            ad.setShop_name(name);
+            if(ad.getPicture_id() != null){
+                ad.setUrl(pictureMapper.selectById(ad.getPicture_id()).getUrl());
+            }
+        }
+        return ads;
     }
 
     public List<Advertise> searchByKey(String s) {
@@ -102,11 +110,11 @@ public class AdvertiseService {
     }
 
     public Advertise createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
-                                int pic_id,boolean banner,int times,String name) throws ParseException {
+                                int pic_id,boolean banner,int times,String name,int shop_id) throws ParseException {
         Advertise advertise = new Advertise();
         Date d = new Date();
         //TO do :这里需要session获取商铺的id
-        advertise.setShop_id(1);
+        advertise.setShop_id(shop_id);
         if(banner){
             if(type == AdvertisementType.product){
                 advertise.setProduct_id(ps_id);
@@ -273,13 +281,13 @@ public class AdvertiseService {
         }
     }
 
-    public boolean updateAdvertise(int id, String name){
+    public boolean updateAdvertise(int id, String name,int pic){
         Advertise advertisement = advertiseMapper.selectById(id);
         if(advertisement == null){
             return false;
         }
         Date d = new Date();
-        advertiseMapper.updateInfo(id,name,d);
+        advertiseMapper.updateInfo(id,name,d,pic);
         return true;
     }
 }

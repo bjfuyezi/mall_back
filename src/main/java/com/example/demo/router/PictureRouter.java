@@ -25,8 +25,8 @@ public class PictureRouter {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            pictureService.save_picture(file);
-            return new ResponseEntity<>(HttpStatus.OK);
+            int k = pictureService.save_picture(file);
+            return new ResponseEntity<>(String.valueOf(k),HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>("图片无法解析",HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (NameException e) {

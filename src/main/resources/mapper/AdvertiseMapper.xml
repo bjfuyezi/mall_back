@@ -28,7 +28,7 @@
         update advertisements set status = #{status},reason = #{reason} where advertisement_id = #{id};
     </update>
     <update id="updateInfo">
-        update advertisements set name = #{name}, updated_time = #{updated} where advertisement_id = #{id};
+        update advertisements set name = #{name}, updated_time = #{updated},picture_id = #{pic} where advertisement_id = #{id};
     </update>
     <insert id="addAdvertise" parameterType="com.example.demo.pojo.Advertise" useGeneratedKeys="true" keyProperty="advertisement_id">
         INSERT INTO advertisements (shop_id,product_id,advertisement_type, start_time,end_time,status,created_time,updated_time,reason,price,picture_id,banner,name
