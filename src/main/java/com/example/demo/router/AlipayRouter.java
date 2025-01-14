@@ -4,9 +4,11 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.easysdk.factory.Factory;
 import com.example.demo.enums.AdvertisementStatus;
+import com.example.demo.mapper.OrderMapper;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.AlipayTemplate;
 import com.example.demo.service.AdvertiseService;
+import com.example.demo.service.OrderService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class AlipayRouter {
     private String alipayPublicKey;
     @Autowired
     private AdvertiseService advertiseService;
+    @Autowired
+    private OrderMapper ordersMapper;
 
     //调用这个函数传入你的id和price,如果是订单传入true，广告传入false
     @GetMapping(value = "/pay", produces = "text/html")
@@ -86,12 +90,11 @@ public class AlipayRouter {
                 advertiseService.setAdvertiseStatus(Integer.parseInt(tradeNo.substring(5,tradeNo.length())), AdvertisementStatus.pending,null);
                 System.out.println("广告订单");
             }else if(tradeNo.startsWith("11111")){
+                ordersMapper.updateStatuspay(Integer.parseInt(tradeNo.substring(5,tradeNo.length())));
                 System.out.println("购物订单");
             }else {
                 System.out.println(tradeNo);
             }
-
-//            ordersMapper.updateState(tradeNo, "已支付", gmtPayment, alipayTradeNo);
         }else System.out.println("验证失败");
 
         return "success"; // 返回成功响应给支付宝
