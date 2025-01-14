@@ -1,8 +1,18 @@
 package com.example.demo.service;
 
+import com.example.demo.enums.ProductStatus;
 import com.example.demo.mapper.CartMapper;
+import com.example.demo.mapper.PictureMapper;
+import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.CartItem;
+import com.example.demo.pojo.Product;
+import com.example.demo.pojo.Promotion;
+import com.example.demo.pojo.Shop;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +33,10 @@ public class CartService {
     private CartMapper cartMapper;
     @Autowired
     private ShopMapper shopMapper;
-
+    @Autowired
+    private ProductMapper productMapper;
+    @Autowired
+    private PictureMapper pictureMapper;
     /**
      * 用户进入自己的购物车：获取用户购物车中的商品，按店铺和加入时间排序。
      * @param user_id 用户ID
@@ -73,13 +86,86 @@ public class CartService {
                     Map<String, Object> shopGroup = new HashMap<>();  // 创建一个新的Map用于存储该店铺的详细信息
                     shopGroup.put("shop_id", entry.getKey());  // 将店铺ID作为key，添加到shopGroup中
                     // 使用 shopMapper 根据  获取店铺名称
-                    String shopName = shopMapper.selectById(entry.getKey()).getShop_name();
+                    Shop shop = shopMapper.selectById(entry.getKey());
+                    String shopName = shop.getShop_name();
                     shopGroup.put("shop_name", shopName);  // 获取该店铺的名称（假设第一个商品的店铺名就是该店铺的名称）
-                    shopGroup.put("items", entry.getValue());  // 将店铺下的商品列表添加到shopGroup中
+//                    shopGroup.put("shop_detail",shop);
+                    // 接下来处理购物车项数据item
+                    // 获取店铺内的商品列表
+                    List<Map<String, Object>> itemDetails = new ArrayList<>();
+                    for (CartItem cartItem : entry.getValue()) {
+                        Map<String, Object> itemDetail = new HashMap<>();
+
+                        // 商品相关信息（从Product表中查询）
+                        Product product = productMapper.selectById(cartItem.getProduct_id());
+                        String picture = product.getPicture_id();//获得图片id的json字符串
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        try {
+                            List<Integer> picture_ids = objectMapper.readValue(picture, new TypeReference<List<Integer>>() {});
+//                            System.out.println(picture_ids);
+                            Integer picture_id = picture_ids.get(0);//第一个id
+                            String pictureUrl = pictureMapper.selectById(picture_id).getUrl();//获取url
+                            String flavor = cartItem.getFlavor();//获得当前购物车商品规格
+                            String name = product.getName();
+                            double price = product.getPrice();
+                            String quantity = product.getQuantity();
+                            int stock = getQuantityByFlavor(quantity,flavor);
+                            if(stock==-1){
+                                throw new IllegalArgumentException("找不到该商品规格的数量");
+                            }
+                            itemDetail.put("cart_item_id", cartItem.getCart_item_id());
+                            itemDetail.put("user_id", cartItem.getUser_id());
+                            itemDetail.put("product_id", cartItem.getProduct_id());
+                            itemDetail.put("picture_url", pictureUrl);
+                            itemDetail.put("product_name", name);
+                            itemDetail.put("flavor", flavor);
+                            itemDetail.put("price", price);
+                            itemDetail.put("quantity", cartItem.getQuantity());  // 初始数量
+                            itemDetail.put("stock", stock);  // 库存量
+//                            System.out.println(cartItem.getAdded_time());
+//                            itemDetail.put("added_time", cartItem.getAdded_time());
+                            itemDetail.put("selected", false);  // 是否选中,默认为false
+//                            System.out.println(product.getStatus());
+                            itemDetail.put("available", true);  // 是否可用,默认true，没有失效
+                            if(product.getStatus() == ProductStatus.empty){
+                                itemDetail.put("available", false);  // 是否失效
+                            }
+                            itemDetail.put("cart_item",cartItem);
+//                            System.out.println(itemDetail.get("available"));
+//                            System.out.println(itemDetail);
+                            itemDetails.add(itemDetail);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    shopGroup.put("items", itemDetails);  // 将店铺下的商品列表添加到shopGroup中
                     result.add(shopGroup);  // 将整理好的shopGroup添加到结果列表中
                 });
-
         return result;
+    }
+    private int getQuantityByFlavor(String jsonString, String targetFlavor) {
+        try {
+            // 创建 Jackson 的 ObjectMapper 实例
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // 将 JSON 字符串解析为 JsonNode
+            JsonNode rootNode = objectMapper.readTree(jsonString);
+
+            // 遍历 JSON 数组中的每个元素
+            for (JsonNode node : rootNode) {
+                // 获取每个元素的 "flavor" 和 "quantity" 字段
+                String flavor = node.get("flavor").asText(); // 获取 flavor 字段
+                int quantity = node.get("quantity").asInt(); // 获取 quantity 字段并解析为整数
+
+                // 如果找到匹配的 flavor，返回对应的 quantity
+                if (flavor.equals(targetFlavor)) {
+                    return quantity;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // 如果未找到匹配的 flavor，返回 -1 表示未找到
     }
 
     /**
@@ -91,15 +177,16 @@ public class CartService {
      * @return 是否成功加入购物车
      */
     // 测试成功--浮笙
-    public boolean addProductToCart(int user_id, int product_id, int quantity, int shop_id) {
-        // 先判断该用户的购物车里面有没有该商品
-        CartItem item = cartMapper.selectItemByUser_idAndProduct_id(user_id,product_id);
+    // 更新测试成功--浮笙1.13
+    public boolean addProductToCart(int user_id, int product_id, int quantity, int shop_id,String flavor) {
+        // 先判断该用户的购物车里面有没有该商品[有口味区分]
+        CartItem item = cartMapper.selectItemByUser_idAndProduct_id(user_id,product_id,flavor);
         if(item!=null){
-            throw new IllegalArgumentException("该商品已经加入用户购物车");
+            throw new IllegalArgumentException("该商品规格已经加入用户购物车");
         }
         // 创建新的购物车项对象
         CartItem cartItem = new CartItem(user_id,product_id,quantity,shop_id);
-
+        cartItem.setFlavor(flavor);
         // 获取当前时间并设置为加入购物车时间
         cartItem.setAdded_time(new Date());
 

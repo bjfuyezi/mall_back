@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.Exception.NameException;
 import com.example.demo.mapper.PictureMapper;
 import com.example.demo.pojo.Picture;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class PictureService {
                 }
             }
         } else {
-            List<Integer> idList = objectMapper.readValue(ids, List.class);
+            List<Integer> idList = objectMapper.readValue(ids, new TypeReference<List<Integer>>() {});
             for (Integer id : idList) {
                 Picture picture = pictureMapper.selectById(id);
                 if (picture != null) {

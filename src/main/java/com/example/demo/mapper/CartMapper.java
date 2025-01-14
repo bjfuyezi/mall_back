@@ -36,7 +36,7 @@ public interface CartMapper {
     // 删除购物车商品项
     void deleteCartItem(@Param("user_id") int user_id, @Param("product_id") int product_id);
 
-    CartItem selectItemByUser_idAndProduct_id(@Param("user_id")int userId,@Param("product_id") int productId);
+    CartItem selectItemByUser_idAndProduct_id(@Param("user_id")int userId,@Param("product_id") int productId,@Param("flavor") String flavor);
 
     int updateCartItemQuantity(int cartItemId, int quantity);
 

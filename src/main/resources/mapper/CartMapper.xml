@@ -17,8 +17,8 @@
 
     <!-- 插入新的购物车项，使用自动生成的主键 -->
     <insert id="insertCartItem" parameterType="com.example.demo.pojo.CartItem" useGeneratedKeys="true" keyProperty="cart_item_id">
-        INSERT INTO cart_items (user_id, product_id, quantity, shop_id, added_time)
-        VALUES (#{user_id}, #{product_id}, #{quantity}, #{shop_id}, #{added_time})
+        INSERT INTO cart_items (user_id, product_id, quantity, shop_id, added_time,flavor)
+        VALUES (#{user_id}, #{product_id}, #{quantity}, #{shop_id}, #{added_time},#{flavor})
     </insert>
 
     <!-- 更新购物车商品的数量 -->
@@ -36,7 +36,7 @@
 
     <select id="selectItemByUser_idAndProduct_id" resultType="com.example.demo.pojo.CartItem">
         SELECT * FROM cart_items
-        WHERE user_id = #{user_id} AND product_id = #{product_id}
+        WHERE user_id = #{user_id} AND product_id = #{product_id} AND flavor = #{flavor}
     </select>
 
     <select id="selectItemById" resultType="com.example.demo.pojo.CartItem">

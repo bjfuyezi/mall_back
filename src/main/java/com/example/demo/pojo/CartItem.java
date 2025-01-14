@@ -20,7 +20,7 @@ public class CartItem {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date added_time;      // 加入购物车时间
     private Integer shop_id;      // 店铺 ID
-
+    private String flavor;//口味，规格
     public CartItem() {
     }
 

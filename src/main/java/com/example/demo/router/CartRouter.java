@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -37,12 +38,11 @@ public class CartRouter {
 
     /**
      * 获取用户购物车商品列表
-     *
-     * @param user_id 用户ID
      * @return 返回用户的购物车商品列表
      */
     @GetMapping("/items")  // 使用 GET 方法来获取用户购物车商品
-    public ResponseEntity<?> getCartItems(@RequestParam int user_id) {
+    public ResponseEntity<List<Map<String, Object>>> getCartItems(@RequestParam("user_id") Integer user_id) {
+        System.out.println("cart/items获取到数据："+user_id);
         // 调用 CartService 获取用户购物车商品列表，返回一个包含商品信息的列表
         return ResponseEntity.ok(cartService.getCartItemsByUser_id(user_id));  // 使用 ResponseEntity 返回 HTTP 响应
     }
@@ -63,18 +63,20 @@ public class CartRouter {
             Integer product_id = (Integer) requestBody.get("product_id");
             Integer quantity = (Integer) requestBody.get("quantity");
             Integer shop_id = (Integer) requestBody.get("shop_id");
+            String flavor = (String) requestBody.get("flavor");
             System.out.println(user_id);
             System.out.println(product_id);
             System.out.println(quantity);
             System.out.println(shop_id);
-            boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
+            System.out.println(flavor);
+            boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id,flavor);
             if (isAdded) {
                 return ResponseEntity.ok("商品加入购物车成功");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败");
             }
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败："+e.getMessage());
         }
 
     }
