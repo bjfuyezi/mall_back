@@ -12,6 +12,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommentVo {
+    public int order_id;
     public int comment_id;
     public Date created_time;
     public int level;

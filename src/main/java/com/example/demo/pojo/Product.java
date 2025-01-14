@@ -37,4 +37,9 @@ public class Product {
 
     //数据库不存在的项
     private Double similarityScore;
+
+    public Integer getGreedy() {
+        if(greedy == null) return 0;
+        return greedy;
+    }
 }

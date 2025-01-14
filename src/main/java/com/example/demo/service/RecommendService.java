@@ -166,10 +166,9 @@ public class RecommendService {
         }
     }
 
-    public List<Product> Bycontent(List<Product> all, List<Integer> others, List<Product> history, int uid) throws JsonProcessingException {
+    public List<Product> Bycontent(List<Product> all, List<Integer> others, List<Product> history, int uid,Recommend recommend) throws JsonProcessingException {
         List<Product> recommendedProducts = new ArrayList<>();
         //读取推荐表内容，获得最近20条浏览记录和最近20次搜索文本
-        Recommend recommend = recommendMapper.selectRecommend(uid);
         List<Integer> recentProductIds= recommend.getHistoryAsList();
         List<String> searchTerms = recommend.getSearchAsList();
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
@@ -258,11 +257,10 @@ public class RecommendService {
     }
 
     //当一个用户A需要个性化推荐时，可以先找到他有相似兴趣的其他用户，然后把那些用户喜欢的、而用户A没听过的物品推荐给A。
-    public List<Product> Byuser(List<Integer> others,int uid) throws JsonProcessingException {
+    public List<Product> Byuser(List<Integer> others,int uid,Recommend recommend) throws JsonProcessingException {
         //由于商品数>用户数，以遍历用户表为选择,建立用户兴趣list，包括用户收藏的商品，加入购物车的商品和收藏店铺中的所有商品，即用户A：商品1，商品2，商品3
         //第一步：获取当前用户的收藏商品，收藏店铺的商品，加入购物车的商品的集合u
         List<Product> recommendedProducts = new ArrayList<>();
-        Recommend recommend = recommendMapper.selectRecommend(uid);
         List<Integer> target = recommend.getInterestAsList();
         Set<Integer> u=new HashSet<>(target);//去重
 
