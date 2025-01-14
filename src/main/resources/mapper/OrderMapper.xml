@@ -14,6 +14,13 @@
             pay_time = #{pay_time}
         WHERE order_id = #{order_id}
     </update>
+
+    <update id="updateStatuspay" parameterType="Integer">
+        UPDATE orders
+        SET status = "delivered"
+        WHERE order_id = #{order_id}
+    </update>
+
     <select id="selectAllOrder" resultType="com.example.demo.pojo.Orders">
         SELECT * FROM orders
     </select>

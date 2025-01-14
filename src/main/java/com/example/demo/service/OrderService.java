@@ -33,4 +33,7 @@ public class OrderService {
     public void updateStatus(Orders order) {
         orderMapper.updateStatus(order);
     }
+    public void updateStatuspay(int order_id) {
+        orderMapper.updateStatuspay(order_id);
+    }
 }
