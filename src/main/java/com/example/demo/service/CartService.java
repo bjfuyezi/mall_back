@@ -238,14 +238,21 @@ public class CartService {
         int result = cartMapper.deleteCartItemById(cart_item_id);  // 调用 CartMapper 删除购物车商品
         return result>0;
     }
-//    public boolean deleteCartItem(int user_id, int product_id) {
-//        try {
-//            cartMapper.deleteCartItem(user_id, product_id);  // 调用 CartMapper 删除购物车商品
-//            return true;  // 如果删除成功，返回 true
-//        } catch (Exception e) {
-//            // 捕获异常，返回 false 表示删除失败
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
+
+
+    public boolean deleteCartItems(List<Integer> cartItemIds) {
+        for (Integer cartItemId : cartItemIds) {
+            System.out.println("正在删除购物车项的id是："+cartItemId);
+            CartItem item = cartMapper.selectItemById(cartItemId);
+            System.out.println("即将要删除的数据是："+item);
+            if (item == null) {
+                throw new IllegalArgumentException("购物车项不存在");
+            }
+            int result = cartMapper.deleteCartItemById(cartItemId);  // 调用 CartMapper 删除购物车商品
+            if (result <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

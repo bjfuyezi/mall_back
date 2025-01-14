@@ -143,18 +143,24 @@ public class CartRouter {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除失败:"+e.getMessage());
         }
-
     }
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<String> deleteCartItem(@RequestParam int user_id,
-//                                                 @RequestParam int product_id) {
-//        boolean isDeleted = cartService.deleteCartItem(user_id, product_id);
-//        if (isDeleted) {
-//            return ResponseEntity.ok("商品已从购物车中删除");
-//        } else {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("删除商品失败");
-//        }
-//    }
+
+    // 一次性删除多个购物车项
+    @DeleteMapping("/deleteMany")
+    public ResponseEntity<String> deleteCartItems(@RequestBody Map<String,Object> requestBody) {
+        try{
+            List<Integer> cart_item_ids = (List<Integer>) requestBody.get("cart_item_ids");
+            System.out.println("deleteMany获取数据:"+cart_item_ids);
+            boolean isDeleted = cartService.deleteCartItems(cart_item_ids);
+            if (isDeleted) {
+                return ResponseEntity.ok("商品均已从购物车中删除");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除商品失败");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除失败:"+e.getMessage());
+        }
+    }
 
     /*TODO:购物车和结算流程
     - 用户选择商品并勾选使用的优惠券
