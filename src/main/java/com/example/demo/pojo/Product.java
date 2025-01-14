@@ -2,6 +2,7 @@ package com.example.demo.pojo;
 
 import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -22,7 +23,9 @@ public class Product {
     private String picture_id;
 
     private ProductStatus status;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date created_time;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updated_time;
     private String location;
     private String notice;

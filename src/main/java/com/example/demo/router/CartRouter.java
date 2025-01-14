@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -37,12 +38,11 @@ public class CartRouter {
 
     /**
      * 获取用户购物车商品列表
-     *
-     * @param user_id 用户ID
      * @return 返回用户的购物车商品列表
      */
     @GetMapping("/items")  // 使用 GET 方法来获取用户购物车商品
-    public ResponseEntity<?> getCartItems(@RequestParam int user_id) {
+    public ResponseEntity<List<Map<String, Object>>> getCartItems(@RequestParam("user_id") Integer user_id) {
+        System.out.println("cart/items获取到数据："+user_id);
         // 调用 CartService 获取用户购物车商品列表，返回一个包含商品信息的列表
         return ResponseEntity.ok(cartService.getCartItemsByUser_id(user_id));  // 使用 ResponseEntity 返回 HTTP 响应
     }
@@ -63,18 +63,20 @@ public class CartRouter {
             Integer product_id = (Integer) requestBody.get("product_id");
             Integer quantity = (Integer) requestBody.get("quantity");
             Integer shop_id = (Integer) requestBody.get("shop_id");
+            String flavor = (String) requestBody.get("flavor");
             System.out.println(user_id);
             System.out.println(product_id);
             System.out.println(quantity);
             System.out.println(shop_id);
-            boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id);
+            System.out.println(flavor);
+            boolean isAdded = cartService.addProductToCart(user_id, product_id, quantity, shop_id,flavor);
             if (isAdded) {
                 return ResponseEntity.ok("商品加入购物车成功");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败");
             }
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("加入失败："+e.getMessage());
         }
 
     }
@@ -141,18 +143,24 @@ public class CartRouter {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除失败:"+e.getMessage());
         }
-
     }
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<String> deleteCartItem(@RequestParam int user_id,
-//                                                 @RequestParam int product_id) {
-//        boolean isDeleted = cartService.deleteCartItem(user_id, product_id);
-//        if (isDeleted) {
-//            return ResponseEntity.ok("商品已从购物车中删除");
-//        } else {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("删除商品失败");
-//        }
-//    }
+
+    // 一次性删除多个购物车项
+    @DeleteMapping("/deleteMany")
+    public ResponseEntity<String> deleteCartItems(@RequestBody Map<String,Object> requestBody) {
+        try{
+            List<Integer> cart_item_ids = (List<Integer>) requestBody.get("cart_item_ids");
+            System.out.println("deleteMany获取数据:"+cart_item_ids);
+            boolean isDeleted = cartService.deleteCartItems(cart_item_ids);
+            if (isDeleted) {
+                return ResponseEntity.ok("商品均已从购物车中删除");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除商品失败");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("删除失败:"+e.getMessage());
+        }
+    }
 
     /*TODO:购物车和结算流程
     - 用户选择商品并勾选使用的优惠券
