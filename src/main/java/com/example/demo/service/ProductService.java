@@ -4,8 +4,10 @@ import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
 import com.example.demo.mapper.OrderMapper;
 import com.example.demo.mapper.ProductMapper;
+import com.example.demo.mapper.RecommendMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.pojo.Product;
+import com.example.demo.pojo.Recommend;
 import com.example.demo.pojo.Shop;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
 服务（Service）实现业务逻辑。
@@ -33,6 +36,8 @@ public class ProductService {
     private RecommendService recommendService;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private RecommendMapper recommendMapper;
 
     public Integer getSalenumByShop_id(Integer id) {
         Integer sum = 0;
@@ -145,22 +150,41 @@ public class ProductService {
         List<Product> productall = productMapper.selectAll();//获取所有的售卖中商品
         List<Product> buyproducts = productMapper.selectBuyHistoryByUser(uid);//查询该用户所有购买过的商品
         buyproducts = new ArrayList<>(new HashSet<>(buyproducts));//去重
+        Recommend recommend = recommendMapper.selectRecommend(uid);
+        if(recommend == null){
+            List<Product> ps =productall.stream()
+                    .sorted((p1, p2) -> Double.compare(p2.getGreedy(), p1.getGreedy()))
+                    .limit(40)
+                    .collect(Collectors.toList());
+            Recommend rec = new Recommend();
+            rec.setUser_id(uid);
+            recommendMapper.insertRecommend(rec);
+            recommendService.insertRecommendOther(uid,ps);
+            return ps;
+        }
 
         //获取上一轮之前已经看过的商品，避免重复推荐
         List<Integer> others =recommendService.getOthersByUser(uid);
 
         //基于用户行为的推荐
-        List<Product> products_content = recommendService.Bycontent(productall,others,buyproducts,uid);
+        List<Product> products_content = recommendService.Bycontent(productall,others,buyproducts,uid,recommend);
 
         //排除上一个方法推荐的商品，用另一种方法再获取20种推荐的商品，避免重复需要去除之前的结果
         productall.removeAll(products_content);
 
         //基于用户的协同过滤
-        List<Product> products_user = recommendService.Byuser(others,uid);
+        List<Product> products_user = recommendService.Byuser(others,uid,recommend);
         products_content.addAll(products_user);
         System.out.println(products_content);
         recommendService.insertRecommendOther(uid,products_content);
 
         return products_content;
+    }
+
+    public void updateGreedy(List<String> ids){
+        for (String id : ids) {
+            // 模拟获取URL的过程
+            productMapper.updateGreedy(Integer.parseInt(id));
+        }
     }
 }

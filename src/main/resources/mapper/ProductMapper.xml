@@ -55,6 +55,13 @@
         insert into product(shop_id, name, category, price, description, quantity, picture_id, status, created_time,updated_time, location, notice, discount, unit, salenum, greedy)
         values (#{shop_id}, #{name}, #{category}, #{price}, #{description}, #{quantity}, #{picture_id}, #{status}, #{created_time},#{updated_time}, #{location}, #{notice}, #{discount}, #{unit}, #{salenum}, #{greedy})
     </insert>
+    <update id="updateGreedy" parameterType="Integer">
+        UPDATE product
+        SET greedy = greedy - 1
+        WHERE product_id = #{id}
+          AND greedy > 0;
+    </update>
+
 <!--    <select id="selectById" resultType="com.example.demo.pojo.Product">-->
 <!--        select * from product-->
 <!--        where product_id = #{id}-->
