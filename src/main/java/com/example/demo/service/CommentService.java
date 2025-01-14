@@ -34,5 +34,18 @@ public class CommentService {
         }
         return comVo;
     }
+    public List<CommentVo> selectProductCommentVo(int product_id) throws JsonProcessingException{
+        List<CommentVo> comVo = commentMapper.selectProductCommentVo(product_id);
+        for(CommentVo commentVo:comVo){
+            commentVo.product_firimg=pictureMapper.selectById(Integer.parseInt(commentVo.getimgAsList().get(0))).getUrl();
+        }
+        for(CommentVo commentVo:comVo){
+            for(String id:commentVo.getimgAsList2()){
+                commentVo.imgList.add(pictureMapper.selectById(Integer.parseInt(id)).getUrl());
+            }
+        }
+        return comVo;
+    }
+
 
 }

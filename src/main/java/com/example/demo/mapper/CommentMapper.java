@@ -13,4 +13,5 @@ public interface CommentMapper {
     void addComment(Comment comment);
 
     List<CommentVo> selectAllCommentVo(int userid);
+    List<CommentVo> selectProductCommentVo(int product_id);
 }

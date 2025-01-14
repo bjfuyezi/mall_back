@@ -10,6 +10,7 @@
 
     <select id="selectAllCommentVo" parameterType="Integer" resultType="com.example.demo.pojo.Vo.CommentVo">
         SELECT
+            c.order_id,
             c.comment_id,
             c.created_time,
             c.level,
@@ -24,5 +25,23 @@
             product p ON c.product_id = p.product_id
         WHERE
             c.user_id = #{user_id}
+    </select>
+
+    <select id="selectProductCommentVo" parameterType="Integer" resultType="com.example.demo.pojo.Vo.CommentVo">
+        SELECT
+            c.comment_id,
+            c.created_time,
+            c.level,
+            p.picture_id as product_image,
+            p.name as product_name,
+            p.price as product_price,
+            c.content,
+            c.picture_id as commentimg_urls
+        FROM
+            comment c
+                JOIN
+            product p ON c.product_id = p.product_id
+        WHERE
+            p.product_id = #{product_id}
     </select>
 </mapper>

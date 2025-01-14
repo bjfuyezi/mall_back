@@ -5,6 +5,7 @@ import com.example.demo.pojo.Vo.CommentVo;
 import com.example.demo.pojo.Vo.OrderVo;
 import com.example.demo.service.CommentService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,12 @@ public class CommentRouter {
             LocalDateTime now = LocalDateTime.now();
             Date createtime = java.sql.Timestamp.valueOf(now);;
             comment.setCreated_time(createtime);
-            System.out.println(comment.getComment_id()+comment.getUser_id()+comment.getOrder_id()+comment.getContent());
+
+            String trimmed = comment.getPicture_id().substring(1, comment.getPicture_id().length() - 1);
+            String[] pictureIdArray = trimmed.split(",");
+            Gson gson = new Gson();
+            String picidjson = gson.toJson(pictureIdArray);
+            comment.setPicture_id(picidjson);
             commentService.addComment(comment);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }catch (Exception e){
