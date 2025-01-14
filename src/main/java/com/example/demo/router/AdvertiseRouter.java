@@ -81,7 +81,8 @@ public class AdvertiseRouter {
             @RequestParam("picture") MultipartFile picture,
             @RequestParam("banner") boolean banner,
             @RequestParam("times") int times,
-            @RequestParam("name") String name){
+            @RequestParam("name") String name,
+            @RequestParam("shop_id") int shop_id){
         try {
             if(banner){
                 Date start = Utils.TimetoDate(start_time,false);
@@ -90,12 +91,12 @@ public class AdvertiseRouter {
                     return new ResponseEntity<>(HttpStatus.CONFLICT);
                 }else {
                     int pic_id = pictureService.save_picture(picture);
-                    Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,times, name);
+                    Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner,times, name,shop_id);
                     return new ResponseEntity<>(advertise,HttpStatus.OK);
                 }
             }else{
                 int pic_id = pictureService.save_picture(picture);
-                Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner, times, name);
+                Advertise advertise = advertiseService.createAdvertise(ps_id, type, start_time, end_time, price, pic_id, banner, times, name,shop_id);
                 return new ResponseEntity<>(advertise,HttpStatus.OK);
             }
 
@@ -204,7 +205,7 @@ public class AdvertiseRouter {
             @RequestBody Advertise advertise) {
         System.out.println(advertise);
         try {
-            boolean updated = advertiseService.updateAdvertise(advertise.getAdvertisement_id(), advertise.getName());
+            boolean updated = advertiseService.updateAdvertise(advertise.getAdvertisement_id(), advertise.getName(),advertise.getPicture_id());
             if (updated) {
                 return new ResponseEntity<>(HttpStatus.OK); //200ok
             } else {
