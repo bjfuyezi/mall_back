@@ -3,6 +3,7 @@ package com.example.demo.pojo;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
 import com.example.demo.enums.ShopStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -20,7 +21,9 @@ public class Shop {
     private String shop_name;
     private String shop_description;
     private ShopStatus status;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date created_time;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updated_time;
     private Double level;
     private String location;
