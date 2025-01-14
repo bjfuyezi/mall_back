@@ -23,17 +23,15 @@
             o.created_time as date,
             o.status,
             p.product_id,
+            p.picture_id as product_image,
             p.name as product_name,
-            pic.url as product_image,
             p.price as product_price,
             o.quantity as totalQuantity,
             (o.price * o.quantity) as totalAmount
         FROM
             orders o
-            JOIN
+                JOIN
             product p ON o.product_id = p.product_id
-            JOIN
-            picture pic ON p.picture_id = pic.picture_id
         WHERE
             o.user_id = #{user_id}
     </select>

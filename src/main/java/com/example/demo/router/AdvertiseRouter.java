@@ -128,13 +128,11 @@ public class AdvertiseRouter {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Advertise>> getAdvertiseDetail(@RequestParam("key") String key) {
-        List<Advertise> advertise = advertiseService.searchByKey(key);
-        if(advertise == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(advertise, HttpStatus.OK);
+    @PostMapping("/checkdel")
+    public ResponseEntity<Void> checkAndDelete(@RequestParam("id") int id) {
+        if(advertiseService.checkAndDelete(id)){
+            return new ResponseEntity<>(HttpStatus.OK); //200ok
+        }else return new ResponseEntity<>(HttpStatus.NOT_FOUND); //not found
     }
 
     @DeleteMapping("/del")
