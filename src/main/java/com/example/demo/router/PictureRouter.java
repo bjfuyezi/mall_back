@@ -73,10 +73,8 @@ public class PictureRouter {
     @PostMapping("/getManyUrl")
     public ResponseEntity<String> getManyUrl(@RequestBody Map<String, Object> ids) {
         String picturesId = (String) ids.get("id"); // 从请求体中获取id
-        System.out.println(picturesId+"z");
         try {
             String urls = pictureService.getManyImageUrl(picturesId);
-            System.out.println(urls);
             return new ResponseEntity<>(urls, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

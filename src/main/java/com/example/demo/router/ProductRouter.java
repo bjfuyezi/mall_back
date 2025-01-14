@@ -3,6 +3,7 @@ package com.example.demo.router;
 import com.example.demo.Exception.NameException;
 import com.example.demo.enums.ProductStatus;
 import com.example.demo.enums.ProductType;
+import com.example.demo.enums.ShopStatus;
 import com.example.demo.pojo.Advertise;
 import com.example.demo.pojo.Product;
 import com.example.demo.pojo.Shop;
@@ -41,6 +42,11 @@ public class ProductRouter {
     @Autowired
     private ShopService shopService;
 
+    @PostMapping("/")
+    public ResponseEntity<List<Product>> getAllProduct(@RequestBody Map<String, Object> request) {
+        return new ResponseEntity<>(productService.getAllProduct(), HttpStatus.OK);
+    }
+
     /**
      * 查找指定店铺ID的销量。
      *
@@ -65,6 +71,52 @@ public class ProductRouter {
     }
 
     /**
+     * 查找指定商品id的收藏量。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/getStarById")
+    public ResponseEntity<Integer> getStarById(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            Integer t = productService.getStarById(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查找指定商品id的评论数。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/getCommentById")
+    public ResponseEntity<Integer> getCommentById(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        try {
+            Integer t = productService.getCommentById(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
      * 查找所有商品。
      *
      * @param request     查询体
@@ -75,6 +127,101 @@ public class ProductRouter {
         try {
             List<Product> t = productService.getAllSaleProduct();
             if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查找所有收藏商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/selectStarByUserId")
+    public ResponseEntity<List<Product>> selectStarByUserId(@RequestBody Map<String, Object> request) {
+        try {
+            Integer id = (Integer) request.get("id");
+            List<Product> t = productService.getAllStarByUserId(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 取消收藏商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/deleteStar")
+    public ResponseEntity<String> deleteStar(@RequestBody Map<String, Object> request) {
+        try {
+            Integer pid = (Integer) request.get("pid");
+            Integer uid = (Integer) request.get("uid");
+            String t = productService.deleteStar(pid,uid);
+            if (t.equals("200")) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查询是否收藏商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/isStar")
+    public ResponseEntity<String> isStar(@RequestBody Map<String, Object> request) {
+        try {
+            Integer pid = (Integer) request.get("pid");
+            Integer uid = (Integer) request.get("uid");
+            String t = productService.isStar(pid,uid);
+            if (t!=null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
+     * 查询是否收藏商品。
+     *
+     * @param request     查询体
+     * @return 如果成功，则返回总销量；如果未找到，则返回 null。
+     */
+    @PostMapping("/changeStar")
+    public ResponseEntity<String> changeStar(@RequestBody Map<String, Object> request) {
+        try {
+            Integer pid = (Integer) request.get("pid");
+            Integer uid = (Integer) request.get("uid");
+            String t = productService.changeStar(pid,uid);
+            if (t!=null) {
                 return new ResponseEntity<>(t, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -221,6 +368,31 @@ public class ProductRouter {
     }
 
     /**
+     * 更新指定ID的商品状态并写入reason。
+     *
+     * @return 如果成功更新，则返回 200 OK；如果未找到对应的店铺，则返回 404 Not Found；
+     *         如果更新失败，则返回 500 Internal Server Error。
+     */
+    @PostMapping("/insertReason")//http://localhost:8081/shop/status?id=1&status=closed
+    public ResponseEntity<Void> insertReason(@RequestBody Map<String, Object> request) {
+        Integer id = (Integer) request.get("id");
+        String reason = (String) request.get("reason");
+        ProductStatus status = ProductStatus.valueOf((String) request.get("status"));
+        try {
+            boolean updated = productService.insertReason(id, status, reason);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); //200ok
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);//404 not found
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
+    }
+
+    /**
      * 更新商品。
      *
      * @param
@@ -256,7 +428,6 @@ public class ProductRouter {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
     @PostMapping("/flushGreedy")
     public ResponseEntity<Void> getupdateGreedy(@RequestBody Map<String, String> ids) {
