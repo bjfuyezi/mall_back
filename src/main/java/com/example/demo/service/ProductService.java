@@ -8,10 +8,8 @@ import com.example.demo.mapper.RecommendMapper;
 import com.example.demo.mapper.ShopMapper;
 import com.example.demo.enums.ShopStatus;
 import com.example.demo.mapper.*;
-import com.example.demo.pojo.Product;
+import com.example.demo.pojo.*;
 import com.example.demo.pojo.Recommend;
-import com.example.demo.pojo.Recommend;
-import com.example.demo.pojo.Shop;
 import com.example.demo.pojo.Vo.CommentVo;
 import com.example.demo.pojo.Vo.CommentVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +46,8 @@ public class ProductService {
     private UserProductMapper userProductMapper;
     @Autowired
     private CommentMapper commentMapper;
+    @Autowired
+    private AdvertiseMapper advertiseMapper;
 
     public List<Product> getAllProduct() {
         return productMapper.getAllProduct();
@@ -249,6 +249,13 @@ public class ProductService {
         System.out.println(products_content);
         recommendService.insertRecommendOther(uid,products_content);
 
+        for(Product p:products_content){
+            if(p.getGreedy()!=null&&p.getGreedy()>0){
+                List<Advertise> a=advertiseMapper.selectByProduct(p.getProduct_id());
+                if(a.size()>0)
+                    p.setPicture_id(String.valueOf(a.get(0).getPicture_id()));
+            }
+        }
         return products_content;
     }
 

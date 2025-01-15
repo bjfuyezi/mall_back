@@ -1,6 +1,7 @@
 package com.example.demo.router;
 
 import com.example.demo.Exception.NameException;
+import com.example.demo.Exception.NumException;
 import com.example.demo.config.Utils;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
@@ -104,6 +105,8 @@ public class AdvertiseRouter {
             e.printStackTrace();
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch (NumException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
