@@ -429,6 +429,19 @@ public class ProductRouter {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/searchview")
+    public ResponseEntity<List<Product>> getSearchview(@RequestParam("uid") int uid, @RequestParam("key") String key){
+        List<Product> products= null;
+        System.out.println("key"+key);
+        try {
+            products = productService.getSearchview(uid,key);
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/flushGreedy")
     public ResponseEntity<Void> getupdateGreedy(@RequestBody Map<String, String> ids) {
         List<String> Ids = List.of(ids.get("ids").split(","));
