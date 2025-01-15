@@ -8,6 +8,7 @@ import com.example.demo.mapper.UserCouponMapper;
 import com.example.demo.pojo.Coupon;
 import com.example.demo.enums.CouponStatus;
 import com.example.demo.pojo.Shop;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -256,6 +257,7 @@ public class CouponService {
                 System.out.println("优惠券"+coupon_id+"的状态从"+before+"变成了"+coupon.getCoupon_status());
             }
         }
+        System.out.println("get shop active更新完成");
         return couponMapper.getActiveShopCoupons(shop_id);
     }
 
@@ -531,5 +533,20 @@ public class CouponService {
         }else{
             return coupon;
         }
+    }
+
+    public List<Coupon> getPlatformCouponsForShop(int userId) throws JsonProcessingException {
+        Shop shop = shopMapper.selectByUser_id(userId);//获得该用户店铺信息
+        Integer shop_id = shop.getShop_id();
+        List<Coupon> coupons = new ArrayList<>();
+        List<Coupon> platformCoupons = couponMapper.getPendingPlatformCoupon();
+        System.out.println(platformCoupons);
+        for(Coupon coupon:platformCoupons){
+            String currentScope = coupon.getScope();
+            if(!isShopAlreadyInScope(currentScope,shop_id)){
+                coupons.add(coupon);//不在范围内，将该优惠券加入其中
+            }
+        }
+        return coupons;
     }
 }

@@ -62,4 +62,6 @@ public interface CouponMapper {
 
     // 恢复暂停的优惠券
     int resumePausedCoupon(@Param("coupon_id") Integer coupon_id);
+
+    List<Coupon> getPendingPlatformCoupon();
 }
