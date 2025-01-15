@@ -23,7 +23,7 @@ public class PictureService {
 
     @Autowired
     private PictureMapper pictureMapper;
-    private static final String UPLOAD_DIR = "../img/";
+    private static final String UPLOAD_DIR = "/img/";
 
     public Integer save_picture(MultipartFile file) throws IOException, NameException {
         String originalFilename = file.getOriginalFilename();//获取原始文件名称
