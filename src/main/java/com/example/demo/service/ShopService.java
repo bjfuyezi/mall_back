@@ -6,11 +6,14 @@ import com.example.demo.mapper.ShopMapper;
 import com.example.demo.mapper.UserShopMapper;
 import com.example.demo.pojo.Shop;
 import com.example.demo.pojo.UserShop;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 /*
 服务（Service）实现业务逻辑。
 @Service 标记的类通常包含复杂的业务规则、事务管理以及对多个 DAO 的协调调用。
@@ -26,6 +29,8 @@ public class ShopService {
     private ShopMapper shopMapper;
     @Autowired
     private UserShopMapper userShopMapper;
+    @Autowired
+    private RecommendService recommendService;
 
     public List<Shop> getAllShop() {
         return shopMapper.selectAll();
@@ -82,9 +87,9 @@ public class ShopService {
         return userShopMapper.selectByUser(uid);
     }
 
-    public String changeRelation(Integer sid, Integer uid, String relation){
+    public String changeRelation(Integer sid, Integer uid, String relation) throws JsonProcessingException {
         UserShop test = userShopMapper.selectByUserAndShop(uid, sid);
-        if ( relation.equals("none") )
+        if ( relation.equals("none") && test != null )
             userShopMapper.delete(uid, sid);
         else if ( test == null ) {
             UserShop userShop = new UserShop();
@@ -92,6 +97,8 @@ public class ShopService {
             userShop.setShop_id(sid);
             userShop.setRelation(UserShopRelation.valueOf(relation));
             userShopMapper.insert(userShop);
+            if ( relation.equals("star") )
+                recommendService.insertRecommendStarShop(uid,sid);
         }
         else {
             test.setRelation(UserShopRelation.valueOf(relation));
@@ -116,7 +123,7 @@ public class ShopService {
 
     public Integer createShop(String name, String description, String location, Integer picture_id, Integer user_id) {
         Shop checkName = shopMapper.selectByName(name);
-        if ( checkName != null ) {
+        if ( checkName != null && !Objects.equals(checkName.getUser_id(), user_id)) {
             return -1;
         }
         Shop shop = new Shop();
