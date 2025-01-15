@@ -112,7 +112,9 @@ public class UserCouponRouter {
     }
 
     @PostMapping("/getAvailable")
-    public ResponseEntity<Map<String,List<Object>>> getAvailableByProduct_ids(){
+    public ResponseEntity<Map<String,List<Object>>> getAvailableByProduct_ids(@RequestBody Map<String,Object> requestBody){
+        Integer user_id = (Integer) requestBody.get("used_id");
+
         return null;
     }
 }

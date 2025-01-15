@@ -111,6 +111,7 @@ public class CartService {
                             String name = product.getName();
                             double price = product.getPrice();
                             String quantity = product.getQuantity();
+                            System.out.println(quantity);
                             int stock = getQuantityByFlavor(quantity,flavor);
                             if(stock==-1){
                                 throw new IllegalArgumentException("找不到该商品规格的数量");
@@ -184,6 +185,7 @@ public class CartService {
         // 先判断该用户的购物车里面有没有该商品[有口味区分]
         CartItem item = cartMapper.selectItemByUser_idAndProduct_id(user_id,product_id,flavor);
         if(item!=null){
+            System.out.println("item isn't null!");
             throw new IllegalArgumentException("该商品规格已经加入用户购物车");
         }
         // 创建新的购物车项对象

@@ -71,14 +71,36 @@ public class CouponRouter {
             String coupon_type = (String) requestBody.get("coupon_type");
             String start_time = (String) requestBody.get("start_time");
             String end_time = (String) requestBody.get("end_time");
-            Double request = (Double) requestBody.get("request");
-            Double off = (Double) requestBody.get("off");
+            // 假设 requestBody 是一个 Map 对象，例如 Map<String, Object>
+            Object requestObj = requestBody.get("request");
+            Object offObj = requestBody.get("off");
+            double request;
+            double off;
+            // 对 "request" 对应的值进行类型检查和转换
+            if (requestObj instanceof Integer) {
+                request = ((Integer) requestObj).doubleValue();
+            } else if (requestObj instanceof Double) {
+                request = (Double) requestObj;
+            } else {
+                throw new IllegalArgumentException("Unsupported data type for 'request'");
+            }
+            // 对 "off" 对应的值进行类型检查和转换
+            if (offObj instanceof Integer) {
+                off = ((Integer) offObj).doubleValue();
+            } else if (offObj instanceof Double) {
+                off = (Double) offObj;
+            } else {
+                throw new IllegalArgumentException("Unsupported data type for 'off'");
+            }
             String scope = (String) requestBody.get("scope");
             BigInteger total = new BigInteger(requestBody.get("total").toString());
             Integer claim_limit = (Integer) requestBody.get("claim_limit");
             Integer max_unused_count = (Integer) requestBody.get("max_unused_count");
-            Integer shop_id = (Integer) requestBody.get("shop_id");
-
+            // 默认 shop_id 为 0
+            Integer shop_id = 0;
+            if(coupon_type!=null && coupon_type.equals("shop")){
+                shop_id = (Integer) requestBody.get("shop_id");//todo:通过coupon_type来判断
+            }
             couponService.createCoupon(coupon_type,start_time,end_time,scope,request,off,total,claim_limit,max_unused_count,shop_id);
             System.out.println("ok");
             return ResponseEntity.status(HttpStatus.OK).body("优惠券创建成功");
@@ -187,8 +209,28 @@ public class CouponRouter {
             Integer coupon_id = (Integer) requestBody.get("coupon_id");
             String start_time = (String) requestBody.get("start_time");
             String end_time = (String) requestBody.get("end_time");
-            double request = ((Integer) requestBody.get("request")).doubleValue();
-            double off = ((Integer) requestBody.get("off")).doubleValue();
+//            double request = ((Integer) requestBody.get("request")).doubleValue();
+//            double off = ((Integer) requestBody.get("off")).doubleValue();
+            Object requestObj = requestBody.get("request");
+            Object offObj = requestBody.get("off");
+            double request;
+            double off;
+            // 对 "request" 对应的值进行类型检查和转换
+            if (requestObj instanceof Integer) {
+                request = ((Integer) requestObj).doubleValue();
+            } else if (requestObj instanceof Double) {
+                request = (Double) requestObj;
+            } else {
+                throw new IllegalArgumentException("Unsupported data type for 'request'");
+            }
+            // 对 "off" 对应的值进行类型检查和转换
+            if (offObj instanceof Integer) {
+                off = ((Integer) offObj).doubleValue();
+            } else if (offObj instanceof Double) {
+                off = (Double) offObj;
+            } else {
+                throw new IllegalArgumentException("Unsupported data type for 'off'");
+            }
             BigInteger total = new BigInteger(requestBody.get("total").toString());
             Integer claim_limit = (Integer) requestBody.get("claim_limit");
             Integer max_unused_count = (Integer) requestBody.get("max_unused_count");
