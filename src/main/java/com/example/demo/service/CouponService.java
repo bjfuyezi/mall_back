@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 //@Transactional
@@ -43,6 +44,56 @@ public class CouponService {
      *   -店铺id：shop_id,如果是平台券则为0
      * */
     // 加券,检查合格--浮笙
+    public void createCoupon(String type, String start_time,String end_time,String scope,double request,double off, BigInteger total,int claim_limit,int max_unused_count,int shop_id) throws Exception {
+        // 使用 Utils.TimetoDate 方法解析日期
+        Date start = Utils.TimetoDate(start_time,true);
+        Date end = Utils.TimetoDate(end_time,true);
+        System.out.println("Start: " + start);
+        System.out.println("End: " + end);
+        CouponType coupon_type = getTypeFromString(type);
+        Coupon coupon = new Coupon(coupon_type,start,end,scope,request,off,total,claim_limit,max_unused_count,shop_id);
+        if(coupon_type==CouponType.shop && Objects.equals(scope, "[]")){
+            throw new IllegalArgumentException("店铺券至少需要一个适用商品");
+        }
+        // 先进行检查
+        if (request <= 0 || off <= 0) {
+            throw new IllegalArgumentException("最低消费或折扣金额必须为正");
+        }
+        if(request<off){
+            throw new IllegalArgumentException("最低消费不能小于折扣金额");
+        }
+        if (total.compareTo(BigInteger.ZERO) <= 0) {
+            throw new IllegalArgumentException("总数量必须为正");
+        }
+        if (claim_limit <= 0 || max_unused_count <= 0) {
+            throw new IllegalArgumentException("领取限制或未使用限制必须为正");
+        }
+        if (start.after(end)) {
+            throw new IllegalArgumentException("开始时间不能晚于结束时间");
+        }
+        if (start.before(new Date())){
+            throw new IllegalArgumentException("开始时间不能早于当前时间");
+        }
+        // 设置状态和创建时间
+        coupon.setCoupon_status(CouponStatus.Pending);
+        coupon.setCreate_time(new Date());
+        // 调用 Mapper 插入数据库
+        int rowsAffected = couponMapper.createCoupon(coupon);
+        System.out.println(rowsAffected);
+        if (rowsAffected <= 0) {
+            throw new Exception("优惠券创建失败");
+        }
+    }
+    private CouponType getTypeFromString(String type){
+        if (type == null) {
+            throw new IllegalArgumentException("Coupon type cannot be null");
+        }
+        return switch (type.toUpperCase()) { // 将输入的字符串转换为大写，以匹配枚举的常量
+            case "SHOP" -> CouponType.shop;
+            case "PLATFORM" -> CouponType.platform;
+            default -> throw new IllegalArgumentException("Invalid coupon type: " + type);
+        };
+    }
     public void createCoupon( Coupon coupon) throws Exception {
         // 使用 Utils.TimetoDate 方法解析日期
         Date start = coupon.getStart_time();
@@ -325,6 +376,32 @@ public class CouponService {
         }
     }
 
+    public void resumeCoupon(Integer coupon_id) throws Exception {
+        Coupon coupon = couponMapper.selectCouponById(coupon_id);
+        if (coupon == null) {
+            throw new IllegalArgumentException("优惠券不存在");
+        }
+
+        // 更新优惠券的状态，确保依据有效期和当前时间判断正确状态
+        CouponStatus before = coupon.getCoupon_status();
+        int updateNum = couponMapper.updateCouponStatusByNowTime(coupon_id);
+        coupon = couponMapper.selectCouponById(coupon_id);
+        if (updateNum > 0) {
+            System.out.println(coupon);
+            System.out.println("优惠券" + coupon_id + "的状态从" + before + "变成了" + coupon.getCoupon_status());
+        }
+        if (coupon.getCoupon_status() != CouponStatus.Paused) {
+            throw new IllegalArgumentException("当前优惠券不在暂停状态，无法恢复领取");
+        }
+
+        // 调用 Mapper 恢复暂停的优惠券
+        int rowsAffected = couponMapper.resumePausedCoupon(coupon_id);
+        if (rowsAffected <= 0) {
+            throw new Exception("恢复优惠券领取失败");
+        }
+    }
+
+
     /*店铺加入参与某一平台券【刚开始的时候只会有未生效的券显示】【改】
      * 传入参数：
      *   - 店铺id：shop_id,前端传入
@@ -431,7 +508,6 @@ public class CouponService {
         System.out.println(coupon);
         couponMapper.updateCouponScope(coupon);
     }
-
     private String updateScopeForProducts(String currentScope, List<Integer> product_ids) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -445,6 +521,15 @@ public class CouponService {
         } catch (Exception e) {
             e.printStackTrace();
             return "[]"; // 如果出现异常，返回一个空的JSON数组
+        }
+    }
+
+    public Coupon selectById(Integer id) throws Exception {
+        Coupon coupon = couponMapper.selectCouponById(id);
+        if (coupon == null) {
+            throw new Exception("优惠券不存在");
+        }else{
+            return coupon;
         }
     }
 }
