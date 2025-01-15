@@ -132,6 +132,14 @@ public class UserService {
     public boolean updateUser(User user) {
         return userMapper.updateUser(user) > 0;
     }
+
+    public boolean updateStatus(Integer id, String role) {
+        User user = userMapper.selectById(id);
+        if ( user == null )
+            return false;
+        user.setRole(role);
+        return userMapper.updateUser(user) > 0;
+    }
     /**
      * 检查用户名是否已经存在
      *

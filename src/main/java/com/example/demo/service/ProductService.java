@@ -97,13 +97,14 @@ public class ProductService {
         return "false";
     }
 
-    public String changeStar(Integer pid,Integer uid) {
+    public String changeStar(Integer pid,Integer uid) throws JsonProcessingException {
         Integer result = userProductMapper.isStar(pid, uid);
         if ( result != 0 ) {
             userProductMapper.deleteStar(pid, uid);
             return "200";
         }
         userProductMapper.insert(pid, uid);
+        recommendService.insertRecommendInterest(uid, pid);
         return "200";
     }
 
