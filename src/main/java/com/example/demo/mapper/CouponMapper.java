@@ -51,7 +51,7 @@ public interface CouponMapper {
      * @param coupon_id 优惠券ID
      * @return 更新结果
      */
-    int pauseActiveCoupon(Integer coupon_id);
+    int pauseActiveCoupon(@Param("coupon_id")Integer coupon_id);
 
     // 更新券的范围
     void updateCouponScope(Coupon coupon);
@@ -59,4 +59,7 @@ public interface CouponMapper {
 
     int decrementCouponTotal(@Param("coupon_id") Integer coupon_id);
     // @Param 注解，MyBatis 会将参数封装为 Map，自动通过别名查找参数。
+
+    // 恢复暂停的优惠券
+    int resumePausedCoupon(@Param("coupon_id") Integer coupon_id);
 }
