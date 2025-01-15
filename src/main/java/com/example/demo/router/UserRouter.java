@@ -1,5 +1,6 @@
 package com.example.demo.router;
 
+import com.example.demo.enums.UserRole;
 import com.example.demo.pojo.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,6 +151,30 @@ public class UserRouter {
             response.put("status", "error");
             response.put("message", "获取用户信息失败: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 更新用户状态
+     *
+     * @param
+     * @return 如果更新成功返回 200 OK，否则返回 400 Bad Request
+     */
+    @PostMapping("/updateStatus")
+    public ResponseEntity<Void> updateStatus(@RequestBody Map<String, Object> s) {
+        try {
+            String role = (String) s.get("role");
+            Integer id = (Integer) s.get("id");
+            boolean updated = userService.updateStatus(id, role);
+            if (updated) {
+                return new ResponseEntity<>(HttpStatus.OK); // 200 OK
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
 

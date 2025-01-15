@@ -210,7 +210,7 @@ public class ProductRouter {
     }
 
     /**
-     * 查询是否收藏商品。
+     * 变更收藏商品。
      *
      * @param request     查询体
      * @return 如果成功，则返回总销量；如果未找到，则返回 null。
