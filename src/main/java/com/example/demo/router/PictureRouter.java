@@ -25,8 +25,8 @@ public class PictureRouter {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            pictureService.save_picture(file);
-            return new ResponseEntity<>(HttpStatus.OK);
+            int k = pictureService.save_picture(file);
+            return new ResponseEntity<>(String.valueOf(k),HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>("图片无法解析",HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (NameException e) {
@@ -73,10 +73,8 @@ public class PictureRouter {
     @PostMapping("/getManyUrl")
     public ResponseEntity<String> getManyUrl(@RequestBody Map<String, Object> ids) {
         String picturesId = (String) ids.get("id"); // 从请求体中获取id
-        System.out.println(picturesId+"z");
         try {
             String urls = pictureService.getManyImageUrl(picturesId);
-            System.out.println(urls);
             return new ResponseEntity<>(urls, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

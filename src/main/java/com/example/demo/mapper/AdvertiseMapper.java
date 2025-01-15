@@ -20,7 +20,7 @@ public interface AdvertiseMapper {
     Advertise selectById(@Param("id") int id);
     void updateStatus(@Param("id") int id, @Param("status") AdvertisementStatus status,@Param("reason") String reason);
     void deleteAdvertise(@Param("id") int id);
-    void updateInfo(@Param("id") int id, @Param("name") String name, @Param("updated") Date time);
+    void updateInfo(@Param("id") int id, @Param("name") String name, @Param("updated") Date time,@Param("pic") int pic);
     void addAdvertise(Advertise advertise);
     void updateReason(@Param("id") int id, @Param("status") AdvertisementStatus status, @Param("reason") String reason);
 }
