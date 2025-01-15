@@ -21,5 +21,6 @@ public interface ShopMapper {
     void deleteById(@Param("id") int id);
     void updateShop(Shop shop);
     void createShop(Shop shop);
+    void updateReason(Shop shop);
     List<Shop> selectAllWaitingShop();
 }

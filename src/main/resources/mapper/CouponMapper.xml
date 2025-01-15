@@ -24,7 +24,7 @@
             (
                 (NOW() &lt; start_time AND coupon_status != 'Pending') OR
                 (NOW() &gt;= start_time AND NOW() &lt;= end_time AND coupon_status NOT IN ('Active', 'Paused')) OR
-                (NOW() &gt; end_time AND coupon_status != 'Expired')
+                (NOW() &gt; end_time AND coupon_status NOT IN ('Expired', 'Paused'))
             )
     </update>
 
@@ -112,5 +112,15 @@
     <update id="decrementCouponTotal">
         UPDATE coupons SET total = total - 1
         WHERE coupon_id = #{coupon_id} AND total > 0
+    </update>
+
+    <update id="resumePausedCoupon">
+        UPDATE coupons
+        SET coupon_status = CASE
+                WHEN now() BETWEEN start_time AND end_time THEN 'Active'
+                WHEN now() > end_time THEN 'Expired'
+                ELSE coupon_status
+            END
+        WHERE coupon_id = #{coupon_id} AND coupon_status = 'Paused';
     </update>
 </mapper>

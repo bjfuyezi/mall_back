@@ -4,6 +4,7 @@ import com.example.demo.config.Utils;
 import com.example.demo.enums.CouponStatus;
 import com.example.demo.enums.CouponType;
 import com.example.demo.pojo.Coupon;
+import com.example.demo.pojo.Product;
 import com.example.demo.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,21 +64,21 @@ public class CouponRouter {
      * }*/
     @PostMapping("/create")
     public ResponseEntity<String> createCoupon(
-            @RequestBody Coupon coupon
+            @RequestBody Map<String,Object> requestBody
     ) {
         try {
-//            System.out.println("Coupon Type: " + coupon.getCoupon_type());
-//            System.out.println("Start Time class" + coupon.getStart_time().getClass());
-//            System.out.println("Start Time: " + coupon.getStart_time());
-//            System.out.println("End Time: " + coupon.getEnd_time());
-//            System.out.println("Scope: " + coupon.getScope());
-//            System.out.println("Request: " + coupon.getRequest());
-//            System.out.println("Off: " + coupon.getOff());
-//            System.out.println("Total: " + coupon.getTotal());
-//            System.out.println("Claim Limit: " + coupon.getClaim_limit());
-//            System.out.println("Max Unused Count: " + coupon.getMax_unused_count());
-//            System.out.println("Shop ID: " + coupon.getShop_id());
-            couponService.createCoupon(coupon);
+            String coupon_type = (String) requestBody.get("coupon_type");
+            String start_time = (String) requestBody.get("start_time");
+            String end_time = (String) requestBody.get("end_time");
+            Double request = (Double) requestBody.get("request");
+            Double off = (Double) requestBody.get("off");
+            String scope = (String) requestBody.get("scope");
+            BigInteger total = new BigInteger(requestBody.get("total").toString());
+            Integer claim_limit = (Integer) requestBody.get("claim_limit");
+            Integer max_unused_count = (Integer) requestBody.get("max_unused_count");
+            Integer shop_id = (Integer) requestBody.get("shop_id");
+
+            couponService.createCoupon(coupon_type,start_time,end_time,scope,request,off,total,claim_limit,max_unused_count,shop_id);
             System.out.println("ok");
             return ResponseEntity.status(HttpStatus.OK).body("优惠券创建成功");
         } catch (IllegalArgumentException e) {
@@ -87,6 +88,31 @@ public class CouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("创建失败: " + e.getMessage());
         }
     }
+//    public ResponseEntity<String> createCoupon(
+//            @RequestBody Coupon coupon
+//    ) {
+//        try {
+////            System.out.println("Coupon Type: " + coupon.getCoupon_type());
+////            System.out.println("Start Time class" + coupon.getStart_time().getClass());
+////            System.out.println("Start Time: " + coupon.getStart_time());
+////            System.out.println("End Time: " + coupon.getEnd_time());
+////            System.out.println("Scope: " + coupon.getScope());
+////            System.out.println("Request: " + coupon.getRequest());
+////            System.out.println("Off: " + coupon.getOff());
+////            System.out.println("Total: " + coupon.getTotal());
+////            System.out.println("Claim Limit: " + coupon.getClaim_limit());
+////            System.out.println("Max Unused Count: " + coupon.getMax_unused_count());
+////            System.out.println("Shop ID: " + coupon.getShop_id());
+//            couponService.createCoupon(coupon);
+//            System.out.println("ok");
+//            return ResponseEntity.status(HttpStatus.OK).body("优惠券创建成功");
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("创建失败,格式不符合要求: " + e.getMessage());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("创建失败: " + e.getMessage());
+//        }
+//    }
 
     /*删除某券【删】
     * 传入参数：
@@ -152,7 +178,7 @@ public class CouponRouter {
     /*券未生效前，修改券的内容【改】
     * 可以修改：开始时间、结束时间、适用范围、最低消费、满减金额、总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
     * 传入券的id和要修改的内容*/
-    @PutMapping("/update/pending")
+    @PostMapping("/update/pending")
     public ResponseEntity<String> updatePendingCoupon(
             @RequestBody Map<String,Object> requestBody ) {
         try {
@@ -180,39 +206,11 @@ public class CouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未生效优惠券修改失败: " + e.getMessage());
         }
     }
-//    @PutMapping("/update/pending/{coupon_id}")
-//    public ResponseEntity<String> updatePendingCoupon(
-//            @PathVariable Integer coupon_id,
-//            @RequestParam String start_time,
-//            @RequestParam String end_time,
-//            @RequestParam Double request,
-//            @RequestParam Double off,
-//            @RequestParam BigInteger total,
-//            @RequestParam Integer claim_limit,
-//            @RequestParam Integer max_unused_count) {
-//        try {
-//            System.out.println(coupon_id);
-//            System.out.println(start_time);
-//            System.out.println(end_time);
-//            System.out.println(request);
-//            System.out.println(off);
-//            System.out.println(total);
-//            System.out.println(claim_limit);
-//            System.out.println(max_unused_count);
-//            couponService.updatePendingCouponContent(coupon_id, start_time, end_time, request, off, total, claim_limit, max_unused_count);
-//            return ResponseEntity.ok("未生效优惠券修改成功");
-//        } catch (IllegalArgumentException e){
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("修改数据不合格: " + e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未生效优惠券修改失败: " + e.getMessage());
-//        }
-//    }
-
 
     /*券生效后，修改券的内容【改】
     * 可以修改：总数量、限制领取数量、单用户账户内未使用的此优惠券最大数量
     * 传入券的id和要修改的内容*/
-    @PutMapping("/update/active")
+    @PostMapping("/update/active")
     public ResponseEntity<String> updateActiveCoupon(
             @RequestBody Map<String,Object> requestBody) {
         try {
@@ -230,22 +228,6 @@ public class CouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("已生效优惠券修改失败: " + e.getMessage());
         }
     }
-//    @PutMapping("/update/active/{coupon_id}")
-//    public ResponseEntity<String> updateActiveCoupon(
-//            @PathVariable Integer coupon_id,
-//            @RequestParam BigInteger total,
-//            @RequestParam Integer claim_limit,
-//            @RequestParam Integer max_unused_count) {
-//        try {
-//            System.out.println(total);
-//            System.out.println(claim_limit);
-//            System.out.println(max_unused_count);
-//            couponService.updateActiveCouponContent(coupon_id, total, claim_limit, max_unused_count);
-//            return ResponseEntity.ok("已生效优惠券修改成功");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("已生效优惠券修改失败: " + e.getMessage());
-//        }
-//    }
 
 
     /*券生效后，暂停发放券【改】
@@ -259,6 +241,19 @@ public class CouponRouter {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("优惠券暂停发放失败: " + e.getMessage());
         }
     }
+
+    @PutMapping("/resume")
+    public ResponseEntity<String> resumeCoupon(@RequestParam Integer coupon_id) {
+        try {
+            couponService.resumeCoupon(coupon_id);
+            return ResponseEntity.ok("优惠券恢复领取成功");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("优惠券恢复领取失败: " + e.getMessage());
+        }
+    }
+
+    // TODO:恢复领取
+
 
     /*券生效前，不想发放券了，需要点击一个什么按钮【改/删】（todo:按钮想法
     * 传入券的id,将该券的状态设置为已失效，或者直接删除该券，此时该券必定没有用户领取【这个在删除券的地方已经实现了】*/
@@ -301,7 +296,23 @@ public class CouponRouter {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("更新失败："+e.getMessage());
         }
+    }
 
+    @PostMapping("/selectById")
+    public ResponseEntity<Coupon> selectById(@RequestBody Map<String, Object> request) {
+        try {
+            Integer id = (Integer) request.get("id");
+            Coupon t = couponService.selectById(id);
+            if (t != null) {
+                return new ResponseEntity<>(t, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // 记录异常信息到日志
+            System.out.println(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);//500 error
+        }
     }
 //    @PostMapping("/updateShopCouponScope")
 //    public ResponseEntity<String> updateShopCouponScope(

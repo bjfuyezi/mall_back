@@ -6,15 +6,21 @@ import com.example.demo.mapper.OrderMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.RecommendMapper;
 import com.example.demo.mapper.ShopMapper;
+import com.example.demo.enums.ShopStatus;
+import com.example.demo.mapper.*;
 import com.example.demo.pojo.Product;
 import com.example.demo.pojo.Recommend;
+import com.example.demo.pojo.Recommend;
 import com.example.demo.pojo.Shop;
+import com.example.demo.pojo.Vo.CommentVo;
+import com.example.demo.pojo.Vo.CommentVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 /*
@@ -38,6 +44,25 @@ public class ProductService {
     private OrderMapper orderMapper;
     @Autowired
     private RecommendMapper recommendMapper;
+    @Autowired
+    private UserProductMapper userProductMapper;
+    @Autowired
+    private CommentMapper commentMapper;
+
+    public List<Product> getAllProduct() {
+        return productMapper.getAllProduct();
+    }
+
+    public boolean insertReason(int id, ProductStatus status, String reason){
+        Product p = productMapper.selectById(id);
+        if(p == null){
+            return false;
+        }
+        p.setStatus(status);
+        p.setReason(reason);
+        productMapper.updateReason(p);
+        return true;
+    }
 
     public Integer getSalenumByShop_id(Integer id) {
         Integer sum = 0;
@@ -46,6 +71,51 @@ public class ProductService {
             sum += product.getSalenum();
         }
         return sum;
+    }
+
+    public Integer getStarById(Integer id) {
+        List<Integer> products = new ArrayList<>();
+        products = userProductMapper.selectAllByProductId(id);
+        return products.size();
+    }
+
+    public Integer getCommentById(Integer id) {
+        List<CommentVo> num = new ArrayList<>();
+        num = commentMapper.selectProductCommentVo(id);
+        return num.size();
+    }
+
+    public String deleteStar(Integer pid,Integer uid) {
+        userProductMapper.deleteStar(pid, uid);
+        return "200";
+    }
+
+    public String isStar(Integer pid,Integer uid) {
+        Integer result = userProductMapper.isStar(pid, uid);
+        if ( result != 0 )
+            return "true";
+        return "false";
+    }
+
+    public String changeStar(Integer pid,Integer uid) {
+        Integer result = userProductMapper.isStar(pid, uid);
+        if ( result != 0 ) {
+            userProductMapper.deleteStar(pid, uid);
+            return "200";
+        }
+        userProductMapper.insert(pid, uid);
+        return "200";
+    }
+
+    public List<Product> getAllStarByUserId(Integer id){
+        List<Integer> proList = new ArrayList<>();
+        List<Product> result = new ArrayList<>();
+        proList = userProductMapper.selectByUser(id);
+        for (Integer i : proList) {
+            Product product = productMapper.selectById(i);
+            result.add(product);
+         }
+        return result;
     }
 
     public List<Product> getAllByShop_id(Integer id) {
@@ -69,7 +139,7 @@ public class ProductService {
     public String updateProduct(String name, String category, Double price, String description, String unit, String notice, String stockJson, String imagesJson, Integer id) {
         Product product = productMapper.selectById(id);
         Product checkName = productMapper.selectByName(name);
-        if ( checkName != null )
+        if ( checkName != null && !Objects.equals(checkName.getProduct_id(), id))
             return "409";
         product.setName(name);
         product.setCategory(ProductType.valueOf(category));

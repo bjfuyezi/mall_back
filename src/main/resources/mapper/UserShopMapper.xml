@@ -3,7 +3,22 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.UserShopMapper">
-    <select id="selectByUser" parameterType="Integer" resultType="Integer">
-        SELECT product.product_id FROM user_shop,product WHERE user_shop.user_id = #{uid} AND product.shop_id = prodcut.shop_id
+    <select id="selectByUser" parameterType="Integer" resultType="com.example.demo.pojo.Shop">
+        SELECT shops.* FROM user_shop,shops WHERE user_shop.user_id = #{uid} AND user_shop.shop_id = shops.shop_id
     </select>
+    <select id="selectByUserAndShop" resultType="com.example.demo.pojo.UserShop">
+        SELECT * FROM user_shop WHERE user_id = #{uid} AND shop_id = #{sid}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO user_shop(user_id,shop_id,relation) VALUES (#{user_id},#{shop_id},#{relation})
+    </insert>
+
+    <update id="update">
+        UPDATE user_shop SET relation = #{relation} WHERE user_id = #{user_id} AND shop_id = #{shop_id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM user_shop WHERE user_id = #{uid} AND shop_id = #{sid}
+    </delete>
 </mapper>
