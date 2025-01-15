@@ -221,6 +221,7 @@ public class ProductService {
         List<Product> buyproducts = productMapper.selectBuyHistoryByUser(uid);//查询该用户所有购买过的商品
         buyproducts = new ArrayList<>(new HashSet<>(buyproducts));//去重
         Recommend recommend = recommendMapper.selectRecommend(uid);
+        Collections.shuffle(productall);
         if(recommend == null){
             List<Product> ps =productall.stream()
                     .sorted((p1, p2) -> Double.compare(p2.getGreedy(), p1.getGreedy()))
@@ -248,6 +249,43 @@ public class ProductService {
         System.out.println(products_content);
         recommendService.insertRecommendOther(uid,products_content);
 
+        return products_content;
+    }
+
+    public List<Product> getSearchview(int uid,String key) throws JsonProcessingException {
+        List<Product> productall = productMapper.selectByKey(key);//获取所有的售卖中商品
+        List<Product> buyproducts = productMapper.selectBuyHistoryByUser(uid);//查询该用户所有购买过的商品
+        buyproducts = new ArrayList<>(new HashSet<>(buyproducts));//去重
+        Recommend recommend = recommendMapper.selectRecommend(uid);
+        Collections.shuffle(productall);
+        if(recommend == null){
+            List<Product> ps =productall.stream()
+                    .sorted((p1, p2) -> Double.compare(p2.getGreedy(), p1.getGreedy()))
+                    .limit(40)
+                    .collect(Collectors.toList());
+            Recommend rec = new Recommend();
+            rec.setUser_id(uid);
+            recommendMapper.insertRecommend(rec);
+            recommendService.insertRecommendOther(uid,ps);
+            recommendService.insertRecommendSearch(uid,key);
+            return ps;
+        }
+
+        //获取上一轮之前已经看过的商品，避免重复推荐
+        List<Integer> others =recommendService.getOthersByUser(uid);
+
+        //基于用户行为的推荐
+        List<Product> products_content = recommendService.Bycontent(productall,others,buyproducts,uid,recommend);
+
+        //排除上一个方法推荐的商品，用另一种方法再获取20种推荐的商品，避免重复需要去除之前的结果
+        productall.removeAll(products_content);
+
+        //基于用户的协同过滤
+        List<Product> products_user = recommendService.Byuser(others,uid,recommend);
+        products_content.addAll(products_user);
+        System.out.println(products_content);
+        recommendService.insertRecommendOther(uid,products_content);
+        recommendService.insertRecommendSearch(uid,key);
         return products_content;
     }
 
