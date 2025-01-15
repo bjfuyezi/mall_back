@@ -18,6 +18,8 @@ public interface AdvertiseMapper {
     List<Advertise> selectByKey(@Param("key") String key);
     List<Advertise> selectBanners();
     Advertise selectById(@Param("id") int id);
+    List<Advertise> selectByShop(@Param("shop") int shop_id);
+    List<Advertise> selectByProduct(@Param("product") int product);
     void updateStatus(@Param("id") int id, @Param("status") AdvertisementStatus status,@Param("reason") String reason);
     void deleteAdvertise(@Param("id") int id);
     void updateInfo(@Param("id") int id, @Param("name") String name, @Param("updated") Date time,@Param("pic") int pic);

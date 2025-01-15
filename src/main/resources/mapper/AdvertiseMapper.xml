@@ -6,6 +6,12 @@
     <select id="selectAll" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements;
     </select>
+    <select id="selectByShop" resultType="com.example.demo.pojo.Advertise">
+        select * from advertisements WHERE shop_id = #{shop} AND status != 'expired';
+    </select>
+    <select id="selectByProduct" resultType="com.example.demo.pojo.Advertise">
+        select * from advertisements WHERE product_id = #{product} AND status != 'expired';
+    </select>
     <select id="selectAllByUser" resultType="com.example.demo.pojo.Advertise">
         select * from advertisements,shops where shops.user_id =#{user_id} AND advertisements.shop_id = shops.shop_id;
     </select>

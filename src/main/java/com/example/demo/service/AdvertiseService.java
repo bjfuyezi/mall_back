@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.Exception.NameException;
+import com.example.demo.Exception.NumException;
 import com.example.demo.config.Utils;
 import com.example.demo.enums.AdvertisementStatus;
 import com.example.demo.enums.AdvertisementType;
@@ -71,11 +73,14 @@ public class AdvertiseService {
         if(advertisement == null){
             return false;
         }
+        //若不是未支付表示提交成功
         if(advertisement.getStatus()!=AdvertisementStatus.unpaid){
-            return false;
+            return true;
         }
-        advertiseMapper.updateStatus(id,AdvertisementStatus.pending,null);
-        return true;
+        //没付款
+        advertiseMapper.deleteAdvertise(id);
+        //advertiseMapper.updateStatus(id,AdvertisementStatus.pending,null);
+        return false;
     }
     public List<Advertise> getBanners() {
         List<Advertise> advertises = advertiseMapper.selectBanners();
@@ -110,11 +115,22 @@ public class AdvertiseService {
     }
 
     public Advertise createAdvertise(int ps_id, AdvertisementType type,String start_time,String end_time,double price,
-                                int pic_id,boolean banner,int times,String name,int shop_id) throws ParseException {
+                                int pic_id,boolean banner,int times,String name,int shop_id) throws ParseException, NumException {
         Advertise advertise = new Advertise();
         Date d = new Date();
         //TO do :这里需要session获取商铺的id
         advertise.setShop_id(shop_id);
+        //判断当前有没有重复的
+        List<Advertise> as = new ArrayList<>();
+        if(banner){
+            as = advertiseMapper.selectByShop(shop_id);
+        }else{
+            as = advertiseMapper.selectByProduct(ps_id);
+        }
+        if(as != null&&as.size()>0){
+            throw new NumException();
+        }
+        //根据类别设置不同属性
         if(banner){
             if(type == AdvertisementType.product){
                 advertise.setProduct_id(ps_id);
