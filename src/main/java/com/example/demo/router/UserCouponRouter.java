@@ -111,4 +111,8 @@ public class UserCouponRouter {
 //        return success ? "使用成功！" : "使用失败，可能优惠券已失效或不存在！";
     }
 
+    @PostMapping("/getAvailable")
+    public ResponseEntity<Map<String,List<Object>>> getAvailableByProduct_ids(){
+        return null;
+    }
 }
