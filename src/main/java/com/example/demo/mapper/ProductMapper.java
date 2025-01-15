@@ -18,6 +18,7 @@ public interface ProductMapper {
     void updateStatus(Product product);
     List<Product> selectAllProductByShop_id(@Param("shop_id") int shop_id);
     List<Product> selectAll();
+    List<Product> selectByKey(@Param("key") String key);
     List<Product> getAllProduct();
     List<Product> selectBuyHistoryByUser(@Param("uid") int uid);
     List<Product> selectAllProductBySaleLocation(@Param("location") String location);
