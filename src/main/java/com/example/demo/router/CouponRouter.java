@@ -6,6 +6,7 @@ import com.example.demo.enums.CouponType;
 import com.example.demo.pojo.Coupon;
 import com.example.demo.pojo.Product;
 import com.example.demo.service.CouponService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -169,8 +170,9 @@ public class CouponRouter {
     *   - 店铺id：shop_id
     * 返回结果：
     *   - 该店铺当前所有已生效状态Active的店铺优惠券*/
-    @GetMapping("/shop/{shop_id}/active")
-    public ResponseEntity<List<Coupon>> getActiveShopCoupons(@PathVariable Integer shop_id) {
+    @GetMapping("/shop/active")
+    public ResponseEntity<List<Coupon>> getActiveShopCoupons(@RequestParam Integer shop_id) {
+        System.out.println("shop_id:"+shop_id);
         List<Coupon> coupons = couponService.getActiveShopCoupons(shop_id);
         return ResponseEntity.ok(coupons);
     }
@@ -257,6 +259,17 @@ public class CouponRouter {
 
     /*券生效前，不想发放券了，需要点击一个什么按钮【改/删】（todo:按钮想法
     * 传入券的id,将该券的状态设置为已失效，或者直接删除该券，此时该券必定没有用户领取【这个在删除券的地方已经实现了】*/
+
+    // 传入用户id，判断该商家可以加入哪些平台券的活动
+    @GetMapping("/getAddPlatformCoupons")
+    public ResponseEntity<List<Coupon>> getPlatformCouponsForShop(@RequestParam int userId) {
+        try {
+            System.out.println("Received userId: " + userId); // 添加日志
+            return ResponseEntity.ok(couponService.getPlatformCouponsForShop(userId));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /*店铺加入参与某一平台券【改】
     * 传入参数：

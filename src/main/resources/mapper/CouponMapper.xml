@@ -123,4 +123,10 @@
             END
         WHERE coupon_id = #{coupon_id} AND coupon_status = 'Paused';
     </update>
+
+    <select id="getPendingPlatformCoupon" resultType="com.example.demo.pojo.Coupon">
+        SELECT * FROM coupons
+        WHERE coupon_type = 'platform' AND coupon_status = 'Pending'
+        ORDER BY create_time DESC
+    </select>
 </mapper>
